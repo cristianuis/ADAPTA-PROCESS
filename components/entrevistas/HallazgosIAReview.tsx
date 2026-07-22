@@ -15,6 +15,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { DIMENSION_LABEL, type DimensionProceso } from "@/lib/pemm/descriptores";
 import type { Database } from "@/lib/supabase/types";
 
 type Entrevista = Database["public"]["Tables"]["entrevistas"]["Row"];
@@ -31,6 +40,8 @@ export function HallazgosIAReview({ entrevista }: { entrevista: Entrevista }) {
   const [isAnalizando, startAnalisis] = useTransition();
   const [isValidando, startValidacion] = useTransition();
   const [esfuerzos, setEsfuerzos] = useState<Record<number, number>>({});
+  // Reemplaza el confirm() nativo del navegador (Bloque 2.4) — mismo flujo, diálogo propio.
+  const [confirmacionPendiente, setConfirmacionPendiente] = useState<string | null>(null);
 
   const yaValidados = new Set((entrevista.hallazgos_validados ?? []).map((h) => h.indice));
 
@@ -48,10 +59,7 @@ export function HallazgosIAReview({ entrevista }: { entrevista: Entrevista }) {
       const data = await res.json();
 
       if (res.status === 409 && data.requiereConfirmacion) {
-        const acepta = window.confirm(
-          `${data.error}\n\n¿Quieres continuar de todas formas? Los hallazgos ya validados de esta entrevista podrían quedar desalineados.`
-        );
-        if (acepta) analizar(true);
+        setConfirmacionPendiente(data.error);
         return;
       }
 
@@ -62,6 +70,11 @@ export function HallazgosIAReview({ entrevista }: { entrevista: Entrevista }) {
       toast.success(`IA propuso ${data.analisis.hallazgos.length} hallazgo(s). Revísalos antes de validar.`);
       router.refresh();
     });
+  }
+
+  function confirmarReanalisis() {
+    setConfirmacionPendiente(null);
+    analizar(true);
   }
 
   function aprobar(indice: number) {
@@ -137,6 +150,11 @@ export function HallazgosIAReview({ entrevista }: { entrevista: Entrevista }) {
                 </CardHeader>
                 <CardContent className="flex flex-col gap-3">
                   <p className="text-sm">{h.descripcion}</p>
+                  {h.habilitador_pemm && (
+                    <p className="text-xs font-medium text-muted-foreground">
+                      Habilitador PEMM: {DIMENSION_LABEL[h.habilitador_pemm as DimensionProceso]}
+                    </p>
+                  )}
                   <p className="text-xs italic text-muted-foreground">&quot;{h.cita_soporte}&quot;</p>
                   {validado ? (
                     <p className="text-xs font-medium text-success">✓ Validado y agregado a hallazgos</p>
@@ -169,6 +187,29 @@ export function HallazgosIAReview({ entrevista }: { entrevista: Entrevista }) {
           })}
         </div>
       )}
+
+      <Dialog open={confirmacionPendiente !== null} onOpenChange={(open) => !open && setConfirmacionPendiente(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Volver a analizar esta entrevista</DialogTitle>
+            <DialogDescription>
+              {confirmacionPendiente}
+              <br />
+              <br />
+              ¿Quieres continuar de todas formas? Los hallazgos ya validados de esta entrevista podrían quedar
+              desalineados.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmacionPendiente(null)}>
+              Cancelar
+            </Button>
+            <Button onClick={confirmarReanalisis} disabled={isAnalizando}>
+              Continuar de todas formas
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
