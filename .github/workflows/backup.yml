@@ -77,5 +77,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "backup-$FECHA" "adapta-os-backup-$FECHA.dump" \
+            --repo "${{ github.repository }}" \
             --title "Backup $FECHA" \
             --notes "Backup automático diario de la base de datos de Supabase (ADAPTA OS). Formato: pg_dump custom (-F c). Ver README_BACKUP.md para restaurar."
