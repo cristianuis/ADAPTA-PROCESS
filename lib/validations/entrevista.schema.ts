@@ -28,6 +28,11 @@ export const hallazgoIASchema = z.object({
   impacto_estimado: z.number().min(1).max(5),
   cita_soporte: z.string().min(10, "La cita de soporte debe tener contenido real"),
   confianza: z.enum(["alta", "media", "baja"]),
+  // Habilitador PEMM (Hammer) que sustenta el hallazgo cuando categoria="proceso".
+  // Obliga al modelo a anclar el diagnóstico a un habilitador concreto en vez de
+  // una afirmación genérica de "madurez baja". Null cuando la categoría no es "proceso"
+  // o el hallazgo no corresponde a ningún habilitador específico.
+  habilitador_pemm: z.enum(["diseno", "ejecutores", "responsable", "infraestructura", "indicadores"]).nullable(),
 });
 
 export const analisisEntrevistaSchema = z.object({

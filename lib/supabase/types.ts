@@ -73,6 +73,8 @@ export interface HallazgoIA {
   impacto_estimado: number;
   cita_soporte: string;
   confianza: "alta" | "media" | "baja";
+  // Habilitador PEMM (Hammer) que sustenta el hallazgo cuando categoria="proceso"; null en otro caso.
+  habilitador_pemm: "diseno" | "ejecutores" | "responsable" | "infraestructura" | "indicadores" | null;
   promovido?: boolean;
   indice?: number;
   hallazgo_id?: string;
@@ -92,6 +94,9 @@ export interface Database {
           color_primario: string;
           color_secundario: string;
           tarifa_hora_objetivo: number | null;
+          // Bloque 1.3 — referencia de voz opcional del consultor, inyectada en prompts de
+          // redacción solo si tiene contenido (ver lib/ia/estilo-consultor.ts).
+          ejemplos_estilo: string | null;
           created_at: string;
         };
         Insert: {
@@ -104,6 +109,7 @@ export interface Database {
           color_primario?: string;
           color_secundario?: string;
           tarifa_hora_objetivo?: number | null;
+          ejemplos_estilo?: string | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["consultores"]["Insert"]>;

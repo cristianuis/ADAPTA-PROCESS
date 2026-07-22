@@ -13,6 +13,7 @@ import {
   AlignmentType,
   ShadingType,
 } from "docx";
+import { determinarMarcoMetodologico } from "@/lib/documentos/marco-metodologico";
 import type { Database } from "@/lib/supabase/types";
 
 type Consultor = Database["public"]["Tables"]["consultores"]["Row"];
@@ -49,6 +50,15 @@ function celda(texto: string, opts: { bold?: boolean; shade?: string } = {}) {
 export function generarManualProcesos(datos: DatosManualProcesos): Document {
   const { consultor, cliente, proyecto, procesos } = datos;
   const colorPrimario = consultor.color_primario || "#1A4731";
+
+  const marcoMetodologico = determinarMarcoMetodologico({
+    tienePemm: false,
+    tieneSipoc: procesos.some((p) => p.sipoc !== null),
+    tieneProcesosClasificados: procesos.length > 0,
+    tieneIndicadores: procesos.some((p) => p.indicadores.length > 0),
+    tieneHallazgoAltoImpactoProceso: false,
+    tieneResistenciaCambio: false,
+  });
 
   function heading(texto: string, nivel: (typeof HeadingLevel)[keyof typeof HeadingLevel] = HeadingLevel.HEADING_1) {
     return new Paragraph({
@@ -161,6 +171,21 @@ export function generarManualProcesos(datos: DatosManualProcesos): Document {
           new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 100 }, children: [new TextRun({ text: proyecto.nombre, size: 22, color: "6B7268" })] }),
           new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 600 }, children: [new TextRun({ text: HOY, size: 20 })] }),
           ...seccionesProcesos,
+
+          // Marco metodológico aplicado (Bloque 1.2) — solo lo que efectivamente se usó en este proyecto.
+          ...(marcoMetodologico.length > 0
+            ? [
+                new Paragraph({ pageBreakBefore: true, children: [] }),
+                heading("Marco metodológico aplicado"),
+                ...marcoMetodologico.flatMap((ref) => [
+                  new Paragraph({
+                    spacing: { before: 100 },
+                    children: [new TextRun({ text: ref.framework, bold: true })],
+                  }),
+                  new Paragraph({ spacing: { after: 150 }, children: [new TextRun(ref.aplicacion)] }),
+                ]),
+              ]
+            : []),
         ],
       },
     ],

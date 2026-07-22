@@ -16,6 +16,7 @@ import {
 } from "docx";
 import { ARQUETIPO_INFO } from "@/lib/triage/clasificar-arquetipo";
 import { DIMENSION_LABEL, DIMENSIONES_PROCESO, DIMENSIONES_EMPRESA, type Dimension } from "@/lib/pemm/descriptores";
+import { determinarMarcoMetodologico } from "@/lib/documentos/marco-metodologico";
 import type { Database, Arquetipo } from "@/lib/supabase/types";
 
 type Consultor = Database["public"]["Tables"]["consultores"]["Row"];
@@ -33,6 +34,8 @@ export interface DatosInformeDiagnostico {
   evaluacionesPemm: PemmEvaluacion[];
   hallazgos: Hallazgo[];
   resumenEjecutivo: string;
+  /** Solo se usa para detectar señales de resistencia al cambio (Marco metodológico, Bloque 1.2). */
+  nivelesResistencia: (string | null)[];
 }
 
 const HOY = new Date().toLocaleDateString("es-CO", { year: "numeric", month: "long", day: "numeric" });
@@ -54,8 +57,17 @@ function celda(texto: string, opts: { bold?: boolean; shade?: string } = {}) {
 }
 
 export function generarInformeDiagnostico(datos: DatosInformeDiagnostico): Document {
-  const { consultor, cliente, proyecto, triage, evaluacionesPemm, hallazgos, resumenEjecutivo } = datos;
+  const { consultor, cliente, proyecto, triage, evaluacionesPemm, hallazgos, resumenEjecutivo, nivelesResistencia } = datos;
   const colorPrimario = consultor.color_primario || "#1A4731";
+
+  const marcoMetodologico = determinarMarcoMetodologico({
+    tienePemm: evaluacionesPemm.some((ev) => ev.estado === "respondida"),
+    tieneSipoc: false,
+    tieneProcesosClasificados: false,
+    tieneIndicadores: false,
+    tieneHallazgoAltoImpactoProceso: hallazgos.some((h) => h.categoria === "proceso" && h.impacto >= 4),
+    tieneResistenciaCambio: nivelesResistencia.some((n) => n === "medio" || n === "alto"),
+  });
 
   const seccionesPemm = evaluacionesPemm
     .filter((ev) => ev.estado === "respondida")
@@ -185,6 +197,20 @@ export function generarInformeDiagnostico(datos: DatosInformeDiagnostico): Docum
 
           // Hallazgos
           ...tablaHallazgos,
+
+          // Marco metodológico aplicado (Bloque 1.2) — solo lo que efectivamente se usó en este proyecto.
+          ...(marcoMetodologico.length > 0
+            ? [
+                heading("Marco metodológico aplicado", colorPrimario),
+                ...marcoMetodologico.flatMap((ref) => [
+                  new Paragraph({
+                    spacing: { before: 100 },
+                    children: [new TextRun({ text: ref.framework, bold: true })],
+                  }),
+                  new Paragraph({ spacing: { after: 150 }, children: [new TextRun(ref.aplicacion)] }),
+                ]),
+              ]
+            : []),
         ],
       },
     ],

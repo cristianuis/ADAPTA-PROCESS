@@ -43,7 +43,7 @@ export async function guardarPerfilConsultor(input: ConsultorInput) {
 
   if (!user) redirect("/login");
 
-  const { nombre, empresa, colorPrimario, colorSecundario, tarifaHoraObjetivo } = parsed.data;
+  const { nombre, empresa, colorPrimario, colorSecundario, tarifaHoraObjetivo, ejemplosEstilo } = parsed.data;
 
   const { error } = await supabase.from("consultores").upsert(
     {
@@ -54,6 +54,7 @@ export async function guardarPerfilConsultor(input: ConsultorInput) {
       color_primario: colorPrimario,
       color_secundario: colorSecundario,
       tarifa_hora_objetivo: tarifaHoraObjetivo ?? null,
+      ejemplos_estilo: ejemplosEstilo || null,
     },
     { onConflict: "user_id" }
   );

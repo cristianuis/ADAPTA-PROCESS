@@ -31,10 +31,11 @@ export async function POST(req: Request) {
     return Response.json({ error: "Proyecto no encontrado." }, { status: 404 });
   }
 
-  const [{ data: triage }, { data: evaluacionesPemm }, { data: hallazgos }] = await Promise.all([
+  const [{ data: triage }, { data: evaluacionesPemm }, { data: hallazgos }, { data: entrevistas }] = await Promise.all([
     supabase.from("triage_respuestas").select("*").eq("proyecto_id", proyectoId).maybeSingle(),
     supabase.from("pemm_evaluaciones").select("*").eq("proyecto_id", proyectoId),
     supabase.from("hallazgos").select("*").eq("proyecto_id", proyectoId).order("impacto", { ascending: false }),
+    supabase.from("entrevistas").select("nivel_resistencia").eq("proyecto_id", proyectoId),
   ]);
 
   const documento = generarInformeDiagnostico({
@@ -45,6 +46,7 @@ export async function POST(req: Request) {
     evaluacionesPemm: evaluacionesPemm ?? [],
     hallazgos: hallazgos ?? [],
     resumenEjecutivo,
+    nivelesResistencia: (entrevistas ?? []).map((e) => e.nivel_resistencia),
   });
 
   const buffer = await Packer.toBuffer(documento);

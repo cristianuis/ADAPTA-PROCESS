@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireConsultor } from "@/lib/actions/consultores";
 import { createClient } from "@/lib/supabase/server";
 import { ARQUETIPO_INFO } from "@/lib/triage/clasificar-arquetipo";
+import { construirBloqueEstiloConsultor } from "@/lib/ia/estilo-consultor";
 import type { Arquetipo } from "@/lib/supabase/types";
 import { verificarLimite } from "@/lib/rate-limit";
 import { registrarLlamadaIA } from "@/lib/actions/llamadas-ia";
@@ -10,9 +11,19 @@ import { registrarLlamadaIA } from "@/lib/actions/llamadas-ia";
 const MODELO = "claude-haiku-4-5-20251001";
 const bodySchema = z.object({ proyectoId: z.string().uuid() });
 
-const SYSTEM_PROMPT = `Eres un consultor senior redactando la sección "justificación metodológica" de una
-propuesta comercial de consultoría en procesos. Explica en 2 párrafos, en lenguaje de propuesta (no académico),
-por qué la ruta de intervención propuesta es la adecuada dado el arquetipo diagnosticado.
+export const SYSTEM_PROMPT = `Eres un consultor senior redactando la sección "justificación metodológica" de una
+propuesta comercial de consultoría en procesos, aplicando el Modelo ADAPTA. Explica en 2 párrafos, en lenguaje
+de propuesta (no académico ni genérico), por qué la ruta de intervención propuesta es la adecuada dado el
+arquetipo diagnosticado.
+
+TERMINOLOGÍA OBLIGATORIA:
+- Nombra el arquetipo por su título técnico exacto (ej. "Arquetipo B — Crecimiento") y conecta la
+  justificación directamente con el puntaje de triage y la respuesta que más pesó en esa clasificación.
+- Prohibido usar frases genéricas de propuesta comercial ("le ayudaremos a mejorar sus procesos", "juntos
+  construiremos una organización más eficiente") que no citen el dato específico de este cliente.
+- Cada párrafo debe anclarse al arquetipo, puntaje o alerta de gobierno recibidos en el contexto — nunca a
+  una afirmación que serviría igual para cualquier otro cliente.
+
 Responde solo con el texto, sin títulos ni markdown.`;
 
 export async function POST(req: Request) {
@@ -46,7 +57,16 @@ export async function POST(req: Request) {
   }
 
   const info = ARQUETIPO_INFO[triage.arquetipo_sugerido as Arquetipo];
-  const contexto = `Arquetipo diagnosticado: ${info.titulo}\nDescripción: ${info.descripcion}\nPuntaje de triage: ${triage.puntaje_total}`;
+  const contexto = `Arquetipo diagnosticado: ${info.titulo}
+Descripción: ${info.descripcion}
+Puntaje de triage: ${triage.puntaje_total}
+Disparador declarado por el cliente: ${triage.p5_disparador}
+${triage.alerta_gobierno ? "Alerta de gobierno societario activa (estructura de decisión difusa detectada en triage)." : "Sin alerta de gobierno."}`;
+
+  // Bloque 1.3 — inactivo por defecto: solo se agrega si el consultor configuró su propia
+  // referencia de voz en /perfil. Sin eso, el prompt es idéntico al de antes de este cambio.
+  const bloqueEstilo = construirBloqueEstiloConsultor(consultor.ejemplos_estilo);
+  const systemPrompt = bloqueEstilo ? `${SYSTEM_PROMPT}\n\n${bloqueEstilo}` : SYSTEM_PROMPT;
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   let response;
@@ -54,7 +74,7 @@ export async function POST(req: Request) {
     response = await anthropic.messages.create({
       model: MODELO,
       max_tokens: 800,
-      system: SYSTEM_PROMPT,
+      system: systemPrompt,
       messages: [{ role: "user", content: contexto }],
     });
   } catch (e) {

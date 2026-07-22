@@ -7,6 +7,7 @@ import { guardarPerfilConsultor } from "@/lib/actions/consultores";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface PerfilFormProps {
@@ -16,6 +17,7 @@ interface PerfilFormProps {
     colorPrimario: string;
     colorSecundario: string;
     tarifaHoraObjetivo: string;
+    ejemplosEstilo: string;
   };
 }
 
@@ -37,6 +39,7 @@ export function PerfilForm({ defaultValues }: PerfilFormProps) {
         colorPrimario: values.colorPrimario,
         colorSecundario: values.colorSecundario,
         tarifaHoraObjetivo: values.tarifaHoraObjetivo ? Number(values.tarifaHoraObjetivo) : null,
+        ejemplosEstilo: values.ejemplosEstilo,
       });
 
       if (result.error) {
@@ -122,6 +125,20 @@ export function PerfilForm({ defaultValues }: PerfilFormProps) {
               value={values.tarifaHoraObjetivo}
               onChange={(e) => handleChange("tarifaHoraObjetivo", e.target.value)}
             />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="ejemplosEstilo">Ejemplos de estilo (opcional)</Label>
+            <Textarea
+              id="ejemplosEstilo"
+              rows={5}
+              placeholder="Pega 2-3 párrafos tuyos como referencia de voz para los textos que genera la IA. Mientras esto esté vacío, la redacción no cambia."
+              value={values.ejemplosEstilo}
+              onChange={(e) => handleChange("ejemplosEstilo", e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Se usa como referencia de tono en el resumen ejecutivo y la justificación metodológica. Sin
+              contenido aquí, esos textos se generan exactamente igual que hoy.
+            </p>
           </div>
           <Button type="submit" disabled={isPending} className="self-start">
             Guardar perfil

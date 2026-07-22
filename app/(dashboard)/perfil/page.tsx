@@ -17,6 +17,7 @@ export default async function PerfilPage() {
           colorPrimario: consultor?.color_primario ?? "#1A4731",
           colorSecundario: consultor?.color_secundario ?? "#C8D830",
           tarifaHoraObjetivo: consultor?.tarifa_hora_objetivo?.toString() ?? "",
+          ejemplosEstilo: consultor?.ejemplos_estilo ?? "",
         }}
       />
       <p className="text-xs text-muted-foreground">Sesión: {user.email}</p>
