@@ -33,7 +33,18 @@ export async function guardarTriage(input: TriageFormInput) {
 
   const { proyectoId, p1, p2, p3, p4, p5, p6, notas } = parsed.data;
 
-  const { arquetipo, puntaje, alertaGobierno } = clasificarArquetipo({ p1, p2, p3, p4, p5, p6 });
+  const { data: proyecto } = await supabase
+    .from("proyectos")
+    .select("clientes(num_empleados, facturacion_anual)")
+    .eq("id", proyectoId)
+    .maybeSingle();
+
+  const cliente = proyecto?.clientes as { num_empleados: number | null; facturacion_anual: number | null } | null;
+
+  const { arquetipo, puntaje, alertaGobierno } = clasificarArquetipo(
+    { p1, p2, p3, p4, p5, p6 },
+    { numEmpleados: cliente?.num_empleados, facturacionAnual: cliente?.facturacion_anual }
+  );
 
   const { error: triageError } = await supabase.from("triage_respuestas").upsert(
     {

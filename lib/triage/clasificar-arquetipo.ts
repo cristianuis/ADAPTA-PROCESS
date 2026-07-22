@@ -15,11 +15,41 @@ export interface TriageResultado {
   alertaGobierno: boolean;
 }
 
+/** Datos de tamaño de la empresa (campos ya existentes en `clientes`), usados solo para
+ *  distinguir Tipo A de Tipo B cuando el puntaje de triage es bajo — ver `esEmpresaJovenPequena`. */
+export interface PerfilEmpresa {
+  numEmpleados?: number | null;
+  facturacionAnual?: number | null;
+}
+
+/** Umbral de empleados por debajo del cual una empresa cuenta como "pequeña" para el criterio de arquetipo. */
+export const EMPRESA_PEQUENA_EMPLEADOS_MAX = 15;
+
+/** Umbral de facturación anual (COP) por debajo del cual una empresa cuenta como "pequeña". */
+export const EMPRESA_PEQUENA_FACTURACION_MAX = 800_000_000;
+
 /**
- * Clasifica el arquetipo de intervención a partir de las 6 respuestas de triage.
+ * Una empresa se considera "joven/pequeña" si al menos uno de sus indicadores de tamaño
+ * disponibles está por debajo de su umbral (ver constantes arriba). Si no hay ningún dato
+ * de perfil cargado todavía (cliente sin `num_empleados`/`facturacion_anual` diligenciados),
+ * se asume joven/pequeña por defecto — preserva el comportamiento histórico del triage
+ * cuando esos campos aún no existen.
+ */
+export function esEmpresaJovenPequena(perfil?: PerfilEmpresa): boolean {
+  if (!perfil) return true;
+  const { numEmpleados, facturacionAnual } = perfil;
+  if (numEmpleados == null && facturacionAnual == null) return true;
+  if (typeof numEmpleados === "number" && numEmpleados <= EMPRESA_PEQUENA_EMPLEADOS_MAX) return true;
+  if (typeof facturacionAnual === "number" && facturacionAnual <= EMPRESA_PEQUENA_FACTURACION_MAX) return true;
+  return false;
+}
+
+/**
+ * Clasifica el arquetipo de intervención a partir de las 6 respuestas de triage y,
+ * opcionalmente, del perfil de tamaño de la empresa (ver `esEmpresaJovenPequena`).
  * Función pura — sin acceso a base de datos, ver Sección 9.A paso 6 del blueprint.
  */
-export function clasificarArquetipo(r: TriageInput): TriageResultado {
+export function clasificarArquetipo(r: TriageInput, perfil?: PerfilEmpresa): TriageResultado {
   const puntaje = r.p1 + r.p2 + r.p3 + r.p4 + r.p6;
   const alertaGobierno = r.p6 === 0;
 
@@ -30,7 +60,13 @@ export function clasificarArquetipo(r: TriageInput): TriageResultado {
     return { arquetipo: "C", puntaje, alertaGobierno };
   }
   if (puntaje <= 2) {
-    return { arquetipo: "A", puntaje, alertaGobierno };
+    // Puntaje bajo por sí solo no basta: una empresa establecida con caos de proceso
+    // (no joven/pequeña) y disparador de problema o crecimiento es Tipo B, no Tipo A.
+    // Aquí p5 solo puede ser "problema" o "crecimiento" (requisito_externo ya salió arriba).
+    if (esEmpresaJovenPequena(perfil)) {
+      return { arquetipo: "A", puntaje, alertaGobierno };
+    }
+    return { arquetipo: "B", puntaje, alertaGobierno };
   }
   if (puntaje <= 4 && r.p5 === "crecimiento") {
     return { arquetipo: "B", puntaje, alertaGobierno };
