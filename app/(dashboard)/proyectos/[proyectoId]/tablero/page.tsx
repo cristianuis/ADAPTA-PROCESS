@@ -3,15 +3,9 @@ import { obtenerProyecto } from "@/lib/actions/proyectos";
 import { obtenerTableroIndicadores } from "@/lib/actions/mediciones";
 import { TendenciaChart } from "@/components/mediciones/TendenciaChart";
 import { RegistrarMedicionForm } from "@/components/mediciones/RegistrarMedicionForm";
+import { SemaforoBadge } from "@/components/mediciones/SemaforoBadge";
 import { calcularSemaforo } from "@/lib/adopcion/calcular-adopcion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-
-const SEMAFORO_CLASE = {
-  verde: "bg-success/20 text-success",
-  amarillo: "bg-secondary/40 text-foreground",
-  rojo: "bg-destructive/20 text-destructive",
-};
 
 export default async function TableroPage({ params }: { params: Promise<{ proyectoId: string }> }) {
   const { proyectoId } = await params;
@@ -48,7 +42,7 @@ export default async function TableroPage({ params }: { params: Promise<{ proyec
                     <p className="text-xs text-muted-foreground">{procesoNombre}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    {semaforo && <Badge className={SEMAFORO_CLASE[semaforo]}>{semaforo}</Badge>}
+                    {semaforo && <SemaforoBadge estado={semaforo} />}
                     <RegistrarMedicionForm indicadorId={indicador.id} />
                   </div>
                 </CardHeader>

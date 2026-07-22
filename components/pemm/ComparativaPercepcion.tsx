@@ -2,6 +2,8 @@
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { DIMENSION_LABEL, type Dimension } from "@/lib/pemm/descriptores";
+import { TYPE_SCALE } from "@/lib/design/tokens";
+import { cn } from "@/lib/utils";
 import type { ComparativaPemm } from "@/lib/actions/pemm";
 
 export function ComparativaPercepcion({ datos }: { datos: ComparativaPemm[] }) {
@@ -33,9 +35,24 @@ export function ComparativaPercepcion({ datos }: { datos: ComparativaPemm[] }) {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-            <XAxis dataKey="dimension" tick={{ fontSize: 12 }} />
-            <YAxis domain={[0, 4]} tickCount={5} />
-            <Tooltip />
+            <XAxis dataKey="dimension" tick={{ className: TYPE_SCALE.meta }} />
+            <YAxis domain={[0, 4]} tickCount={5} tick={{ className: TYPE_SCALE.meta }} />
+            {/* Bloque B.4 — mismo patrón de tooltip que la matriz de priorización, no el default de recharts. */}
+            <Tooltip
+              content={({ active, payload, label }) => {
+                if (!active || !payload?.length) return null;
+                return (
+                  <div className="rounded-md border border-border bg-popover p-2 shadow-md">
+                    <p className={cn(TYPE_SCALE.body, "font-medium")}>{label}</p>
+                    {payload.map((entry, i) => (
+                      <p key={i} className={TYPE_SCALE.meta} style={{ color: entry.color }}>
+                        {entry.name}: {entry.value ?? "—"}
+                      </p>
+                    ))}
+                  </div>
+                );
+              }}
+            />
             <Legend />
             <Bar dataKey="Dirección" fill="var(--primary)" />
             <Bar dataKey="Mando medio" fill="var(--chart-3)" />

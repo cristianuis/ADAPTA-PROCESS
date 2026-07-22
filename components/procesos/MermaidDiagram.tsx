@@ -12,7 +12,24 @@ export function MermaidDiagram({ definicion }: { definicion: string }) {
     async function render() {
       try {
         const mermaid = (await import("mermaid")).default;
-        mermaid.initialize({ startOnLoad: false, theme: "neutral" });
+        // Bloque B.5 — tema "base" con las variables de color de la app en vez del
+        // tema "neutral" genérico de Mermaid, para que el diagrama se sienta parte
+        // de ADAPTA OS y no un elemento ajeno insertado en la pantalla.
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "base",
+          themeVariables: {
+            primaryColor: "var(--primary)",
+            primaryTextColor: "var(--primary-foreground)",
+            primaryBorderColor: "var(--primary)",
+            lineColor: "var(--border)",
+            secondaryColor: "var(--secondary)",
+            secondaryTextColor: "var(--secondary-foreground)",
+            tertiaryColor: "var(--muted)",
+            tertiaryTextColor: "var(--foreground)",
+            fontFamily: "inherit",
+          },
+        });
         const id = `mermaid-${Math.random().toString(36).slice(2)}`;
         const { svg } = await mermaid.render(id, definicion);
         if (!cancelado && ref.current) {

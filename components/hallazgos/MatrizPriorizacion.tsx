@@ -8,9 +8,11 @@ import {
   CartesianGrid,
   Tooltip,
   ReferenceLine,
+  ReferenceArea,
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import { TYPE_SCALE } from "@/lib/design/tokens";
 import type { Database } from "@/lib/supabase/types";
 
 type Hallazgo = Database["public"]["Tables"]["hallazgos"]["Row"];
@@ -30,6 +32,16 @@ const CUADRANTE_COLOR: Record<string, string> = {
   Relleno: "var(--muted-foreground)",
   Ingrato: "var(--destructive)",
 };
+
+// Bloque B.2 — las 4 zonas del cuadrante Impacto×Esfuerzo, con su nombre visible
+// de forma fija (no solo al pasar el mouse) para que se lea de un vistazo en
+// una reunión con cliente.
+const ZONAS = [
+  { x1: 0, x2: 3, y1: 3, y2: 6, nombre: "Victorias rápidas", posicion: "insideTopLeft" as const, color: CUADRANTE_COLOR["Victoria rápida"] },
+  { x1: 3, x2: 6, y1: 3, y2: 6, nombre: "Proyectos mayores", posicion: "insideTopRight" as const, color: CUADRANTE_COLOR["Proyecto mayor"] },
+  { x1: 0, x2: 3, y1: 0, y2: 3, nombre: "Rellenos", posicion: "insideBottomLeft" as const, color: CUADRANTE_COLOR.Relleno },
+  { x1: 3, x2: 6, y1: 0, y2: 3, nombre: "Ingratos", posicion: "insideBottomRight" as const, color: CUADRANTE_COLOR.Ingrato },
+];
 
 export function MatrizPriorizacion({ hallazgos }: { hallazgos: Hallazgo[] }) {
   const data = hallazgos.map((h) => ({
@@ -53,6 +65,19 @@ export function MatrizPriorizacion({ hallazgos }: { hallazgos: Hallazgo[] }) {
         <ResponsiveContainer width="100%" height="100%">
           <ScatterChart margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+            {ZONAS.map((zona) => (
+              <ReferenceArea
+                key={zona.nombre}
+                x1={zona.x1}
+                x2={zona.x2}
+                y1={zona.y1}
+                y2={zona.y2}
+                fill={zona.color}
+                fillOpacity={0.06}
+                stroke="none"
+                label={{ value: zona.nombre, position: zona.posicion, className: TYPE_SCALE.meta }}
+              />
+            ))}
             <XAxis
               type="number"
               dataKey="x"
