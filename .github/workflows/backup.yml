@@ -17,7 +17,7 @@ jobs:
     # Vive solo durante este job y se destruye al terminar — nunca es producción.
     services:
       restore_test_db:
-        image: postgres:16
+        image: postgres:17
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: restore_test
@@ -30,10 +30,10 @@ jobs:
           --health-retries=5
 
     steps:
-      - name: Instalar cliente de Postgres 16
+      - name: Instalar cliente de Postgres 17
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends postgresql-client-16
+          sudo apt-get install -y --no-install-recommends postgresql-client-17
 
       - name: Generar dump de la base de datos real (Supabase)
         env:
