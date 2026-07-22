@@ -1,0 +1,76 @@
+name: Backup diario de base de datos
+
+on:
+  schedule:
+    # 07:00 UTC = ~02:00 Colombia. Ajusta si prefieres otra hora.
+    - cron: "0 7 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    # Base de datos de PRUEBA efímera para validar la restauración en cada corrida.
+    # Vive solo durante este job y se destruye al terminar — nunca es producción.
+    services:
+      restore_test_db:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: restore_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Instalar cliente de Postgres 16
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends postgresql-client-16
+
+      - name: Generar dump de la base de datos real (Supabase)
+        env:
+          DATABASE_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "Falta el secret SUPABASE_DB_URL. Ver README_BACKUP.md." >&2
+            exit 1
+          fi
+          FECHA=$(date +%Y-%m-%d)
+          echo "FECHA=$FECHA" >> "$GITHUB_ENV"
+          pg_dump "$DATABASE_URL" --format=custom --no-owner --no-privileges \
+            --file="adapta-os-backup-$FECHA.dump"
+          ls -lh "adapta-os-backup-$FECHA.dump"
+
+      - name: Probar restauración contra la base de datos de prueba (nunca producción)
+        run: |
+          export PGPASSWORD=postgres
+          pg_restore \
+            --host=localhost --port=5432 --username=postgres --dbname=restore_test \
+            --no-owner --no-privileges \
+            "adapta-os-backup-$FECHA.dump" || true
+
+          TABLAS=$(psql --host=localhost --port=5432 --username=postgres --dbname=restore_test \
+            --tuples-only --no-align --command="select count(*) from information_schema.tables where table_schema='public'")
+
+          echo "Tablas restauradas en la base de prueba: $TABLAS"
+          if [ "$TABLAS" -lt 10 ]; then
+            echo "ERROR: la restauración de prueba no produjo las tablas esperadas (esperaba >= 10, encontré $TABLAS)." >&2
+            exit 1
+          fi
+          echo "Restauración de prueba verificada correctamente."
+
+      - name: Publicar el dump como GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "backup-$FECHA" "adapta-os-backup-$FECHA.dump" \
+            --title "Backup $FECHA" \
+            --notes "Backup automático diario de la base de datos de Supabase (ADAPTA OS). Formato: pg_dump custom (-F c). Ver README_BACKUP.md para restaurar."
