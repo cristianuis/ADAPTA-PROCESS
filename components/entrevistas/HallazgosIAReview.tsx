@@ -78,7 +78,10 @@ export function HallazgosIAReview({ entrevista }: { entrevista: Entrevista }) {
   }
 
   function aprobar(indice: number) {
-    const esfuerzo = esfuerzos[indice] ?? 3;
+    // Bloque 0.1 — el punto de partida es la estimación de la IA (ya no un default fijo
+    // de 3); el consultor sigue pudiendo ajustarlo antes de validar.
+    const esfuerzoIA = entrevista.hallazgos_ia?.[indice]?.esfuerzo_estimado ?? 3;
+    const esfuerzo = esfuerzos[indice] ?? esfuerzoIA;
     startValidacion(async () => {
       const result = await validarHallazgoIA({
         entrevistaId: entrevista.id,
@@ -162,7 +165,7 @@ export function HallazgosIAReview({ entrevista }: { entrevista: Entrevista }) {
                     <div className="flex items-center gap-3">
                       <span className="text-xs text-muted-foreground">Impacto estimado: {h.impacto_estimado}/5</span>
                       <Select
-                        value={(esfuerzos[indice] ?? 3).toString()}
+                        value={(esfuerzos[indice] ?? h.esfuerzo_estimado ?? 3).toString()}
                         onValueChange={(v) => setEsfuerzos((prev) => ({ ...prev, [indice]: Number(v) }))}
                       >
                         <SelectTrigger className="h-8 w-40 text-xs">

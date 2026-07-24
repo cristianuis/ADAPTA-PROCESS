@@ -47,6 +47,7 @@ Responde ÚNICAMENTE con JSON válido, sin preámbulo ni markdown, con esta estr
       "descripcion": string,
       "categoria": "proceso"|"gobierno"|"tecnologia"|"cultura"|"datos",
       "impacto_estimado": 1-5,
+      "esfuerzo_estimado": 1-5,
       "cita_soporte": string,
       "confianza": "alta"|"media"|"baja",
       "habilitador_pemm": "diseno"|"ejecutores"|"responsable"|"infraestructura"|"indicadores"|null
@@ -62,6 +63,11 @@ Reglas:
 - "habilitador_pemm" es obligatorio cuando categoria="proceso" y el hallazgo corresponde claramente a uno
   de los 5 habilitadores (diseño, ejecutores, responsable, infraestructura, indicadores); usa null solo si
   categoria≠"proceso" o el hallazgo no calza en ningún habilitador específico.
+- "esfuerzo_estimado" usa el mismo criterio de evidencia que "impacto_estimado": estímalo con base en lo que
+  la transcripción permite inferir sobre la complejidad de intervenir la causa (cuántos roles o sistemas
+  involucra, si requiere rediseño formal o solo un ajuste puntual, si depende de un tercero externo). Nunca
+  uses un valor por defecto ni copies el valor de impacto — son independientes: un hallazgo de alto impacto
+  puede tener esfuerzo bajo (ej. una victoria rápida) y viceversa.
 - En "señales_gobierno" reporta cualquier indicio de decisión difusa o conflicto de autoridad, usando el
   lenguaje de "concentración de decisión" o "conflicto de autoridad formal vs. real", no "malos jefes".
 - "cita_soporte" debe ser una cita textual corta de la transcripción, no un resumen.`;

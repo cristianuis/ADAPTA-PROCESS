@@ -35,8 +35,15 @@ export default async function EntrevistasPage({ params }: { params: Promise<{ pr
             <Link key={e.id} href={`/proyectos/${proyectoId}/entrevistas/${e.id}`}>
               <Card className="h-full transition-colors hover:border-primary">
                 <CardHeader className="flex flex-row items-start justify-between gap-2">
-                  <CardTitle className="text-base">{e.entrevistado_nombre}</CardTitle>
-                  {e.hallazgos_ia && <Badge className="bg-success/20 text-success">Analizada</Badge>}
+                  <CardTitle className="text-base">{e.entrevistado_nombre || "Enlace de autoservicio"}</CardTitle>
+                  <div className="flex shrink-0 gap-2">
+                    {e.origen === "autoservicio" && (
+                      <Badge className={e.estado === "pendiente" ? "bg-muted" : "bg-secondary/30 text-foreground"}>
+                        {e.estado === "pendiente" ? "Autoservicio · pendiente" : "Autoservicio"}
+                      </Badge>
+                    )}
+                    {e.hallazgos_ia && <Badge className="bg-success/20 text-success">Analizada</Badge>}
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <p className="text-xs text-muted-foreground">

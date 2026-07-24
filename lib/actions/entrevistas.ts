@@ -7,9 +7,14 @@ import { requireConsultor } from "@/lib/actions/consultores";
 import {
   entrevistaSchema,
   validarHallazgoSchema,
+  invitacionAutoservicioSchema,
+  respuestaAutoservicioSchema,
   type EntrevistaInput,
   type ValidarHallazgoInput,
+  type InvitacionAutoservicioInput,
+  type RespuestaAutoservicioInput,
 } from "@/lib/validations/entrevista.schema";
+import { construirTranscripcionAutoservicio } from "@/lib/entrevistas/construir-transcripcion-autoservicio";
 
 export async function listarEntrevistas(proyectoId: string) {
   await requireConsultor();
@@ -105,5 +110,102 @@ export async function validarHallazgoIA(input: ValidarHallazgoInput) {
 
   revalidatePath(`/proyectos/${proyectoId}/entrevistas/${entrevistaId}`);
   revalidatePath(`/proyectos/${proyectoId}/hallazgos`);
+  return { error: null };
+}
+
+/** Personas ya registradas en este proyecto (de entrevistas previas), para precargar
+ * nombre/cargo al generar un enlace de autoservicio en vez de escribirlos de nuevo. */
+export async function listarEntrevistadosRegistrados(proyectoId: string) {
+  await requireConsultor();
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("entrevistas")
+    .select("entrevistado_nombre, entrevistado_cargo")
+    .eq("proyecto_id", proyectoId)
+    .not("entrevistado_nombre", "is", null);
+
+  const vistos = new Set<string>();
+  const resultado: { nombre: string; cargo: string | null }[] = [];
+  for (const e of data ?? []) {
+    if (!e.entrevistado_nombre || vistos.has(e.entrevistado_nombre)) continue;
+    vistos.add(e.entrevistado_nombre);
+    resultado.push({ nombre: e.entrevistado_nombre, cargo: e.entrevistado_cargo });
+  }
+  return resultado;
+}
+
+/** Crea el enlace público de intake de autoservicio (Bloque 3) — mismo patrón de
+ * token que crearInvitacionPemm en lib/actions/pemm.ts. */
+export async function crearInvitacionAutoservicio(input: InvitacionAutoservicioInput) {
+  const parsed = invitacionAutoservicioSchema.safeParse(input);
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
+
+  await requireConsultor();
+  const supabase = await createClient();
+  const { proyectoId, entrevistadoNombre, entrevistadoCargo } = parsed.data;
+
+  const { data, error } = await supabase
+    .from("entrevistas")
+    .insert({
+      proyecto_id: proyectoId,
+      entrevistado_nombre: entrevistadoNombre || null,
+      entrevistado_cargo: entrevistadoCargo || null,
+      origen: "autoservicio",
+      estado: "pendiente",
+      token: crypto.randomUUID(),
+    })
+    .select("token")
+    .single();
+
+  if (error || !data?.token) return { error: "No se pudo crear el enlace de autoservicio." };
+
+  revalidatePath(`/proyectos/${proyectoId}`);
+  revalidatePath(`/proyectos/${proyectoId}/entrevistas`);
+  return { error: null, token: data.token };
+}
+
+/** Usado desde la página pública /encuesta/proceso/[token] — sin sesión de consultor. */
+export async function obtenerIntakePorToken(token: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("entrevistas")
+    .select("token, estado, entrevistado_nombre, entrevistado_cargo")
+    .eq("token", token)
+    .maybeSingle();
+  return data;
+}
+
+/** Usado desde la página pública /encuesta/proceso/[token] — sin sesión de consultor.
+ * Compone las 4 respuestas como transcripción y la guarda igual que una entrevista
+ * dirigida, para que pase por el mismo pipeline de análisis de IA sin cambios. */
+export async function responderIntakeAutoservicio(input: RespuestaAutoservicioInput) {
+  const parsed = respuestaAutoservicioSchema.safeParse(input);
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Respuesta inválida" };
+
+  const supabase = await createClient();
+  const { token, entrevistadoNombre, entrevistadoCargo, ...respuestas } = parsed.data;
+
+  const { data: registro } = await supabase
+    .from("entrevistas")
+    .select("estado")
+    .eq("token", token)
+    .maybeSingle();
+
+  if (!registro) return { error: "Enlace no válido o ya expiró." };
+  if (registro.estado === "respondida") return { error: "Esta encuesta ya fue respondida." };
+
+  const transcripcion = construirTranscripcionAutoservicio(respuestas);
+
+  const { error } = await supabase
+    .from("entrevistas")
+    .update({
+      entrevistado_nombre: entrevistadoNombre,
+      entrevistado_cargo: entrevistadoCargo,
+      transcripcion,
+      estado: "respondida",
+    })
+    .eq("token", token);
+
+  if (error) return { error: "No se pudo guardar tu respuesta. Intenta de nuevo." };
   return { error: null };
 }

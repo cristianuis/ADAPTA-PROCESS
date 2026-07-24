@@ -26,6 +26,11 @@ export const hallazgoIASchema = z.object({
   descripcion: z.string(),
   categoria: z.enum(["proceso", "gobierno", "tecnologia", "cultura", "datos"]),
   impacto_estimado: z.number().min(1).max(5),
+  // Bloque 0.1 — antes no existía: el campo "esfuerzo" en la matriz de priorización
+  // siempre quedaba en 3 (el default del selector en la UI), nunca variaba porque la
+  // IA nunca lo estimaba. Ahora es un campo real y obligatorio de la respuesta, con
+  // el mismo criterio de evidencia que impacto_estimado.
+  esfuerzo_estimado: z.number().min(1).max(5),
   cita_soporte: z.string().min(10, "La cita de soporte debe tener contenido real"),
   confianza: z.enum(["alta", "media", "baja"]),
   // Habilitador PEMM (Hammer) que sustenta el hallazgo cuando categoria="proceso".
@@ -53,3 +58,23 @@ export const validarHallazgoSchema = z.object({
 });
 
 export type ValidarHallazgoInput = z.infer<typeof validarHallazgoSchema>;
+
+export const invitacionAutoservicioSchema = z.object({
+  proyectoId: z.string().uuid(),
+  entrevistadoNombre: z.string().trim().optional().or(z.literal("")),
+  entrevistadoCargo: z.string().trim().optional().or(z.literal("")),
+});
+
+export type InvitacionAutoservicioInput = z.infer<typeof invitacionAutoservicioSchema>;
+
+export const respuestaAutoservicioSchema = z.object({
+  token: z.string().uuid(),
+  entrevistadoNombre: z.string().trim().min(2, "Indica tu nombre"),
+  entrevistadoCargo: z.string().trim().min(2, "Indica tu cargo"),
+  queRecibes: z.string().trim().min(10, "Cuéntanos un poco más — con una frase completa basta"),
+  queHaces: z.string().trim().min(10, "Cuéntanos un poco más — con una frase completa basta"),
+  queEntregas: z.string().trim().min(10, "Cuéntanos un poco más — con una frase completa basta"),
+  queTeQuitaTiempo: z.string().trim().min(10, "Cuéntanos un poco más — con una frase completa basta"),
+});
+
+export type RespuestaAutoservicioInput = z.infer<typeof respuestaAutoservicioSchema>;

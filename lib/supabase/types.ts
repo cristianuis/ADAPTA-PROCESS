@@ -24,6 +24,8 @@ export type CategoriaHallazgo = "proceso" | "gobierno" | "tecnologia" | "cultura
 export type FuenteHallazgo = "entrevista" | "observacion" | "documental" | "financiero";
 export type OrigenHallazgo = "ia" | "manual";
 export type NivelResistencia = "bajo" | "medio" | "alto";
+export type OrigenEntrevista = "entrevista_dirigida" | "autoservicio";
+export type EstadoIntake = "pendiente" | "respondida";
 export type TipoEntregable = "diagnostico" | "propuesta" | "manual" | "tablero" | "auditoria";
 export type EstadoEntregable = "borrador" | "revision" | "entregado" | "aceptado";
 export type TipoProceso = "estrategico" | "misional" | "apoyo";
@@ -71,6 +73,7 @@ export interface HallazgoIA {
   descripcion: string;
   categoria: CategoriaHallazgo;
   impacto_estimado: number;
+  esfuerzo_estimado: number;
   cita_soporte: string;
   confianza: "alta" | "media" | "baja";
   // Habilitador PEMM (Hammer) que sustenta el hallazgo cuando categoria="proceso"; null en otro caso.
@@ -321,6 +324,9 @@ export interface Database {
           hallazgos_validados: HallazgoIA[] | null;
           nivel_resistencia: NivelResistencia | null;
           senales_gobierno: string[] | null;
+          token: string | null;
+          estado: EstadoIntake;
+          origen: OrigenEntrevista;
           created_at: string;
         };
         Insert: {
@@ -335,6 +341,9 @@ export interface Database {
           hallazgos_validados?: HallazgoIA[] | null;
           nivel_resistencia?: NivelResistencia | null;
           senales_gobierno?: string[] | null;
+          token?: string | null;
+          estado?: EstadoIntake;
+          origen?: OrigenEntrevista;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["entrevistas"]["Insert"]>;
