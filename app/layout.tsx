@@ -14,8 +14,26 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ADAPTA OS",
-  description: "Plataforma de consultoría en estructuración organizacional por procesos",
+  metadataBase: new URL("https://adapta-process.vercel.app"),
+  title: {
+    default: "Cristian Alfonso | Consultoría de procesos",
+    template: "%s | Cristian Alfonso",
+  },
+  description:
+    "Consultoría de procesos y herramientas digitales para construir operaciones claras, medibles y sostenibles.",
+  keywords: [
+    "consultoría de procesos",
+    "mejora de procesos",
+    "diseño organizacional",
+    "ADAPTA OS",
+  ],
+  openGraph: {
+    title: "Cristian Alfonso | Consultoría de procesos",
+    description:
+      "Procesos claros, medibles y sostenibles, respaldados por herramientas digitales propias.",
+    locale: "es_CO",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -26,9 +44,9 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${jetbrainsMono.variable} h-full scroll-smooth antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="flex min-h-full flex-col">
         {children}
         <Toaster />
       </body>
