@@ -1,30 +1,69 @@
-# Backup y restauración — ADAPTA OS
+# Backup y restauracion - ADAPTA OS
 
-Backup diario gratuito vía GitHub Actions (`.github/workflows/backup.yml`). Corre a las 07:00 UTC (~2am Colombia), sube el dump como un **GitHub Release** de este repo, y en cada corrida prueba automáticamente que el dump se puede restaurar (contra una base de datos efímera de prueba, nunca contra producción — si la restauración de prueba falla, el workflow falla y te avisa).
+El backup corre diariamente a las 07:00 UTC mediante GitHub Actions. El flujo:
 
-## Configuración inicial (una sola vez)
+1. genera un `pg_dump` completo en formato custom;
+2. lo cifra localmente con GPG y AES-256;
+3. elimina el dump sin cifrar;
+4. descifra el archivo cifrado y restaura el esquema `public` en PostgreSQL efimero;
+5. compara conteos de clientes y proyectos con produccion;
+6. publica un artifact privado de GitHub Actions durante 30 dias.
 
-1. Ve a tu proyecto Supabase → **Settings → Database → Connection string** → copia la URI en modo **Session pooler** (o "Transaction pooler"; evita "Direct connection" si tu red no soporta IPv6).
-2. Ve a este repo en GitHub → **Settings → Secrets and variables → Actions → New repository secret**.
-3. Nombre: `SUPABASE_DB_URL`. Valor: la connection string del paso 1 (incluye la contraseña de la base de datos — trátala como una contraseña, no la compartas).
-4. Guarda. El workflow ya está listo para correr (manual o por el cron diario).
+No se publican backups como GitHub Releases.
 
-## Cómo restaurar un backup manualmente
+## Secretos necesarios
 
-1. Ve a la pestaña **Releases** de este repo en GitHub.
-2. Busca el release con la fecha que quieres restaurar (`backup-2026-07-22`, por ejemplo) y descarga el archivo `adapta-os-backup-YYYY-MM-DD.dump`.
-3. Necesitas `pg_restore` instalado localmente (viene con `postgresql-client`; en Windows, instala PostgreSQL o solo las "Command Line Tools" desde postgresql.org).
-4. Consigue la connection string de **destino** (Settings → Database → Connection string de Supabase — normalmente la de un proyecto nuevo o el mismo si estás recuperando datos perdidos).
-5. Corre:
+- `SUPABASE_DB_URL`: conexion Session Pooler de Supabase.
+- `BACKUP_ENCRYPTION_PASSPHRASE`: clave aleatoria de al menos 32 caracteres.
+
+La copia de recuperacion se conserva fuera del repositorio en:
+
+`C:\Users\crisd\Documents\ADAPTA_OS_BACKUP_RECOVERY.txt`
+
+Sin esa clave no es posible recuperar los archivos `.dump.gpg`.
+
+## Politica de retencion
+
+- Frecuencia: diaria.
+- Retencion: 30 dias.
+- Destino: GitHub Actions Artifacts, privado y cifrado en reposo por GitHub.
+- Cifrado adicional antes de la carga: GPG AES-256.
+- Los runners y archivos temporales se eliminan al terminar cada job.
+
+## Restaurar manualmente
+
+1. Abre GitHub -> Actions -> `Backup diario cifrado de base de datos`.
+2. Abre la ejecucion deseada y descarga `adapta-os-backup-YYYY-MM-DD`.
+3. Extrae el ZIP; contiene `adapta-os-backup-YYYY-MM-DD.dump.gpg`.
+4. Copia la clave desde el archivo local de recuperacion a un archivo temporal, por ejemplo `backup-passphrase.txt`, dejando solamente el valor despues de `=`.
+5. Descifra:
+
    ```bash
-   pg_restore --dbname="<CONNECTION_STRING_DESTINO>" --no-owner --no-privileges --clean --if-exists adapta-os-backup-YYYY-MM-DD.dump
+   gpg --batch --yes --pinentry-mode loopback \
+     --passphrase-file backup-passphrase.txt \
+     --output adapta-os-backup-YYYY-MM-DD.dump \
+     --decrypt adapta-os-backup-YYYY-MM-DD.dump.gpg
    ```
-   - `--clean --if-exists` borra las tablas existentes antes de recrearlas — úsalo solo si quieres **reemplazar** el estado actual, no si quieres combinar datos.
-   - `--no-owner --no-privileges` evita errores por roles que no existen en el proyecto de destino.
-6. Verifica que los datos aparecen en el dashboard de Supabase o en la app.
 
-## Notas
+6. Restaura sobre una base de destino vacia:
 
-- El dump usa formato `custom` de `pg_dump` (`-F c`), no SQL plano — por eso se restaura con `pg_restore`, no con `psql`.
-- Cada corrida del workflow ya prueba la restauración automáticamente contra una base de datos temporal — si ves el workflow en verde en la pestaña Actions, el backup de esa fecha es restaurable, no solo "se generó".
-- Si algún día cambias de plan a Supabase Pro, este workflow sigue siendo útil como respaldo adicional fuera de Supabase — no hace daño tenerlo corriendo en paralelo.
+   ```bash
+   pg_restore \
+     --dbname="<CONNECTION_STRING_DESTINO>" \
+     --no-owner --no-privileges \
+     --clean --if-exists \
+     adapta-os-backup-YYYY-MM-DD.dump
+   ```
+
+`--clean --if-exists` reemplaza objetos existentes. No debe apuntarse a produccion sin revisar antes el destino.
+
+## Que valida automaticamente
+
+La prueba usa exactamente el artifact despues de cifrarlo y descifrarlo. Verifica:
+
+- integridad del archivo custom mediante `pg_restore --list`;
+- restauracion de las secciones pre-data, data y post-data;
+- al menos 17 tablas del esquema `public`;
+- igualdad de conteos de `clientes` y `proyectos` entre origen y restauracion.
+
+El job falla antes de publicar si el cifrado, descifrado o restauracion no son validos.

@@ -1,20 +1,19 @@
-name: Backup diario de base de datos
+name: Backup diario cifrado de base de datos
 
 on:
   schedule:
-    # 07:00 UTC = ~02:00 Colombia. Ajusta si prefieres otra hora.
+    # 07:00 UTC = ~02:00 Colombia.
     - cron: "0 7 * * *"
   workflow_dispatch: {}
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   backup:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
-    # Base de datos de PRUEBA efímera para validar la restauración en cada corrida.
-    # Vive solo durante este job y se destruye al terminar — nunca es producción.
     services:
       restore_test_db:
         image: postgres:17
@@ -40,43 +39,146 @@ jobs:
           sudo apt-get install -y --no-install-recommends postgresql-client-17
           echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"
 
-      - name: Generar dump de la base de datos real (Supabase)
+      - name: Preparar secretos y nombres
         env:
           DATABASE_URL: ${{ secrets.SUPABASE_DB_URL }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
         run: |
           if [ -z "$DATABASE_URL" ]; then
             echo "Falta el secret SUPABASE_DB_URL. Ver README_BACKUP.md." >&2
             exit 1
           fi
-          FECHA=$(date +%Y-%m-%d)
-          echo "FECHA=$FECHA" >> "$GITHUB_ENV"
-          pg_dump "$DATABASE_URL" --format=custom --no-owner --no-privileges \
-            --file="adapta-os-backup-$FECHA.dump"
-          ls -lh "adapta-os-backup-$FECHA.dump"
-
-      - name: Probar restauración contra la base de datos de prueba (nunca producción)
-        run: |
-          export PGPASSWORD=postgres
-          pg_restore \
-            --host=localhost --port=5432 --username=postgres --dbname=restore_test \
-            --no-owner --no-privileges \
-            "adapta-os-backup-$FECHA.dump" || true
-
-          TABLAS=$(psql --host=localhost --port=5432 --username=postgres --dbname=restore_test \
-            --tuples-only --no-align --command="select count(*) from information_schema.tables where table_schema='public'")
-
-          echo "Tablas restauradas en la base de prueba: $TABLAS"
-          if [ "$TABLAS" -lt 10 ]; then
-            echo "ERROR: la restauración de prueba no produjo las tablas esperadas (esperaba >= 10, encontré $TABLAS)." >&2
+          if [ "${#BACKUP_PASSPHRASE}" -lt 32 ]; then
+            echo "Falta BACKUP_ENCRYPTION_PASSPHRASE o tiene menos de 32 caracteres." >&2
             exit 1
           fi
-          echo "Restauración de prueba verificada correctamente."
 
-      - name: Publicar el dump como GitHub Release
+          FECHA=$(date +%Y-%m-%d)
+          echo "FECHA=$FECHA" >> "$GITHUB_ENV"
+          echo "BACKUP_PLAIN=adapta-os-backup-$FECHA.dump" >> "$GITHUB_ENV"
+          echo "BACKUP_ENCRYPTED=adapta-os-backup-$FECHA.dump.gpg" >> "$GITHUB_ENV"
+
+          umask 077
+          printf '%s' "$BACKUP_PASSPHRASE" > "$RUNNER_TEMP/backup-passphrase"
+
+      - name: Generar dump completo de Supabase
         env:
-          GH_TOKEN: ${{ github.token }}
+          DATABASE_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: |
-          gh release create "backup-$FECHA" "adapta-os-backup-$FECHA.dump" \
-            --repo "${{ github.repository }}" \
-            --title "Backup $FECHA" \
-            --notes "Backup automático diario de la base de datos de Supabase (ADAPTA OS). Formato: pg_dump custom (-F c). Ver README_BACKUP.md para restaurar."
+          SOURCE_CLIENTES=$(psql "$DATABASE_URL" --tuples-only --no-align \
+            --command="select count(*) from public.clientes")
+          SOURCE_PROYECTOS=$(psql "$DATABASE_URL" --tuples-only --no-align \
+            --command="select count(*) from public.proyectos")
+          echo "SOURCE_CLIENTES=$SOURCE_CLIENTES" >> "$GITHUB_ENV"
+          echo "SOURCE_PROYECTOS=$SOURCE_PROYECTOS" >> "$GITHUB_ENV"
+
+          pg_dump "$DATABASE_URL" \
+            --format=custom \
+            --no-owner \
+            --no-privileges \
+            --file="$BACKUP_PLAIN"
+
+          test -s "$BACKUP_PLAIN"
+          pg_restore --list "$BACKUP_PLAIN" > /dev/null
+
+      - name: Cifrar y eliminar el dump sin cifrar
+        run: |
+          gpg \
+            --batch \
+            --yes \
+            --pinentry-mode loopback \
+            --passphrase-file "$RUNNER_TEMP/backup-passphrase" \
+            --symmetric \
+            --cipher-algo AES256 \
+            --compress-algo none \
+            --output "$BACKUP_ENCRYPTED" \
+            "$BACKUP_PLAIN"
+
+          test -s "$BACKUP_ENCRYPTED"
+          sha256sum "$BACKUP_ENCRYPTED"
+          rm -f "$BACKUP_PLAIN"
+
+      - name: Descifrar el artefacto exacto para la prueba
+        run: |
+          gpg \
+            --batch \
+            --yes \
+            --pinentry-mode loopback \
+            --passphrase-file "$RUNNER_TEMP/backup-passphrase" \
+            --output "$RUNNER_TEMP/restore.dump" \
+            --decrypt "$BACKUP_ENCRYPTED"
+
+          test -s "$RUNNER_TEMP/restore.dump"
+          pg_restore --list "$RUNNER_TEMP/restore.dump" > /dev/null
+
+      - name: Probar restauracion y datos
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql \
+            --host=localhost --port=5432 --username=postgres --dbname=restore_test \
+            --set=ON_ERROR_STOP=1 <<'SQL'
+          drop schema public cascade;
+          create schema auth;
+          create table auth.users (id uuid primary key);
+          create function auth.uid() returns uuid language sql stable as $$ select null::uuid $$;
+          create function auth.role() returns text language sql stable as $$ select 'anon'::text $$;
+          create role anon nologin;
+          create role authenticated nologin;
+          SQL
+
+          pg_restore \
+            --host=localhost --port=5432 --username=postgres --dbname=restore_test \
+            --no-owner --no-privileges --exit-on-error \
+            --schema=public --section=pre-data \
+            "$RUNNER_TEMP/restore.dump"
+
+          pg_restore \
+            --host=localhost --port=5432 --username=postgres --dbname=restore_test \
+            --no-owner --no-privileges --exit-on-error \
+            --schema=public --section=data \
+            "$RUNNER_TEMP/restore.dump"
+
+          psql \
+            --host=localhost --port=5432 --username=postgres --dbname=restore_test \
+            --set=ON_ERROR_STOP=1 \
+            --command="insert into auth.users(id) select distinct user_id from public.consultores"
+
+          pg_restore \
+            --host=localhost --port=5432 --username=postgres --dbname=restore_test \
+            --no-owner --no-privileges --exit-on-error \
+            --schema=public --section=post-data \
+            "$RUNNER_TEMP/restore.dump"
+
+          TABLAS=$(psql \
+            --host=localhost --port=5432 --username=postgres --dbname=restore_test \
+            --tuples-only --no-align \
+            --command="select count(*) from information_schema.tables where table_schema='public'")
+          RESTORED_CLIENTES=$(psql \
+            --host=localhost --port=5432 --username=postgres --dbname=restore_test \
+            --tuples-only --no-align --command="select count(*) from public.clientes")
+          RESTORED_PROYECTOS=$(psql \
+            --host=localhost --port=5432 --username=postgres --dbname=restore_test \
+            --tuples-only --no-align --command="select count(*) from public.proyectos")
+
+          test "$TABLAS" -ge 17
+          test "$RESTORED_CLIENTES" = "$SOURCE_CLIENTES"
+          test "$RESTORED_PROYECTOS" = "$SOURCE_PROYECTOS"
+
+          echo "Restauracion verificada: $TABLAS tablas, $RESTORED_CLIENTES clientes y $RESTORED_PROYECTOS proyectos."
+
+      - name: Subir backup cifrado privado
+        uses: actions/upload-artifact@v4
+        with:
+          name: adapta-os-backup-${{ env.FECHA }}
+          path: ${{ env.BACKUP_ENCRYPTED }}
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
+
+      - name: Limpiar material sensible
+        if: always()
+        run: |
+          rm -f "$BACKUP_PLAIN"
+          rm -f "$RUNNER_TEMP/restore.dump"
+          rm -f "$RUNNER_TEMP/backup-passphrase"
