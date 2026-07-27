@@ -82,12 +82,14 @@ export function clasificarArquetipo(r: TriageInput, perfil?: PerfilEmpresa): Tri
 
 export const ARQUETIPO_INFO: Record<Arquetipo, { titulo: string; descripcion: string }> = {
   A: {
-    titulo: "Arquetipo A — Fundacional",
+    // Título alineado con la landing pública y el método (antes "Fundacional").
+    // La letra y la lógica de clasificación no cambian.
+    titulo: "Arquetipo A — Página en Blanco",
     descripcion:
       "La empresa tiene poca o nula documentación de procesos y baja madurez de gestión. La ruta prioriza diseñar desde cero un conjunto acotado de procesos misionales, con foco en dejar una base operativa simple antes de escalar en complejidad.",
   },
   B: {
-    titulo: "Arquetipo B — Crecimiento",
+    titulo: "Arquetipo B — Caos con Tracción",
     descripcion:
       "La empresa está creciendo y sus procesos actuales empiezan a mostrar fricción. La ruta prioriza rediseñar los procesos que más impactan la operación diaria y dejar indicadores mínimos para sostener el crecimiento sin perder control.",
   },
@@ -97,12 +99,12 @@ export const ARQUETIPO_INFO: Record<Arquetipo, { titulo: string; descripcion: st
       "Existe documentación formal de procesos, pero nadie la usa en el día a día. La ruta prioriza entender por qué la documentación no se adoptó (gobierno, cultura, diseño poco realista) antes de rediseñar cualquier proceso nuevo.",
   },
   D: {
-    titulo: "Arquetipo D — Transformación profunda",
+    titulo: "Arquetipo D — Optimización",
     descripcion:
       "La empresa presenta múltiples síntomas de baja madurez en documentación, medición, propiedad de proceso y estructura de decisión simultáneamente. La ruta es la más extensa: cubre las 6 fases del modelo ADAPTA con mayor profundidad e intensidad de acompañamiento.",
   },
   E: {
-    titulo: "Arquetipo E — Requisito externo",
+    titulo: "Arquetipo E — Cumplimiento Forzado",
     descripcion:
       "El disparador del proyecto es un requisito externo con plazo (ej. certificación, cliente, regulación). La ruta se diseña hacia atrás desde la fecha límite, priorizando los procesos y evidencias exigidas por el requisito sobre cualquier otra consideración de madurez.",
   },

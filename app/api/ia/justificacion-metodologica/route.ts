@@ -17,7 +17,7 @@ de propuesta (no académico ni genérico), por qué la ruta de intervención pro
 arquetipo diagnosticado.
 
 TERMINOLOGÍA OBLIGATORIA:
-- Nombra el arquetipo por su título técnico exacto (ej. "Arquetipo B — Crecimiento") y conecta la
+- Nombra el arquetipo por su título técnico exacto (ej. "Arquetipo B — Caos con Tracción") y conecta la
   justificación directamente con el puntaje de triage y la respuesta que más pesó en esa clasificación.
 - Prohibido usar frases genéricas de propuesta comercial ("le ayudaremos a mejorar sus procesos", "juntos
   construiremos una organización más eficiente") que no citen el dato específico de este cliente.

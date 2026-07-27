@@ -3,10 +3,10 @@ import type { EstadoProyecto } from "@/lib/supabase/types";
 
 const FASE_LABEL: Record<EstadoProyecto, string> = {
   prospecto: "Prospecto",
-  // Etiqueta visible "Avalúo" (Bloque 2, decisión del usuario) — mismo vocabulario que
-  // usan los documentos de metodología e informes generados. El valor en base de datos
-  // sigue siendo "diagnostico"; esto es solo el texto que se muestra.
-  diagnostico: "Avalúo",
+  // Etiqueta visible "Contextualización" — alineada con la landing pública y el método
+  // (antes decía "Avalúo"). El valor en base de datos sigue siendo "diagnostico"; esto
+  // es solo el texto que se muestra.
+  diagnostico: "Contextualización",
   definicion: "Definición",
   arquitectura: "Arquitectura",
   pilotaje: "Pilotaje",
