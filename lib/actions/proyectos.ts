@@ -6,10 +6,10 @@ import { createClient } from "@/lib/supabase/server";
 import { requireConsultor } from "@/lib/actions/consultores";
 import {
   proyectoSchema,
-  estadoProyectoSchema,
+  estadoComercialSchema,
   type ProyectoInput,
 } from "@/lib/validations/proyecto.schema";
-import type { EstadoProyecto } from "@/lib/supabase/types";
+import type { EstadoComercial } from "@/lib/supabase/types";
 
 export async function listarProyectos() {
   const { consultor } = await requireConsultor();
@@ -47,7 +47,7 @@ export async function crearProyecto(input: ProyectoInput) {
   const { consultor } = await requireConsultor();
   const supabase = await createClient();
 
-  const { nombre, clienteId, estado, fechaInicio, fechaFinEstimada, valorContrato, modeloCobro } =
+  const { nombre, clienteId, estadoComercial, fechaInicio, fechaFinEstimada, valorContrato, modeloCobro } =
     parsed.data;
 
   const { data, error } = await supabase
@@ -56,7 +56,7 @@ export async function crearProyecto(input: ProyectoInput) {
       consultor_id: consultor.id,
       cliente_id: clienteId,
       nombre,
-      estado,
+      estado_comercial: estadoComercial,
       fecha_inicio: fechaInicio || null,
       fecha_fin_estimada: fechaFinEstimada || null,
       valor_contrato: valorContrato ?? null,
@@ -74,8 +74,8 @@ export async function crearProyecto(input: ProyectoInput) {
   redirect(`/proyectos/${data.id}`);
 }
 
-export async function actualizarEstadoProyecto(proyectoId: string, estado: EstadoProyecto) {
-  const parsed = estadoProyectoSchema.safeParse({ estado });
+export async function actualizarEstadoComercial(proyectoId: string, estadoComercial: EstadoComercial) {
+  const parsed = estadoComercialSchema.safeParse({ estadoComercial });
   if (!parsed.success) {
     return { error: "Estado inválido" };
   }
@@ -85,7 +85,7 @@ export async function actualizarEstadoProyecto(proyectoId: string, estado: Estad
 
   const { error } = await supabase
     .from("proyectos")
-    .update({ estado: parsed.data.estado })
+    .update({ estado_comercial: parsed.data.estadoComercial })
     .eq("id", proyectoId)
     .eq("consultor_id", consultor.id);
 

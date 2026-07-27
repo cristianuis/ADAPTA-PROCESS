@@ -5,6 +5,7 @@ import { ClienteForm } from "@/components/clientes/ClienteForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FaseBadge } from "@/components/proyectos/FaseBadge";
+import { EstadoComercialBadge } from "@/components/proyectos/EstadoComercialBadge";
 
 export default async function ClienteDetallePage({
   params,
@@ -48,7 +49,10 @@ export default async function ClienteDetallePage({
                     className="flex items-center justify-between rounded-md border border-border px-4 py-3 text-sm hover:bg-accent"
                   >
                     <span className="font-medium">{proyecto.nombre}</span>
-                    <FaseBadge estado={proyecto.estado} />
+                    <span className="flex flex-wrap justify-end gap-1">
+                      <EstadoComercialBadge estado={proyecto.estado_comercial} />
+                      <FaseBadge fase={proyecto.fase_metodologica} />
+                    </span>
                   </Link>
                 </li>
               ))}

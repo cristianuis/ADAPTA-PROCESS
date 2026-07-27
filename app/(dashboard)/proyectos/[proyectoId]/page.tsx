@@ -14,6 +14,8 @@ import { listarIndicadores } from "@/lib/actions/indicadores";
 import { listarAuditorias } from "@/lib/actions/auditorias";
 import { GenerarEnlaceAutoservicioForm } from "@/components/entrevistas/GenerarEnlaceAutoservicioForm";
 import { RecorridoGuiado, type DatosRecorrido } from "@/components/proyectos/RecorridoGuiado";
+import { FaseBadge } from "@/components/proyectos/FaseBadge";
+import { EstadoComercialBadge } from "@/components/proyectos/EstadoComercialBadge";
 import { TYPE_SCALE, SPACING_SCALE } from "@/lib/design/tokens";
 import { cn } from "@/lib/utils";
 
@@ -94,6 +96,10 @@ export default async function ProyectoDetallePage({
               {proyecto.clientes?.razon_social}
             </Link>
           </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <EstadoComercialBadge estado={proyecto.estado_comercial} />
+            <FaseBadge fase={proyecto.fase_metodologica} />
+          </div>
         </div>
         <GenerarEnlaceAutoservicioForm proyectoId={proyecto.id} personasRegistradas={personasRegistradas} />
       </div>

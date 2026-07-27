@@ -38,7 +38,7 @@ export function ProyectoForm({ clientes, clienteIdPreseleccionado }: ProyectoFor
     defaultValues: {
       clienteId: clienteIdPreseleccionado ?? "",
       nombre: "",
-      estado: "prospecto",
+      estadoComercial: "prospecto",
       fechaInicio: "",
       fechaFinEstimada: "",
       valorContrato: null,
@@ -47,6 +47,7 @@ export function ProyectoForm({ clientes, clienteIdPreseleccionado }: ProyectoFor
   });
 
   const clienteId = watch("clienteId");
+  const estadoComercial = watch("estadoComercial");
 
   function onSubmit(values: ProyectoInput) {
     startTransition(async () => {
@@ -98,7 +99,30 @@ export function ProyectoForm({ clientes, clienteIdPreseleccionado }: ProyectoFor
         {errors.nombre && <p className="text-xs text-destructive">{errors.nombre.message}</p>}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="flex flex-col gap-2">
+        <Label>Estado comercial *</Label>
+        <Select
+          value={estadoComercial}
+          onValueChange={(value) =>
+            setValue("estadoComercial", value as ProyectoInput["estadoComercial"])
+          }
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="prospecto">Prospecto</SelectItem>
+            <SelectItem value="contratado">Contratado</SelectItem>
+            <SelectItem value="pausado">Pausado</SelectItem>
+            <SelectItem value="cerrado">Cerrado</SelectItem>
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground">
+          La fase metodológica se calcula automáticamente con el recorrido guiado.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-2">
           <Label htmlFor="fechaInicio">Fecha de inicio</Label>
           <Input id="fechaInicio" type="date" {...register("fechaInicio")} />

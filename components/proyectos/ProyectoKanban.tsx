@@ -3,8 +3,12 @@
 import { useTransition } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { actualizarEstadoProyecto } from "@/lib/actions/proyectos";
+import { actualizarEstadoComercial } from "@/lib/actions/proyectos";
 import { FASES_ORDEN, FASE_LABEL } from "@/components/proyectos/FaseBadge";
+import {
+  ESTADOS_COMERCIALES,
+  ESTADO_COMERCIAL_LABEL,
+} from "@/components/proyectos/EstadoComercialBadge";
 import { Card } from "@/components/ui/card";
 import {
   Select,
@@ -13,12 +17,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { EstadoProyecto } from "@/lib/supabase/types";
+import type {
+  EstadoComercial,
+  FaseMetodologica,
+} from "@/lib/supabase/types";
 
 interface ProyectoConCliente {
   id: string;
   nombre: string;
-  estado: EstadoProyecto;
+  estado_comercial: EstadoComercial;
+  fase_metodologica: FaseMetodologica;
   arquetipo: string | null;
   clientes: { razon_social: string } | null;
 }
@@ -26,9 +34,9 @@ interface ProyectoConCliente {
 export function ProyectoKanban({ proyectos }: { proyectos: ProyectoConCliente[] }) {
   const [isPending, startTransition] = useTransition();
 
-  function handleCambioEstado(proyectoId: string, estado: EstadoProyecto) {
+  function handleCambioEstado(proyectoId: string, estado: EstadoComercial) {
     startTransition(async () => {
-      const result = await actualizarEstadoProyecto(proyectoId, estado);
+      const result = await actualizarEstadoComercial(proyectoId, estado);
       if (result?.error) toast.error(result.error);
     });
   }
@@ -36,7 +44,9 @@ export function ProyectoKanban({ proyectos }: { proyectos: ProyectoConCliente[] 
   return (
     <div className="flex gap-4 overflow-x-auto pb-4">
       {FASES_ORDEN.map((fase) => {
-        const proyectosDeFase = proyectos.filter((p) => p.estado === fase);
+        const proyectosDeFase = proyectos.filter(
+          (proyecto) => proyecto.fase_metodologica === fase
+        );
         return (
           <div key={fase} className="flex w-64 shrink-0 flex-col gap-3">
             <h3 className="text-sm font-semibold text-muted-foreground">
@@ -58,18 +68,21 @@ export function ProyectoKanban({ proyectos }: { proyectos: ProyectoConCliente[] 
                   )}
                   <Select
                     disabled={isPending}
-                    value={proyecto.estado}
+                    value={proyecto.estado_comercial}
                     onValueChange={(value) =>
-                      handleCambioEstado(proyecto.id, value as EstadoProyecto)
+                      handleCambioEstado(proyecto.id, value as EstadoComercial)
                     }
                   >
-                    <SelectTrigger className="mt-2 h-8 w-full text-xs">
+                    <SelectTrigger
+                      aria-label={`Estado comercial de ${proyecto.nombre}`}
+                      className="mt-2 h-8 w-full text-xs"
+                    >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {FASES_ORDEN.map((f) => (
-                        <SelectItem key={f} value={f}>
-                          {FASE_LABEL[f]}
+                      {ESTADOS_COMERCIALES.map((estado) => (
+                        <SelectItem key={estado} value={estado}>
+                          {ESTADO_COMERCIAL_LABEL[estado]}
                         </SelectItem>
                       ))}
                     </SelectContent>

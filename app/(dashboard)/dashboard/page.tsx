@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { listarProyectos } from "@/lib/actions/proyectos";
 import { FaseBadge } from "@/components/proyectos/FaseBadge";
+import { EstadoComercialBadge } from "@/components/proyectos/EstadoComercialBadge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 export default async function HomePage() {
   const proyectos = await listarProyectos();
-  const activos = proyectos.filter((p) => p.estado !== "cerrado");
+  const activos = proyectos.filter((p) => p.estado_comercial !== "cerrado");
 
   return (
     <div className="flex flex-col gap-6">
@@ -32,7 +33,10 @@ export default async function HomePage() {
               <Card className="h-full transition-colors hover:border-primary">
                 <CardHeader className="flex flex-row items-start justify-between gap-2">
                   <CardTitle className="text-base">{proyecto.nombre}</CardTitle>
-                  <FaseBadge estado={proyecto.estado} />
+                  <div className="flex shrink-0 flex-col items-end gap-1">
+                    <EstadoComercialBadge estado={proyecto.estado_comercial} />
+                    <FaseBadge fase={proyecto.fase_metodologica} />
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">{proyecto.clientes?.razon_social}</p>

@@ -1,20 +1,16 @@
 import { z } from "zod";
 
-export const ESTADOS_PROYECTO = [
+export const ESTADOS_COMERCIALES = [
   "prospecto",
-  "diagnostico",
-  "definicion",
-  "arquitectura",
-  "pilotaje",
-  "transferencia",
-  "anclaje",
+  "contratado",
+  "pausado",
   "cerrado",
 ] as const;
 
 export const proyectoSchema = z.object({
   clienteId: z.string().uuid("Selecciona un cliente"),
   nombre: z.string().trim().min(2, "El nombre es obligatorio"),
-  estado: z.enum(ESTADOS_PROYECTO),
+  estadoComercial: z.enum(ESTADOS_COMERCIALES),
   fechaInicio: z.string().trim().optional().or(z.literal("")),
   fechaFinEstimada: z.string().trim().optional().or(z.literal("")),
   valorContrato: z.coerce.number().positive().optional().nullable(),
@@ -23,6 +19,6 @@ export const proyectoSchema = z.object({
 
 export type ProyectoInput = z.infer<typeof proyectoSchema>;
 
-export const estadoProyectoSchema = z.object({
-  estado: z.enum(ESTADOS_PROYECTO),
+export const estadoComercialSchema = z.object({
+  estadoComercial: z.enum(ESTADOS_COMERCIALES),
 });

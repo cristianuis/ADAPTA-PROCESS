@@ -4,15 +4,19 @@
 
 export type Arquetipo = "A" | "B" | "C" | "D" | "E";
 
-export type EstadoProyecto =
+export type EstadoComercial =
   | "prospecto"
-  | "diagnostico"
+  | "contratado"
+  | "pausado"
+  | "cerrado";
+
+export type FaseMetodologica =
+  | "contextualizacion"
   | "definicion"
   | "arquitectura"
   | "pilotaje"
   | "transferencia"
-  | "anclaje"
-  | "cerrado";
+  | "anclaje";
 
 export type Disparador = "crecimiento" | "problema" | "requisito_externo";
 
@@ -171,7 +175,8 @@ export interface Database {
           consultor_id: string;
           nombre: string;
           arquetipo: Arquetipo | null;
-          estado: EstadoProyecto;
+          estado_comercial: EstadoComercial;
+          fase_metodologica: FaseMetodologica;
           fecha_inicio: string | null;
           fecha_fin_estimada: string | null;
           valor_contrato: number | null;
@@ -185,7 +190,8 @@ export interface Database {
           consultor_id: string;
           nombre: string;
           arquetipo?: Arquetipo | null;
-          estado?: EstadoProyecto;
+          estado_comercial?: EstadoComercial;
+          fase_metodologica?: FaseMetodologica;
           fecha_inicio?: string | null;
           fecha_fin_estimada?: string | null;
           valor_contrato?: number | null;

@@ -11,7 +11,7 @@ export default async function ProyectosPage() {
       <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight break-words">Proyectos</h1>
-          <p className="text-sm text-muted-foreground">Organizados por fase del modelo ADAPTA.</p>
+          <p className="text-sm text-muted-foreground">La fase se deriva del recorrido; el estado comercial lo gestiona el consultor.</p>
         </div>
         <Button render={<Link href="/proyectos/nuevo">Nuevo proyecto</Link>} />
       </div>
