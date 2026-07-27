@@ -133,8 +133,9 @@ export async function crearInvitacionPemm(input: InvitacionPemmInput) {
 /** Usado desde la página pública /encuesta/pemm/[token] — sin sesión de consultor. */
 export async function obtenerPemmPorToken(token: string) {
   const supabase = await createClient();
-  const { data } = await supabase.from("pemm_evaluaciones").select("*").eq("token", token).maybeSingle();
-  return data;
+  const { data, error } = await supabase.rpc("obtener_pemm_publico", { p_token: token });
+  if (error) return null;
+  return data[0] ?? null;
 }
 
 /** Usado desde la página pública /encuesta/pemm/[token] — sin sesión de consultor. */
@@ -145,23 +146,20 @@ export async function responderPemmPublico(input: RespuestaPublicaPemmInput) {
   const supabase = await createClient();
   const { token, ...puntajes } = parsed.data;
 
-  const { data: registro } = await supabase
-    .from("pemm_evaluaciones")
-    .select("tipo, estado")
-    .eq("token", token)
-    .maybeSingle();
+  const { data, error } = await supabase.rpc("responder_pemm_publico", {
+    p_token: token,
+    p_diseno: puntajes.diseno ?? null,
+    p_ejecutores: puntajes.ejecutores ?? null,
+    p_responsable: puntajes.responsable ?? null,
+    p_infraestructura: puntajes.infraestructura ?? null,
+    p_indicadores: puntajes.indicadores ?? null,
+    p_liderazgo: puntajes.liderazgo ?? null,
+    p_cultura: puntajes.cultura ?? null,
+    p_experiencia: puntajes.experiencia ?? null,
+    p_gobierno: puntajes.gobierno ?? null,
+  });
 
-  if (!registro) return { error: "Enlace no válido o ya expiró." };
-  if (registro.estado === "respondida") return { error: "Esta encuesta ya fue respondida." };
-
-  const nivelResultante = calcularNivelResultante(registro.tipo, puntajes);
-
-  const { error } = await supabase
-    .from("pemm_evaluaciones")
-    .update({ ...puntajes, nivel_resultante: nivelResultante, estado: "respondida" })
-    .eq("token", token);
-
-  if (error) return { error: "No se pudo guardar tu respuesta. Intenta de nuevo." };
+  if (error || !data) return { error: "Enlace no válido, ya usado o respuesta incompleta." };
   return { error: null };
 }
 

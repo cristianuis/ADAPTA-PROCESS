@@ -763,7 +763,50 @@ export interface Database {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      obtener_pemm_publico: {
+        Args: { p_token: string };
+        Returns: {
+          token: string;
+          estado: EstadoPEMM;
+          tipo: TipoPEMM;
+          proceso_evaluado: string | null;
+        }[];
+      };
+      responder_pemm_publico: {
+        Args: {
+          p_token: string;
+          p_diseno?: number | null;
+          p_ejecutores?: number | null;
+          p_responsable?: number | null;
+          p_infraestructura?: number | null;
+          p_indicadores?: number | null;
+          p_liderazgo?: number | null;
+          p_cultura?: number | null;
+          p_experiencia?: number | null;
+          p_gobierno?: number | null;
+        };
+        Returns: boolean;
+      };
+      obtener_intake_publico: {
+        Args: { p_token: string };
+        Returns: {
+          token: string;
+          estado: EstadoIntake;
+          entrevistado_nombre: string | null;
+          entrevistado_cargo: string | null;
+        }[];
+      };
+      responder_intake_publico: {
+        Args: {
+          p_token: string;
+          p_entrevistado_nombre: string;
+          p_entrevistado_cargo: string;
+          p_transcripcion: string;
+        };
+        Returns: boolean;
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

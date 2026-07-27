@@ -167,12 +167,9 @@ export async function crearInvitacionAutoservicio(input: InvitacionAutoservicioI
 /** Usado desde la página pública /encuesta/proceso/[token] — sin sesión de consultor. */
 export async function obtenerIntakePorToken(token: string) {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("entrevistas")
-    .select("token, estado, entrevistado_nombre, entrevistado_cargo")
-    .eq("token", token)
-    .maybeSingle();
-  return data;
+  const { data, error } = await supabase.rpc("obtener_intake_publico", { p_token: token });
+  if (error) return null;
+  return data[0] ?? null;
 }
 
 /** Usado desde la página pública /encuesta/proceso/[token] — sin sesión de consultor.
@@ -185,27 +182,14 @@ export async function responderIntakeAutoservicio(input: RespuestaAutoservicioIn
   const supabase = await createClient();
   const { token, entrevistadoNombre, entrevistadoCargo, ...respuestas } = parsed.data;
 
-  const { data: registro } = await supabase
-    .from("entrevistas")
-    .select("estado")
-    .eq("token", token)
-    .maybeSingle();
-
-  if (!registro) return { error: "Enlace no válido o ya expiró." };
-  if (registro.estado === "respondida") return { error: "Esta encuesta ya fue respondida." };
-
   const transcripcion = construirTranscripcionAutoservicio(respuestas);
+  const { data, error } = await supabase.rpc("responder_intake_publico", {
+    p_token: token,
+    p_entrevistado_nombre: entrevistadoNombre,
+    p_entrevistado_cargo: entrevistadoCargo,
+    p_transcripcion: transcripcion,
+  });
 
-  const { error } = await supabase
-    .from("entrevistas")
-    .update({
-      entrevistado_nombre: entrevistadoNombre,
-      entrevistado_cargo: entrevistadoCargo,
-      transcripcion,
-      estado: "respondida",
-    })
-    .eq("token", token);
-
-  if (error) return { error: "No se pudo guardar tu respuesta. Intenta de nuevo." };
+  if (error || !data) return { error: "Enlace no válido, ya usado o respuesta incompleta." };
   return { error: null };
 }
