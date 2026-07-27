@@ -7,7 +7,17 @@ import type { Database } from "@/lib/supabase/types";
 
 type Medicion = Database["public"]["Tables"]["mediciones"]["Row"];
 
-export function TendenciaChart({ mediciones, meta }: { mediciones: Medicion[]; meta: number | null }) {
+export function TendenciaChart({
+  mediciones,
+  meta,
+  limiteInferior,
+  limiteSuperior,
+}: {
+  mediciones: Medicion[];
+  meta: number | null;
+  limiteInferior?: number | null;
+  limiteSuperior?: number | null;
+}) {
   const data = mediciones.map((m) => ({ periodo: m.periodo, valor: m.valor }));
   const ultimoIndice = data.length - 1;
 
@@ -36,6 +46,22 @@ export function TendenciaChart({ mediciones, meta }: { mediciones: Medicion[]; m
               stroke="var(--secondary)"
               strokeDasharray="4 4"
               label={{ value: "Meta", position: "insideTopRight", className: TYPE_SCALE.meta }}
+            />
+          )}
+          {limiteInferior != null && (
+            <ReferenceLine
+              y={limiteInferior}
+              stroke="var(--secondary)"
+              strokeDasharray="4 4"
+              label={{ value: "Mín.", position: "insideBottomRight", className: TYPE_SCALE.meta }}
+            />
+          )}
+          {limiteSuperior != null && (
+            <ReferenceLine
+              y={limiteSuperior}
+              stroke="var(--secondary)"
+              strokeDasharray="4 4"
+              label={{ value: "Máx.", position: "insideTopRight", className: TYPE_SCALE.meta }}
             />
           )}
           <Line

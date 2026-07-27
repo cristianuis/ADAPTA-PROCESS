@@ -145,7 +145,12 @@ export default async function ProcesoDetallePage({
                   <span>Tipo: {ind.tipo}</span>
                   <span>Fuente: {ind.fuente_datos}</span>
                   <span>Captura: {ind.mecanismo_captura}</span>
-                  {ind.meta !== null && <span>Meta: {ind.meta}</span>}
+                  <span>Sentido: {ind.sentido.replaceAll("_", " ")}</span>
+                  {ind.sentido === "rango_objetivo" ? (
+                    <span>Rango: {ind.limite_inferior}–{ind.limite_superior}</span>
+                  ) : (
+                    ind.meta !== null && <span>Meta: {ind.meta}</span>
+                  )}
                 </CardContent>
               </Card>
             ))}

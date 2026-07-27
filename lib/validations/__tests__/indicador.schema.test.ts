@@ -11,6 +11,7 @@ const base = {
   tipo: "eficacia" as const,
   fuenteDatos: "Sistema de despachos",
   mecanismoCaptura: "Reporte automático mensual",
+  sentido: "mayor_es_mejor" as const,
 };
 
 describe("indicadorSchema — fuente_datos y mecanismo_captura obligatorios", () => {
@@ -44,5 +45,43 @@ describe("indicadorSchema — fuente_datos y mecanismo_captura obligatorios", ()
   it("rechaza un tipo de indicador fuera de eficacia/eficiencia/calidad", () => {
     const result = indicadorSchema.safeParse({ ...base, tipo: "otro" });
     expect(result.success).toBe(false);
+  });
+});
+describe("indicadorSchema — sentido obligatorio", () => {
+  it("rechaza un indicador sin sentido", () => {
+    const { sentido, ...sinSentido } = base;
+    void sentido;
+    expect(indicadorSchema.safeParse(sinSentido).success).toBe(false);
+  });
+
+  it("acepta menor_es_mejor", () => {
+    expect(
+      indicadorSchema.safeParse({ ...base, sentido: "menor_es_mejor" }).success
+    ).toBe(true);
+  });
+
+  it("exige ambos límites para rango_objetivo", () => {
+    expect(
+      indicadorSchema.safeParse({ ...base, sentido: "rango_objetivo" }).success
+    ).toBe(false);
+  });
+
+  it("acepta un rango ordenado y rechaza uno invertido", () => {
+    expect(
+      indicadorSchema.safeParse({
+        ...base,
+        sentido: "rango_objetivo",
+        limiteInferior: 18,
+        limiteSuperior: 22,
+      }).success
+    ).toBe(true);
+    expect(
+      indicadorSchema.safeParse({
+        ...base,
+        sentido: "rango_objetivo",
+        limiteInferior: 22,
+        limiteSuperior: 18,
+      }).success
+    ).toBe(false);
   });
 });

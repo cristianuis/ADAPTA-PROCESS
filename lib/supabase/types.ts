@@ -35,6 +35,10 @@ export type EstadoEntregable = "borrador" | "revision" | "entregado" | "aceptado
 export type TipoProceso = "estrategico" | "misional" | "apoyo";
 export type EstadoProceso = "identificado" | "diseno" | "piloto" | "operando";
 export type TipoIndicador = "eficacia" | "eficiencia" | "calidad";
+export type SentidoIndicador =
+  | "mayor_es_mejor"
+  | "menor_es_mejor"
+  | "rango_objetivo";
 
 export interface SipocItem {
   texto: string;
@@ -559,6 +563,9 @@ export interface Database {
           mecanismo_captura: string;
           frecuencia: string | null;
           meta: number | null;
+          sentido: SentidoIndicador;
+          limite_inferior: number | null;
+          limite_superior: number | null;
           responsable: string | null;
           activo: boolean;
         };
@@ -573,6 +580,9 @@ export interface Database {
           mecanismo_captura: string;
           frecuencia?: string | null;
           meta?: number | null;
+          sentido: SentidoIndicador;
+          limite_inferior?: number | null;
+          limite_superior?: number | null;
           responsable?: string | null;
           activo?: boolean;
         };

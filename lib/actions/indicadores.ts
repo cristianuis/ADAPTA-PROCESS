@@ -20,7 +20,10 @@ export async function crearIndicador(input: IndicadorInput) {
 
   await requireConsultor();
   const supabase = await createClient();
-  const { procesoId, nombre, tipo, formula, unidad, fuenteDatos, mecanismoCaptura, frecuencia, meta, responsable } =
+  const {
+    procesoId, nombre, tipo, formula, unidad, fuenteDatos, mecanismoCaptura,
+    frecuencia, meta, responsable, sentido, limiteInferior, limiteSuperior,
+  } =
     parsed.data;
 
   const { count } = await supabase
@@ -43,7 +46,10 @@ export async function crearIndicador(input: IndicadorInput) {
     fuente_datos: fuenteDatos,
     mecanismo_captura: mecanismoCaptura,
     frecuencia: frecuencia || null,
-    meta: meta ?? null,
+    meta: sentido === "rango_objetivo" ? null : (meta ?? null),
+    sentido,
+    limite_inferior: sentido === "rango_objetivo" ? (limiteInferior ?? null) : null,
+    limite_superior: sentido === "rango_objetivo" ? (limiteSuperior ?? null) : null,
     responsable: responsable || null,
   });
 

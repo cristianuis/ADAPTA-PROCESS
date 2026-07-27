@@ -5,14 +5,43 @@ export function calcularPorcentajeAdopcion(casosRevisados: number, casosConforme
 
 export type Semaforo = "verde" | "amarillo" | "rojo";
 
+export type ObjetivoSemaforo =
+  | { sentido: "mayor_es_mejor"; meta: number }
+  | { sentido: "menor_es_mejor"; meta: number }
+  | {
+      sentido: "rango_objetivo";
+      limiteInferior: number;
+      limiteSuperior: number;
+    };
+
 /**
- * Semáforo simple contra meta: dentro del 10% de la meta = amarillo, cumple o supera = verde,
- * más de 10% por debajo = rojo. Funciona para métricas donde "más alto es mejor".
+ * Evalúa un indicador según su dirección de mejora. Amarillo representa una
+ * desviación máxima del 10% respecto de la meta o del ancho del rango.
  */
-export function calcularSemaforo(valor: number, meta: number): Semaforo {
-  if (meta === 0) return "verde";
-  const ratio = valor / meta;
-  if (ratio >= 1) return "verde";
-  if (ratio >= 0.9) return "amarillo";
-  return "rojo";
+export function calcularSemaforo(
+  valor: number,
+  objetivo: ObjetivoSemaforo
+): Semaforo {
+  if (objetivo.sentido === "mayor_es_mejor") {
+    if (valor >= objetivo.meta) return "verde";
+    const tolerancia = Math.abs(objetivo.meta) * 0.1;
+    return valor >= objetivo.meta - tolerancia ? "amarillo" : "rojo";
+  }
+
+  if (objetivo.sentido === "menor_es_mejor") {
+    if (valor <= objetivo.meta) return "verde";
+    const tolerancia = Math.abs(objetivo.meta) * 0.1;
+    return valor <= objetivo.meta + tolerancia ? "amarillo" : "rojo";
+  }
+
+  const { limiteInferior, limiteSuperior } = objetivo;
+  if (limiteInferior > limiteSuperior) {
+    throw new RangeError("El límite inferior no puede superar el límite superior");
+  }
+  if (valor >= limiteInferior && valor <= limiteSuperior) return "verde";
+
+  const tolerancia = (limiteSuperior - limiteInferior) * 0.1;
+  const cercaDelRango =
+    valor >= limiteInferior - tolerancia && valor <= limiteSuperior + tolerancia;
+  return cercaDelRango ? "amarillo" : "rojo";
 }
