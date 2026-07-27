@@ -18,9 +18,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <div className="flex min-h-screen w-full" style={brandStyle}>
       <Sidebar />
-      <div className="flex min-h-screen flex-1 flex-col">
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
         <Topbar nombreConsultor={consultor?.nombre ?? user.email ?? "Consultor"} />
-        <main className="flex-1 bg-background p-4 md:p-8">
+        <main className="min-w-0 flex-1 bg-background p-4 md:p-8">
           {!consultor && (
             <div className="mb-6 rounded-md border border-secondary bg-secondary/20 px-4 py-3 text-sm text-foreground">
               Completa tu perfil de consultor para personalizar la marca de tus entregables.{" "}

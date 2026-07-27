@@ -16,9 +16,9 @@ export default async function PemmPage({ params }: { params: Promise<{ proyectoI
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Diagnóstico PEMM — {proyecto.nombre}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight break-words">Diagnóstico PEMM — {proyecto.nombre}</h1>
           <p className="text-sm text-muted-foreground">
             Madurez de procesos (Hammer): el nivel de cada evaluación es el mínimo de sus habilitadores.
           </p>

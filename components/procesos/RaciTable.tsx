@@ -29,9 +29,9 @@ export function RaciTable({ matriz }: { matriz: MatrizRaci }) {
         <TableBody>
           {matriz.filas.map((fila) => (
             <TableRow key={fila.orden}>
-              <TableCell className="font-medium">{fila.actividad}</TableCell>
+              <TableCell data-label="Actividad" className="font-medium">{fila.actividad}</TableCell>
               {matriz.roles.map((rol) => (
-                <TableCell key={rol} className={`text-center ${fila.celdas[rol] ? LETRA_CLASE[fila.celdas[rol]] : ""}`}>
+                <TableCell data-label={rol} key={rol} className={`text-center ${fila.celdas[rol] ? LETRA_CLASE[fila.celdas[rol]] : ""}`}>
                   {fila.celdas[rol] || "—"}
                 </TableCell>
               ))}

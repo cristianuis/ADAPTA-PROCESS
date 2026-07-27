@@ -85,7 +85,7 @@ export default async function ProyectoDetallePage({
 
   return (
     <div className={cn("flex flex-col", SPACING_SCALE.xl)}>
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col items-stretch gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className={TYPE_SCALE.h1}>{proyecto.nombre}</h1>
           <p className={TYPE_SCALE.meta}>

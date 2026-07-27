@@ -1,13 +1,5 @@
 import Link from "next/link";
-import { LayoutDashboard, Users, FolderKanban, UserCog, Library } from "lucide-react";
-
-const NAV = [
-  { href: "/dashboard", label: "Resumen", icon: LayoutDashboard },
-  { href: "/clientes", label: "Clientes", icon: Users },
-  { href: "/proyectos", label: "Proyectos", icon: FolderKanban },
-  { href: "/biblioteca", label: "Biblioteca", icon: Library },
-  { href: "/perfil", label: "Perfil", icon: UserCog },
-];
+import { NAV_ITEMS } from "@/components/layout/nav-items";
 
 export function Sidebar() {
   return (
@@ -16,7 +8,7 @@ export function Sidebar() {
         <span className="text-lg font-semibold tracking-tight">ADAPTA OS</span>
       </div>
       <nav className="flex flex-col gap-1 px-3">
-        {NAV.map(({ href, label, icon: Icon }) => (
+        {NAV_ITEMS.map(({ href, label, icon: Icon }) => (
           <Link
             key={href}
             href={href}

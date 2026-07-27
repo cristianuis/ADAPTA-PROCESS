@@ -14,9 +14,9 @@ export default async function ProcesosPage({ params }: { params: Promise<{ proye
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Mapa de procesos — {proyecto.nombre}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight break-words">Mapa de procesos — {proyecto.nombre}</h1>
           <p className="text-sm text-muted-foreground">Clasificación Nivel 0: estratégicos, misionales, apoyo.</p>
         </div>
         <Button render={<Link href={`/proyectos/${proyectoId}/procesos/nuevo`}>Nuevo proceso</Link>} />

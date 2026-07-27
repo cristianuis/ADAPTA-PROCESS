@@ -27,14 +27,14 @@ export function ClientesTable({ clientes }: { clientes: Cliente[] }) {
         <TableBody>
           {clientes.map((cliente) => (
             <TableRow key={cliente.id}>
-              <TableCell className="font-medium">
+              <TableCell data-label="Razón social" className="font-medium">
                 <Link href={`/clientes/${cliente.id}`} className="hover:underline">
                   {cliente.razon_social}
                 </Link>
               </TableCell>
-              <TableCell>{cliente.sector ?? "—"}</TableCell>
-              <TableCell>{cliente.ciudad ?? "—"}</TableCell>
-              <TableCell>{cliente.contacto_nombre ?? "—"}</TableCell>
+              <TableCell data-label="Sector">{cliente.sector ?? "—"}</TableCell>
+              <TableCell data-label="Ciudad">{cliente.ciudad ?? "—"}</TableCell>
+              <TableCell data-label="Contacto">{cliente.contacto_nombre ?? "—"}</TableCell>
             </TableRow>
           ))}
         </TableBody>

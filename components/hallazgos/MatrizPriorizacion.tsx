@@ -12,7 +12,8 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
-import { TYPE_SCALE } from "@/lib/design/tokens";
+import { SPACING_SCALE, TYPE_SCALE } from "@/lib/design/tokens";
+import { cn } from "@/lib/utils";
 import type { Database } from "@/lib/supabase/types";
 
 type Hallazgo = Database["public"]["Tables"]["hallazgos"]["Row"];
@@ -52,8 +53,8 @@ export function MatrizPriorizacion({ hallazgos }: { hallazgos: Hallazgo[] }) {
   }));
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap gap-3 text-xs">
+    <div className={cn("flex min-w-0 flex-col overflow-hidden", SPACING_SCALE.md)}>
+      <div className={cn("flex flex-wrap text-xs", SPACING_SCALE.md)}>
         {Object.entries(CUADRANTE_COLOR).map(([nombre, color]) => (
           <span key={nombre} className="flex items-center gap-1.5">
             <span className="size-2.5 rounded-full" style={{ backgroundColor: color }} />
@@ -61,9 +62,9 @@ export function MatrizPriorizacion({ hallazgos }: { hallazgos: Hallazgo[] }) {
           </span>
         ))}
       </div>
-      <div className="h-80 w-full">
+      <div className="h-72 min-w-0 w-full sm:h-80">
         <ResponsiveContainer width="100%" height="100%">
-          <ScatterChart margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
+          <ScatterChart margin={{ top: 10, right: 8, bottom: 10, left: -8 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
             {ZONAS.map((zona) => (
               <ReferenceArea

@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { LogOut } from "lucide-react";
+import { MobileNav } from "@/components/layout/MobileNav";
 
 export function Topbar({ nombreConsultor }: { nombreConsultor: string }) {
   const router = useRouter();
@@ -20,7 +21,10 @@ export function Topbar({ nombreConsultor }: { nombreConsultor: string }) {
 
   return (
     <header className="flex h-16 items-center justify-between border-b border-border bg-card px-4 md:px-6">
-      <span className="text-sm font-medium text-muted-foreground md:hidden">ADAPTA OS</span>
+      <div className="flex items-center gap-2 md:hidden">
+        <MobileNav />
+        <span className="text-sm font-medium text-muted-foreground">ADAPTA OS</span>
+      </div>
       <div className="ml-auto flex items-center gap-3">
         <Avatar className="size-8">
           <AvatarFallback className="bg-primary text-primary-foreground text-xs">

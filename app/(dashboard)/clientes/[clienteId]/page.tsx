@@ -20,9 +20,9 @@ export default async function ClienteDetallePage({
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{cliente.razon_social}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight break-words">{cliente.razon_social}</h1>
           <p className="text-sm text-muted-foreground">{cliente.sector ?? "Sector sin definir"}</p>
         </div>
         <Button

@@ -15,9 +15,9 @@ export default async function AdopcionPage({ params }: { params: Promise<{ proye
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Auditoría de adopción — {proyecto.nombre}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight break-words">Auditoría de adopción — {proyecto.nombre}</h1>
           <p className="text-sm text-muted-foreground">¿Se está usando lo que se diseñó?</p>
         </div>
         <Button render={<Link href={`/proyectos/${proyectoId}/adopcion/nueva`}>Nueva auditoría</Link>} />

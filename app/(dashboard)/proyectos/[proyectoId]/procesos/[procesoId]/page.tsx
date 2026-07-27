@@ -35,9 +35,9 @@ export default async function ProcesoDetallePage({
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <h1 className="text-2xl font-semibold tracking-tight break-words">
             {proceso.codigo && <span className="mr-2 font-mono text-base text-muted-foreground">{proceso.codigo}</span>}
             {proceso.nombre}
           </h1>
@@ -74,7 +74,7 @@ export default async function ProcesoDetallePage({
 
       {/* Actividades */}
       <div className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-lg font-semibold tracking-tight">Actividades</h2>
           <ActividadForm procesoId={procesoId} siguienteOrden={actividades.length + 1} />
         </div>
@@ -95,11 +95,11 @@ export default async function ProcesoDetallePage({
               <TableBody>
                 {actividades.map((a) => (
                   <TableRow key={a.id}>
-                    <TableCell>{a.orden}</TableCell>
-                    <TableCell className="font-medium">{a.nombre}</TableCell>
-                    <TableCell>{a.rol_responsable ?? "—"}</TableCell>
-                    <TableCell>{a.rol_aprobador ?? "—"}</TableCell>
-                    <TableCell>
+                    <TableCell data-label="#">{a.orden}</TableCell>
+                    <TableCell data-label="Actividad" className="font-medium">{a.nombre}</TableCell>
+                    <TableCell data-label="Responsable">{a.rol_responsable ?? "—"}</TableCell>
+                    <TableCell data-label="Aprobador">{a.rol_aprobador ?? "—"}</TableCell>
+                    <TableCell data-label="Valor agregado">
                       <Badge className={a.es_valor_agregado ? "bg-success/20 text-success" : "bg-muted"}>
                         {a.es_valor_agregado ? "Sí" : "No"}
                       </Badge>
@@ -128,7 +128,7 @@ export default async function ProcesoDetallePage({
 
       {/* Indicadores */}
       <div className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-lg font-semibold tracking-tight">Indicadores (máx. 3)</h2>
           <IndicadorForm procesoId={procesoId} disabled={indicadores.length >= 3} />
         </div>

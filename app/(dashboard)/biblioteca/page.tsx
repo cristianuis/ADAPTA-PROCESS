@@ -11,7 +11,7 @@ export default async function BibliotecaPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Biblioteca de conocimiento</h1>
+        <h1 className="text-2xl font-semibold tracking-tight break-words">Biblioteca de conocimiento</h1>
         <p className="text-sm text-muted-foreground">
           El activo que se vuelve más valioso con cada proyecto — plantillas y benchmarks reutilizables entre clientes.
         </p>
@@ -42,7 +42,7 @@ export default async function BibliotecaPage() {
       </div>
 
       <div className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-lg font-semibold tracking-tight">Benchmarks sectoriales</h2>
           <BenchmarkForm />
         </div>
@@ -64,12 +64,12 @@ export default async function BibliotecaPage() {
               <TableBody>
                 {benchmarks.map((b) => (
                   <TableRow key={b.id}>
-                    <TableCell className="font-medium">{b.sector}</TableCell>
-                    <TableCell>{b.indicador}</TableCell>
-                    <TableCell>{b.valor_p25 ?? "—"}</TableCell>
-                    <TableCell>{b.valor_mediana ?? "—"}</TableCell>
-                    <TableCell>{b.valor_p75 ?? "—"}</TableCell>
-                    <TableCell>{b.num_observaciones}</TableCell>
+                    <TableCell data-label="Sector" className="font-medium">{b.sector}</TableCell>
+                    <TableCell data-label="Indicador">{b.indicador}</TableCell>
+                    <TableCell data-label="P25">{b.valor_p25 ?? "—"}</TableCell>
+                    <TableCell data-label="Mediana">{b.valor_mediana ?? "—"}</TableCell>
+                    <TableCell data-label="P75">{b.valor_p75 ?? "—"}</TableCell>
+                    <TableCell data-label="N.º obs.">{b.num_observaciones}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
