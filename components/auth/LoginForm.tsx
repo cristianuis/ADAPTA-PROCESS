@@ -40,7 +40,7 @@ export function LoginForm() {
     }
 
     router.refresh();
-    router.push("/");
+    router.push("/dashboard");
   }
 
   async function handleMagicLink() {

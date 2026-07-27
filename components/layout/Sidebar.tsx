@@ -2,7 +2,7 @@ import Link from "next/link";
 import { LayoutDashboard, Users, FolderKanban, UserCog, Library } from "lucide-react";
 
 const NAV = [
-  { href: "/", label: "Resumen", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Resumen", icon: LayoutDashboard },
   { href: "/clientes", label: "Clientes", icon: Users },
   { href: "/proyectos", label: "Proyectos", icon: FolderKanban },
   { href: "/biblioteca", label: "Biblioteca", icon: Library },
