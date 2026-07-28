@@ -5,7 +5,7 @@ import {
   Check,
   ExternalLink,
   FileCheck2,
-  Mail,
+  MessageCircle,
   Workflow,
 } from "lucide-react";
 
@@ -43,14 +43,14 @@ export function PortfolioHeader({ authenticated = false }: { authenticated?: boo
           <Link href="/#metodo" className="hover:text-[#163f8c]">Método</Link>
           <Link href="/diagnostico" className="hover:text-[#163f8c]">Diagnóstico</Link>
           <Link href="/herramientas" className="hover:text-[#163f8c]">Herramientas</Link>
-          <Link href="/#contacto" className="hover:text-[#163f8c]">Contacto</Link>
+          <Link href="/consultoria" className="hover:text-[#163f8c]">Consultoría</Link>
         </nav>
 
         <Link
           href={authenticated ? "/dashboard" : "/login"}
           className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[#163f8c] px-4 text-sm font-medium text-white transition-colors hover:bg-[#2456b3]"
         >
-          {authenticated ? "Ir al panel" : "Acceso privado"}
+          {authenticated ? "Ir al panel" : "Ingresar a mi empresa"}
           <ArrowRight className="size-4" />
         </Link>
       </div>
@@ -143,10 +143,10 @@ function Hero({ authenticated }: { authenticated: boolean }) {
             </div>
 
             <Link
-              href={authenticated ? "/dashboard" : "/login"}
+              href={authenticated ? "/dashboard" : "/consultoria"}
               className="mt-7 flex min-h-12 items-center justify-between rounded-2xl bg-[#f2e8d5] px-5 text-sm font-semibold text-[#163f8c]"
             >
-              Explorar ADAPTA OS
+              {authenticated ? "Abrir ADAPTA OS" : "Solicitar consultoría especializada"}
               <ArrowRight className="size-4" />
             </Link>
           </div>
@@ -243,13 +243,22 @@ export function AdaptaToolCard({ compact = false }: { compact?: boolean }) {
               metodológico de 12 pasos.
             </p>
           </div>
-          <Link
-            href="/diagnostico"
-            className="mt-9 inline-flex min-h-12 w-fit items-center gap-2 rounded-full bg-[#f2e8d5] px-6 text-sm font-semibold text-[#163f8c] hover:bg-[#ffffff]"
-          >
-            Probar diagnóstico
-            <ExternalLink className="size-4" />
-          </Link>
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <Link
+              href="/consultoria"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#f2e8d5] px-6 text-sm font-semibold text-[#163f8c] hover:bg-white"
+            >
+              Solicitar consultoría especializada
+              <ArrowRight className="size-4" />
+            </Link>
+            <Link
+              href="/diagnostico"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/20 px-6 text-sm font-semibold text-white hover:bg-white/10"
+            >
+              Ver muestra
+              <ExternalLink className="size-4" />
+            </Link>
+          </div>
         </div>
 
         <div className="m-4 min-h-80 rounded-[1.4rem] border border-white/10 bg-[#0a1c40] p-5 sm:m-6 sm:p-7">
@@ -313,13 +322,13 @@ function Contact() {
             ¿Tu empresa creció más rápido que sus procesos?
           </h2>
         </div>
-        <a
-          href="mailto:cristianalfonso2501@gmail.com?subject=Quiero%20hablar%20sobre%20mis%20procesos"
+        <Link
+          href="/consultoria"
           className="inline-flex min-h-14 shrink-0 items-center gap-3 rounded-full bg-[#163f8c] px-7 text-sm font-semibold text-white hover:bg-[#2456b3]"
         >
-          <Mail className="size-4" />
-          Conversemos
-        </a>
+          <MessageCircle className="size-4" />
+          Solicitar consultoría especializada
+        </Link>
       </div>
     </section>
   );

@@ -1,10 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import {
   AlertTriangle,
   ArrowUpRight,
   CheckCircle2,
-  Mail,
+  MessageCircle,
   Sparkles,
   Target,
 } from "lucide-react";
@@ -129,10 +130,13 @@ export function DemoResultadoVisual({
   const fortaleza = [...datos].sort(
     (a, b) => b.actual - a.actual || DIMENSIONES.indexOf(a) - DIMENSIONES.indexOf(b)
   )[0];
-  const asunto = encodeURIComponent(`Lectura estratégica de procesos — ${empresa}`);
-  const cuerpo = encodeURIComponent(
-    `Hola Cristian,\n\nCompleté el pulso operativo de ${empresa} y obtuve ${porcentaje}/100. Quiero profundizar la lectura y priorizar el siguiente movimiento.\n\n${nombre}`
-  );
+  const consultoriaHref = `/consultoria?empresa=${encodeURIComponent(
+    empresa
+  )}&titulo=${encodeURIComponent(
+    "Profundizar el diagnóstico operativo"
+  )}&descripcion=${encodeURIComponent(
+    `Completamos el pulso operativo con un resultado de ${porcentaje}/100 (${contenido.etiqueta}). Queremos entender las causas y priorizar una intervención.`
+  )}`;
 
   return (
     <section className="overflow-hidden rounded-[2rem] border border-[#163f8c]/15 bg-white shadow-2xl shadow-[#163f8c]/10">
@@ -344,14 +348,14 @@ export function DemoResultadoVisual({
               y datos del proceso para construir una ruta defendible.
             </p>
           </div>
-          <a
-            href={`mailto:cristianalfonso2501@gmail.com?subject=${asunto}&body=${cuerpo}`}
+          <Link
+            href={consultoriaHref}
             className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-[#163f8c] px-7 text-sm font-semibold text-white hover:bg-[#2456b3]"
           >
-            <Mail className="size-4" />
-            Solicitar lectura estratégica
+            <MessageCircle className="size-4" />
+            Solicitar consultoría especializada
             <ArrowUpRight className="size-4" />
-          </a>
+          </Link>
         </div>
       </div>
     </section>

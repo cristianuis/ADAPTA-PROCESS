@@ -55,9 +55,9 @@ export function LoginForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>ADAPTA OS</CardTitle>
+        <CardTitle>Ingresar a mi empresa</CardTitle>
         <CardDescription>
-          Acceso privado para el administrador y usuarios invitados.
+          Acceso privado para el superadministrador y empresas invitadas.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -98,7 +98,7 @@ export function LoginForm() {
             Enviarme un enlace mágico
           </Button>
           <p className="text-center text-xs leading-5 text-muted-foreground">
-            No hay registro público. Los accesos se asignan por invitación.
+            No hay registro público. Solo el superadministrador puede crear o invitar usuarios.
           </p>
           <Link
             href="/"
