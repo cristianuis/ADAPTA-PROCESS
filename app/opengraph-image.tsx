@@ -15,7 +15,7 @@ export default function OpenGraphImage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          background: "#173c2a",
+          background: "#163f8c",
           color: "#ffffff",
           padding: "64px",
         }}
@@ -36,8 +36,8 @@ export default function OpenGraphImage() {
               alignItems: "center",
               justifyContent: "center",
               borderRadius: 999,
-              background: "#dce95f",
-              color: "#173c2a",
+              background: "#f2e8d5",
+              color: "#163f8c",
               fontWeight: 700,
             }}
           >
@@ -63,7 +63,7 @@ export default function OpenGraphImage() {
             style={{
               margin: "30px 0 0",
               fontSize: 24,
-              color: "#bfd0c5",
+              color: "#c3d2e7",
             }}
           >
             Consultoría de procesos + herramientas digitales

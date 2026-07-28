@@ -780,6 +780,34 @@ export interface Database {
     };
     Views: Record<string, never>;
     Functions: {
+      iniciar_demo_diagnostico: {
+        Args: {
+          p_nombre: string;
+          p_email: string;
+          p_empresa: string;
+          p_consentimiento: boolean;
+          p_sitio_web?: string;
+        };
+        Returns: string;
+      };
+      completar_demo_diagnostico: {
+        Args: { p_token: string; p_respuestas: number[] };
+        Returns: { p_perfil: string; p_puntaje: number }[];
+      };
+      listar_prospectos_demo: {
+        Args: Record<string, never>;
+        Returns: {
+          id: string;
+          nombre: string;
+          email: string;
+          empresa: string;
+          estado: string;
+          puntaje: number | null;
+          perfil: string | null;
+          created_at: string;
+          completed_at: string | null;
+        }[];
+      };
       obtener_pemm_publico: {
         Args: { p_token: string };
         Returns: {

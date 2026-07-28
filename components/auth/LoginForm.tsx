@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -9,34 +10,22 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 
-type Modo = "login" | "registro";
-
 export function LoginForm() {
   const router = useRouter();
   const supabase = createClient();
-  const [modo, setModo] = useState<Modo>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [cargando, setCargando] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
     setCargando(true);
-
-    const { error } =
-      modo === "login"
-        ? await supabase.auth.signInWithPassword({ email, password })
-        : await supabase.auth.signUp({ email, password });
-
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
     setCargando(false);
 
     if (error) {
-      toast.error(error.message);
+      toast.error("Credenciales no válidas o usuario sin acceso.");
       return;
-    }
-
-    if (modo === "registro") {
-      toast.success("Cuenta creada. Completa tu perfil de consultor.");
     }
 
     router.refresh();
@@ -45,15 +34,19 @@ export function LoginForm() {
 
   async function handleMagicLink() {
     if (!email) {
-      toast.error("Escribe tu email primero.");
+      toast.error("Escribe tu correo primero.");
       return;
     }
+
     setCargando(true);
-    const { error } = await supabase.auth.signInWithOtp({ email });
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: false },
+    });
     setCargando(false);
 
     if (error) {
-      toast.error(error.message);
+      toast.error("Este correo no tiene acceso asignado.");
       return;
     }
     toast.success("Revisa tu correo — te enviamos un enlace de acceso.");
@@ -64,20 +57,20 @@ export function LoginForm() {
       <CardHeader>
         <CardTitle>ADAPTA OS</CardTitle>
         <CardDescription>
-          {modo === "login" ? "Ingresa a tu cuenta de consultor." : "Crea tu cuenta de consultor."}
+          Acceso privado para el administrador y usuarios invitados.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Correo</Label>
             <Input
               id="email"
               type="email"
               autoComplete="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(event) => setEmail(event.target.value)}
             />
           </div>
           <div className="flex flex-col gap-2">
@@ -85,26 +78,34 @@ export function LoginForm() {
             <Input
               id="password"
               type="password"
-              autoComplete={modo === "login" ? "current-password" : "new-password"}
+              autoComplete="current-password"
               required
               minLength={6}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(event) => setPassword(event.target.value)}
             />
           </div>
           <Button type="submit" disabled={cargando}>
-            {modo === "login" ? "Iniciar sesión" : "Crear cuenta"}
+            Iniciar sesión
           </Button>
-          <Button type="button" variant="ghost" size="sm" disabled={cargando} onClick={handleMagicLink}>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            disabled={cargando}
+            onClick={handleMagicLink}
+          >
             Enviarme un enlace mágico
           </Button>
-          <button
-            type="button"
-            className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
-            onClick={() => setModo(modo === "login" ? "registro" : "login")}
+          <p className="text-center text-xs leading-5 text-muted-foreground">
+            No hay registro público. Los accesos se asignan por invitación.
+          </p>
+          <Link
+            href="/"
+            className="text-center text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
           >
-            {modo === "login" ? "¿No tienes cuenta? Crea una" : "¿Ya tienes cuenta? Inicia sesión"}
-          </button>
+            Volver al portafolio
+          </Link>
         </form>
       </CardContent>
     </Card>
