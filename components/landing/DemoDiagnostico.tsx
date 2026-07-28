@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { ArrowRight, Check, LoaderCircle, Mail } from "lucide-react";
+import { ArrowRight, Check, LoaderCircle } from "lucide-react";
 import { toast } from "sonner";
 import {
   completarDemoDiagnostico,
   iniciarDemoDiagnostico,
 } from "@/lib/actions/demo-diagnostico";
+import { DemoResultadoVisual } from "@/components/landing/DemoResultadoVisual";
+
 
 const PREGUNTAS = [
   {
@@ -31,31 +33,10 @@ const PREGUNTAS = [
   },
 ] as const;
 
-const RESULTADOS = {
-  dependencia_operativa: {
-    etiqueta: "Dependencia operativa",
-    titulo: "La operación depende demasiado de personas clave.",
-    descripcion:
-      "El conocimiento vive principalmente en la experiencia individual. El primer paso no es documentar todo, sino identificar los procesos críticos y sus puntos de dependencia.",
-    siguiente: "Empezar por contexto, responsables y evidencia real.",
-  },
-  transicion_operativa: {
-    etiqueta: "Transición operativa",
-    titulo: "Ya existe estructura, pero todavía no funciona como sistema.",
-    descripcion:
-      "Hay prácticas y documentos útiles, aunque su aplicación y medición aún son inconsistentes. La oportunidad está en conectar responsables, indicadores y rutina operativa.",
-    siguiente: "Priorizar brechas y convertir prácticas aisladas en un recorrido común.",
-  },
-  sistema_en_desarrollo: {
-    etiqueta: "Sistema en desarrollo",
-    titulo: "Tienes una base sólida; el reto es sostenerla y mejorarla.",
-    descripcion:
-      "Los elementos esenciales existen. El siguiente nivel consiste en validar adopción, detectar desviaciones y usar datos para mejorar sin añadir burocracia.",
-    siguiente: "Auditar adopción y cerrar el ciclo de mejora.",
-  },
-} as const;
-
-type PerfilResultado = keyof typeof RESULTADOS;
+type PerfilResultado =
+  | "dependencia_operativa"
+  | "transicion_operativa"
+  | "sistema_en_desarrollo";
 
 export function DemoDiagnostico() {
   const [isPending, startTransition] = useTransition();
@@ -121,45 +102,14 @@ export function DemoDiagnostico() {
   }
 
   if (paso === "resultado" && resultado) {
-    const contenido = RESULTADOS[resultado.perfil];
     return (
-      <div className="overflow-hidden rounded-[2rem] border border-[#163f8c]/15 bg-white shadow-2xl shadow-[#163f8c]/10">
-        <div className="bg-[#0a1c40] p-7 text-white sm:p-10">
-          <div className="flex items-center justify-between gap-4">
-            <span className="rounded-full bg-[#f2e8d5] px-3 py-1 text-xs font-semibold text-[#163f8c]">
-              {contenido.etiqueta}
-            </span>
-            <span className="font-mono text-sm text-[#c3d2e7]">{resultado.puntaje}/10</span>
-          </div>
-          <h2 className="mt-8 max-w-2xl text-3xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl">
-            {contenido.titulo}
-          </h2>
-          <p className="mt-5 max-w-2xl text-base leading-7 text-[#c3d2e7]">
-            {contenido.descripcion}
-          </p>
-        </div>
-        <div className="grid gap-8 p-7 sm:p-10 lg:grid-cols-[1fr_auto] lg:items-end">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#315da8]">
-              Siguiente movimiento
-            </p>
-            <p className="mt-3 max-w-xl text-lg font-medium text-[#163f8c]">
-              {contenido.siguiente}
-            </p>
-            <p className="mt-4 max-w-xl text-sm leading-6 text-[#53647d]">
-              Este pulso es orientativo. El diagnóstico completo contrasta entrevistas,
-              madurez, hallazgos y evidencia del proceso.
-            </p>
-          </div>
-          <a
-            href="mailto:cristianalfonso2501@gmail.com?subject=Quiero%20profundizar%20mi%20diagnóstico%20de%20procesos"
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#163f8c] px-6 text-sm font-semibold text-white hover:bg-[#2456b3]"
-          >
-            <Mail className="size-4" />
-            Profundizar el diagnóstico
-          </a>
-        </div>
-      </div>
+      <DemoResultadoVisual
+        perfil={resultado.perfil}
+        puntaje={resultado.puntaje}
+        respuestas={respuestas as number[]}
+        empresa={datos.empresa}
+        nombre={datos.nombre}
+      />
     );
   }
 

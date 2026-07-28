@@ -17,7 +17,7 @@ export default function DiagnosticoPage() {
       <PortfolioHeader />
       <main className="relative overflow-hidden py-14 sm:py-20">
         <div
-          className="absolute inset-x-0 top-0 h-[32rem] bg-[#163f8c] sm:h-[36rem] lg:h-[30rem]"
+          className="absolute inset-x-0 top-0 h-[32rem] bg-[#163f8c] sm:h-[36rem] lg:h-[50rem]"
           aria-hidden
         />
         <div className="relative mx-auto grid max-w-7xl gap-10 px-5 sm:px-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start lg:px-12">
