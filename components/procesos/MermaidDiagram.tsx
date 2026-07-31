@@ -14,7 +14,7 @@ export function MermaidDiagram({ definicion }: { definicion: string }) {
         const mermaid = (await import("mermaid")).default;
         // Bloque B.5 — tema "base" con las variables de color de la app en vez del
         // tema "neutral" genérico de Mermaid, para que el diagrama se sienta parte
-        // de ADAPTA OS y no un elemento ajeno insertado en la pantalla.
+        // de Lancelot y no un elemento ajeno insertado en la pantalla.
         mermaid.initialize({
           startOnLoad: false,
           theme: "base",

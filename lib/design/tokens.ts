@@ -1,5 +1,5 @@
 /**
- * Tokens de diseño de ADAPTA OS (Bloque 2.1).
+ * Tokens de diseño de Lancelot (Bloque 2.1).
  *
  * Color: se reutiliza la paleta ya definida en app/globals.css (--primary, --secondary,
  * --success, --destructive, --muted, etc.) — es la identidad propia de la herramienta,

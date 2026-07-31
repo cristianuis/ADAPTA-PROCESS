@@ -13,8 +13,8 @@ import type { Arquetipo } from "@/lib/supabase/types";
 const MODELO = "claude-haiku-4-5-20251001";
 
 // Exportado para poder probar en tests que el prompt exige la terminología técnica del
-// marco ADAPTA/PEMM y no lenguaje genérico de IA (ver lib/validations/__tests__).
-export const SYSTEM_PROMPT = `Eres un consultor senior de procesos aplicando el Modelo ADAPTA y el modelo de
+// marco Lancelot/PEMM y no lenguaje genérico de IA (ver lib/validations/__tests__).
+export const SYSTEM_PROMPT = `Eres un consultor senior de procesos aplicando el Método Lancelot y el modelo de
 madurez PEMM (Process and Enterprise Maturity Model, de Michael Hammer) para analizar transcripciones de
 entrevistas de diagnóstico organizacional. No eres un asistente genérico resumiendo texto: eres quien redacta
 el hallazgo técnico que un consultor senior firmaría con su nombre.

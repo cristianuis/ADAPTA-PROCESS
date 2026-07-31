@@ -120,7 +120,7 @@ describe("respuestaAutoservicioSchema (Bloque 3: intake de autoservicio)", () =>
   });
 });
 
-describe("SYSTEM_PROMPT de analizar-entrevista — exige vocabulario técnico ADAPTA/PEMM, no genérico", () => {
+describe("SYSTEM_PROMPT de analizar-entrevista — exige vocabulario técnico Lancelot/PEMM, no genérico", () => {
   it("menciona el modelo PEMM y a Hammer explícitamente", () => {
     expect(PROMPT_ANALIZAR_ENTREVISTA).toMatch(/PEMM/);
     expect(PROMPT_ANALIZAR_ENTREVISTA).toMatch(/Hammer/);

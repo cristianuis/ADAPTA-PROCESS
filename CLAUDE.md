@@ -1,4 +1,4 @@
-# ADAPTA OS
+# Lancelot
 
 Plataforma operativa de un consultor en estructuración organizacional: diagnostica empresas cliente (triage + PEMM), asiste el levantamiento con IA (entrevistas), genera entregables profesionales (DOCX), diseña arquitectura de procesos (SIPOC/RACI/Mermaid), mide adopción y capitaliza conocimiento entre proyectos (biblioteca de plantillas/benchmarks). Las 6 fases del blueprint están construidas — ver `../the-architect-main/output/adapta-os-blueprint.md` para el diseño original de cada módulo.
 

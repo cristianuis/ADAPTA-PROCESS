@@ -48,7 +48,8 @@ export type EndpointIA =
   | "analizar-entrevista"
   | "resumen-ejecutivo"
   | "justificacion-metodologica"
-  | "analisis-desviaciones";
+  | "analisis-desviaciones"
+  | "lancelot-loop";
 
 export interface Desviacion {
   descripcion: string;
@@ -773,6 +774,75 @@ export interface Database {
             columns: ["proyecto_id"];
             isOneToOne: false;
             referencedRelation: "proyectos";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      lancelot_sesiones: {
+        Row: {
+          id: string;
+          consultor_id: string;
+          proyecto_id: string | null;
+          objetivo: string;
+          foco: "comercial" | "entrega" | "sistema";
+          horizonte: "hoy" | "semana" | "mes";
+          estado: "activa" | "cerrada";
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          consultor_id: string;
+          proyecto_id?: string | null;
+          objetivo: string;
+          foco: "comercial" | "entrega" | "sistema";
+          horizonte: "hoy" | "semana" | "mes";
+          estado?: "activa" | "cerrada";
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["lancelot_sesiones"]["Insert"]>;
+        Relationships: [
+          {
+            foreignKeyName: "lancelot_sesiones_consultor_id_fkey";
+            columns: ["consultor_id"];
+            isOneToOne: false;
+            referencedRelation: "consultores";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "lancelot_sesiones_proyecto_id_fkey";
+            columns: ["proyecto_id"];
+            isOneToOne: false;
+            referencedRelation: "proyectos";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      lancelot_vueltas: {
+        Row: {
+          id: string;
+          sesion_id: string;
+          numero: number;
+          retroalimentacion: string | null;
+          salida: Record<string, unknown>;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          sesion_id: string;
+          numero: number;
+          retroalimentacion?: string | null;
+          salida: Record<string, unknown>;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["lancelot_vueltas"]["Insert"]>;
+        Relationships: [
+          {
+            foreignKeyName: "lancelot_vueltas_sesion_id_fkey";
+            columns: ["sesion_id"];
+            isOneToOne: false;
+            referencedRelation: "lancelot_sesiones";
             referencedColumns: ["id"];
           },
         ];

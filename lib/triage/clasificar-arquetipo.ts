@@ -101,7 +101,7 @@ export const ARQUETIPO_INFO: Record<Arquetipo, { titulo: string; descripcion: st
   D: {
     titulo: "Arquetipo D — Optimización",
     descripcion:
-      "La empresa presenta múltiples síntomas de baja madurez en documentación, medición, propiedad de proceso y estructura de decisión simultáneamente. La ruta es la más extensa: cubre las 6 fases del modelo ADAPTA con mayor profundidad e intensidad de acompañamiento.",
+      "La empresa presenta múltiples síntomas de baja madurez en documentación, medición, propiedad de proceso y estructura de decisión simultáneamente. La ruta es la más extensa: cubre las 6 fases del método Lancelot con mayor profundidad e intensidad de acompañamiento.",
   },
   E: {
     titulo: "Arquetipo E — Cumplimiento Forzado",

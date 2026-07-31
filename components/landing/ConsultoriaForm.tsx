@@ -147,7 +147,7 @@ export function ConsultoriaForm({
       <p className="mt-4 flex items-start gap-2 text-xs leading-5 text-[#66758b]">
         <ShieldCheck className="mt-0.5 size-4 shrink-0 text-[#315da8]" />
         El botón prepara el mensaje con estos datos y abre WhatsApp. No crea una
-        cuenta ni concede acceso a ADAPTA OS.
+        cuenta ni concede acceso a Lancelot.
       </p>
     </form>
   );

@@ -51,7 +51,7 @@
 }
 
 :root {
-  /* Paleta ADAPTA OS — ver Sección 7 del blueprint. Los valores de marca
+  /* Paleta Lancelot — ver Sección 7 del blueprint. Los valores de marca
      (primary/secondary) se sobreescriben en runtime desde /perfil vía
      CSS variables inline en el layout del dashboard. */
   --background: #f7f8f5;

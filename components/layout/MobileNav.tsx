@@ -25,7 +25,7 @@ export function MobileNav() {
         <DialogPrimitive.Backdrop className="fixed inset-0 z-50 bg-black/35 md:hidden" />
         <DialogPrimitive.Popup className="fixed inset-y-0 left-0 z-50 flex w-[min(20rem,86vw)] flex-col bg-sidebar text-sidebar-foreground shadow-xl outline-none md:hidden">
           <div className="flex min-h-16 items-center justify-between border-b border-sidebar-border px-4">
-            <DialogPrimitive.Title className={TYPE_SCALE.h2}>ADAPTA OS</DialogPrimitive.Title>
+            <DialogPrimitive.Title className={TYPE_SCALE.h2}>Lancelot</DialogPrimitive.Title>
             <DialogPrimitive.Close
               render={
                 <Button

@@ -23,7 +23,7 @@ export function Topbar({ nombreConsultor }: { nombreConsultor: string }) {
     <header className="flex h-16 items-center justify-between border-b border-border bg-card px-4 md:px-6">
       <div className="flex items-center gap-2 md:hidden">
         <MobileNav />
-        <span className="text-sm font-medium text-muted-foreground">ADAPTA OS</span>
+        <span className="text-sm font-medium text-muted-foreground">Lancelot</span>
       </div>
       <div className="ml-auto flex items-center gap-3">
         <Avatar className="size-8">

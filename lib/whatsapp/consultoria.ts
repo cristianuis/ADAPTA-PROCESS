@@ -12,7 +12,7 @@ export function normalizarNumeroWhatsApp(numero: string): string {
 
 export function crearMensajeConsultoria(datos: SolicitudConsultoria): string {
   return [
-    "*Solicitud de consultoría especializada — ADAPTA*",
+    "*Solicitud de consultoría especializada — Lancelot*",
     "",
     `*Título:* ${datos.titulo.trim()}`,
     `*Descripción:* ${datos.descripcion.trim()}`,

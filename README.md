@@ -1,6 +1,6 @@
-# ADAPTA OS
+# Lancelot
 
-Plataforma operativa de un consultor en estructuración organizacional (Modelo ADAPTA). Las 6 fases del blueprint están construidas: núcleo (clientes/proyectos/triage), diagnóstico (PEMM + entrevistas con IA + hallazgos), entregables (DOCX), arquitectura de procesos (SIPOC/RACI/Mermaid/indicadores), medición y adopción, y biblioteca de conocimiento. Ver `CLAUDE.md` para reglas de construcción y `../the-architect-main/output/adapta-os-blueprint.md` para la especificación original.
+Plataforma operativa de un consultor en estructuración organizacional (Método Lancelot). Las 6 fases del blueprint están construidas: núcleo (clientes/proyectos/triage), diagnóstico (PEMM + entrevistas con IA + hallazgos), entregables (DOCX), arquitectura de procesos (SIPOC/RACI/Mermaid/indicadores), medición y adopción, y biblioteca de conocimiento. Ver `CLAUDE.md` para reglas de construcción y `../the-architect-main/output/adapta-os-blueprint.md` para la especificación original.
 
 ## Estado de esta build
 

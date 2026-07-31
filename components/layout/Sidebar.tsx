@@ -5,7 +5,7 @@ export function Sidebar() {
   return (
     <aside className="hidden w-60 shrink-0 flex-col bg-sidebar text-sidebar-foreground md:flex">
       <div className="px-5 py-6">
-        <span className="text-lg font-semibold tracking-tight">ADAPTA OS</span>
+        <span className="text-lg font-semibold tracking-tight">Lancelot</span>
       </div>
       <nav className="flex flex-col gap-1 px-3">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => (

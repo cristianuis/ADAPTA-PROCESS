@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     "consultoría de procesos",
     "mejora de procesos",
     "diseño organizacional",
-    "ADAPTA OS",
+    "Lancelot",
   ],
   openGraph: {
     title: "Cristian Alfonso | Consultoría de procesos",

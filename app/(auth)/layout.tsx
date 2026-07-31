@@ -1,7 +1,12 @@
+import Link from "next/link";
+
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-background px-4">
-      <div className="w-full max-w-sm">{children}</div>
+      <div className="w-full max-w-sm">
+        <Link href="/" className="mb-5 block text-center text-xl font-semibold tracking-tight text-primary">Lancelot</Link>
+        {children}
+      </div>
     </div>
   );
 }

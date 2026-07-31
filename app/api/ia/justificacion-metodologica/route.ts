@@ -12,7 +12,7 @@ const MODELO = "claude-haiku-4-5-20251001";
 const bodySchema = z.object({ proyectoId: z.string().uuid() });
 
 export const SYSTEM_PROMPT = `Eres un consultor senior redactando la sección "justificación metodológica" de una
-propuesta comercial de consultoría en procesos, aplicando el Modelo ADAPTA. Explica en 2 párrafos, en lenguaje
+propuesta comercial de consultoría en procesos, aplicando el Método Lancelot. Explica en 2 párrafos, en lenguaje
 de propuesta (no académico ni genérico), por qué la ruta de intervención propuesta es la adecuada dado el
 arquetipo diagnosticado.
 

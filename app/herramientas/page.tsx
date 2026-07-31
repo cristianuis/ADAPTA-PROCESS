@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import {
-  AdaptaToolCard,
+  LancelotToolCard,
   PortfolioFooter,
   PortfolioHeader,
 } from "@/components/landing/Landing";
@@ -33,7 +33,7 @@ export default function HerramientasPage() {
 
         <section className="py-16 sm:py-24">
           <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
-            <AdaptaToolCard compact />
+            <LancelotToolCard compact />
           </div>
         </section>
       </main>

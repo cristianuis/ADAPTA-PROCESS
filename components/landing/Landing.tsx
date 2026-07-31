@@ -146,7 +146,7 @@ function Hero({ authenticated }: { authenticated: boolean }) {
               href={authenticated ? "/dashboard" : "/consultoria"}
               className="mt-7 flex min-h-12 items-center justify-between rounded-2xl bg-[#f2e8d5] px-5 text-sm font-semibold text-[#163f8c]"
             >
-              {authenticated ? "Abrir ADAPTA OS" : "Solicitar consultoría especializada"}
+              {authenticated ? "Abrir Lancelot" : "Solicitar consultoría especializada"}
               <ArrowRight className="size-4" />
             </Link>
           </div>
@@ -197,7 +197,7 @@ function Method() {
       <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
         <div className="grid gap-8 lg:grid-cols-2">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#f2e8d5]">Modelo ADAPTA</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#f2e8d5]">Método Lancelot</p>
             <h2 className="mt-5 max-w-xl text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl">
               Una ruta guiada desde el diagnóstico hasta la adopción.
             </h2>
@@ -222,7 +222,7 @@ function Method() {
   );
 }
 
-export function AdaptaToolCard({ compact = false }: { compact?: boolean }) {
+export function LancelotToolCard({ compact = false }: { compact?: boolean }) {
   return (
     <article className="overflow-hidden rounded-[2rem] border border-[#163f8c]/15 bg-[#163f8c] text-white shadow-xl shadow-[#163f8c]/10">
       <div className={`grid ${compact ? "lg:grid-cols-[1fr_0.8fr]" : "lg:grid-cols-[0.9fr_1.1fr]"}`}>
@@ -234,9 +234,9 @@ export function AdaptaToolCard({ compact = false }: { compact?: boolean }) {
               </span>
               <span className="text-xs text-[#aebed5]">Herramienta propia</span>
             </div>
-            <p className="mt-8 text-xs font-semibold uppercase tracking-[0.2em] text-[#f2e8d5]">ADAPTA OS</p>
+            <p className="mt-8 text-xs font-semibold uppercase tracking-[0.2em] text-[#f2e8d5]">Lancelot</p>
             <h3 className="mt-3 text-3xl font-semibold leading-tight tracking-[-0.035em] sm:text-4xl">
-              El sistema operativo para una consultoría de procesos trazable.
+              Tu mano derecha para vender, diagnosticar y mejorar con trazabilidad.
             </h3>
             <p className="mt-5 max-w-lg text-base leading-7 text-[#c3d2e7]">
               Diagnóstico PEMM, entrevistas, hallazgos, arquitectura, indicadores y adopción reunidos en un recorrido
@@ -306,7 +306,7 @@ function Tools() {
             <ArrowRight className="size-4" />
           </Link>
         </div>
-        <AdaptaToolCard />
+        <LancelotToolCard />
       </div>
     </section>
   );

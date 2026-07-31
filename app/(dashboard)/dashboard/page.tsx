@@ -4,6 +4,7 @@ import { FaseBadge } from "@/components/proyectos/FaseBadge";
 import { EstadoComercialBadge } from "@/components/proyectos/EstadoComercialBadge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Sparkles } from "lucide-react";
 
 export default async function HomePage() {
   const proyectos = await listarProyectos();
@@ -19,7 +20,10 @@ export default async function HomePage() {
             {activos.length === 1 ? "" : "s"}.
           </p>
         </div>
-        <Button render={<Link href="/proyectos/nuevo">Nuevo proyecto</Link>} />
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button variant="outline" render={<Link href="/lancelot"><Sparkles />Abrir Lancelot</Link>} />
+          <Button render={<Link href="/proyectos/nuevo">Nuevo proyecto</Link>} />
+        </div>
       </div>
 
       {activos.length === 0 ? (

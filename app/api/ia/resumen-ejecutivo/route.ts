@@ -14,7 +14,7 @@ const MODELO = "claude-haiku-4-5-20251001";
 const bodySchema = z.object({ proyectoId: z.string().uuid() });
 
 export const SYSTEM_PROMPT = `Eres un consultor senior en gestión de procesos redactando el resumen
-ejecutivo de un Informe de Diagnóstico, aplicando el Modelo ADAPTA y el modelo de madurez PEMM
+ejecutivo de un Informe de Diagnóstico, aplicando el Método Lancelot y el modelo de madurez PEMM
 (Process and Enterprise Maturity Model, de Michael Hammer). Este texto lo lee el gerente general del
 cliente: debe leerse como el diagnóstico de un consultor senior, no como un resumen genérico de IA.
 
