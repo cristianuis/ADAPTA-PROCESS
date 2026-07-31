@@ -29,7 +29,7 @@ export function LoginForm() {
     }
 
     router.refresh();
-    router.push("/dashboard");
+    router.push("/lancelot");
   }
 
   async function handleMagicLink() {

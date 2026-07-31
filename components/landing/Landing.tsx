@@ -47,10 +47,10 @@ export function PortfolioHeader({ authenticated = false }: { authenticated?: boo
         </nav>
 
         <Link
-          href={authenticated ? "/dashboard" : "/login"}
+          href={authenticated ? "/lancelot" : "/login"}
           className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[#163f8c] px-4 text-sm font-medium text-white transition-colors hover:bg-[#2456b3]"
         >
-          {authenticated ? "Ir al panel" : "Ingresar a mi empresa"}
+          {authenticated ? "Abrir Lancelot" : "Ingresar a mi empresa"}
           <ArrowRight className="size-4" />
         </Link>
       </div>
