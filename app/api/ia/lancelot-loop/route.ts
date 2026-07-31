@@ -11,7 +11,7 @@ import {
 import { lancelotRequestSchema, respuestaLancelotSchema } from "@/lib/lancelot/types";
 
 const MODELO = "claude-haiku-4-5-20251001";
-const MAX_TOKENS_SALIDA = 900;
+const MAX_TOKENS_SALIDA = 1200;
 
 async function contarProyecto(proyectoId: string) {
   const supabase = await createClient();

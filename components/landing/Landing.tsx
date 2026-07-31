@@ -143,7 +143,7 @@ function Hero({ authenticated }: { authenticated: boolean }) {
             </div>
 
             <Link
-              href={authenticated ? "/dashboard" : "/consultoria"}
+              href={authenticated ? "/lancelot" : "/consultoria"}
               className="mt-7 flex min-h-12 items-center justify-between rounded-2xl bg-[#f2e8d5] px-5 text-sm font-semibold text-[#163f8c]"
             >
               {authenticated ? "Abrir Lancelot" : "Solicitar consultoría especializada"}

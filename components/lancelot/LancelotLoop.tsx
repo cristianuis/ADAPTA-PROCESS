@@ -142,7 +142,7 @@ export function LancelotLoop({ proyectos, sesiones, sesionInicial }: Props) {
             {sesiones.length === 0 ? <p className="text-sm text-muted-foreground">Tu primera misión aparecerá aquí.</p> : sesiones.map((sesion) => <Link key={sesion.id} href={`/lancelot?sesion=${sesion.id}`} className="block rounded-lg border p-3 hover:border-primary"><p className="line-clamp-2 text-sm font-medium">{sesion.objetivo}</p><p className="mt-1 text-xs text-muted-foreground">{FOCO_LABEL[sesion.foco]}</p></Link>)}
           </CardContent>
         </Card>
-        <p className="px-1 text-xs leading-5 text-muted-foreground">Economía activa: modelo Haiku, memoria resumida a dos vueltas y salida limitada a 900 tokens.</p>
+        <p className="px-1 text-xs leading-5 text-muted-foreground">Economía activa: modelo Haiku, memoria resumida a dos vueltas y salida limitada a 1.200 tokens.</p>
       </aside>
     </div>
   );
