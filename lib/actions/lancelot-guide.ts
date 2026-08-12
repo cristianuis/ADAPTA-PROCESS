@@ -42,7 +42,7 @@ export async function obtenerGuiaLancelot(
     });
   }
 
-  const [triage, pemm, entrevistas, hallazgos, entregables, procesos, auditorias] = await Promise.all([
+  const [triage, pemm, entrevistas, hallazgos, entregables, procesos, auditorias, cuantificaciones, iniciativas] = await Promise.all([
     supabase.from("triage_respuestas").select("proyecto_id").in("proyecto_id", proyectoIds),
     supabase.from("pemm_evaluaciones").select("proyecto_id, tipo, estado").in("proyecto_id", proyectoIds),
     supabase.from("entrevistas").select("proyecto_id, hallazgos_ia").in("proyecto_id", proyectoIds),
@@ -50,7 +50,14 @@ export async function obtenerGuiaLancelot(
     supabase.from("entregables").select("proyecto_id, tipo").in("proyecto_id", proyectoIds),
     supabase.from("procesos").select("id, proyecto_id, dueno_nombre").in("proyecto_id", proyectoIds),
     supabase.from("auditorias_adopcion").select("proyecto_id").in("proyecto_id", proyectoIds),
+    supabase.from("cuantificaciones_impacto").select("proyecto_id").in("proyecto_id", proyectoIds),
+    supabase.from("iniciativas_mejora").select("id, proyecto_id").in("proyecto_id", proyectoIds),
   ]);
+
+  const iniciativaIds = (iniciativas.data ?? []).map((iniciativa) => iniciativa.id);
+  const acciones = iniciativaIds.length
+    ? await supabase.from("acciones_mejora").select("iniciativa_id").in("iniciativa_id", iniciativaIds)
+    : { data: [] };
 
   const procesosCriticos = (procesos.data ?? []).filter((proceso) => !!proceso.dueno_nombre);
   const procesosCriticosIds = procesosCriticos.map((proceso) => proceso.id);
@@ -87,6 +94,11 @@ export async function obtenerGuiaLancelot(
     );
     const tieneProcesosConDueno = procesosCriticos.some((proceso) => proceso.proyecto_id === id);
     const disenoCompleto = proyectosConDisenoCompleto.has(id);
+    const iniciativasProyecto = (iniciativas.data ?? []).filter((iniciativa) => iniciativa.proyecto_id === id);
+    const tienePlanMejora =
+      (cuantificaciones.data ?? []).some((fila) => fila.proyecto_id === id) &&
+      iniciativasProyecto.length > 0 &&
+      (acciones.data ?? []).some((accion) => iniciativasProyecto.some((iniciativa) => iniciativa.id === accion.iniciativa_id));
 
     return {
       id,
@@ -105,8 +117,8 @@ export async function obtenerGuiaLancelot(
           (fila) => fila.proyecto_id === id && fila.tipo === "proceso" && fila.estado === "respondida"
         ),
         (entrevistas.data ?? []).some((fila) => fila.proyecto_id === id && fila.hallazgos_ia != null),
-        (hallazgos.data ?? []).some((fila) => fila.proyecto_id === id && fila.origen === "ia"),
-        tieneInforme,
+        (hallazgos.data ?? []).some((fila) => fila.proyecto_id === id),
+        tienePlanMejora,
         tieneInforme,
         tieneProcesosConDueno,
         disenoCompleto,

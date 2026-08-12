@@ -39,6 +39,11 @@ export type SentidoIndicador =
   | "mayor_es_mejor"
   | "menor_es_mejor"
   | "rango_objetivo";
+export type TipoImpacto = "ahorro" | "ingreso" | "costo_evitado" | "capacidad_liberada" | "riesgo_reducido";
+export type ConfianzaImpacto = "baja" | "media" | "alta";
+export type EstadoIniciativa = "borrador" | "priorizada" | "en_ejecucion" | "bloqueada" | "completada" | "descartada";
+export type EstadoAccionMejora = "pendiente" | "en_curso" | "bloqueada" | "completada" | "cancelada";
+export type TipoMedicionImpacto = "linea_base" | "seguimiento" | "cierre";
 
 export interface SipocItem {
   texto: string;
@@ -738,6 +743,171 @@ export interface Database {
             referencedColumns: ["id"];
           },
         ];
+      };
+      cuantificaciones_impacto: {
+        Row: {
+          id: string;
+          proyecto_id: string;
+          hallazgo_id: string;
+          nombre: string;
+          tipo: TipoImpacto;
+          valor_unitario: number;
+          volumen_periodo: number;
+          periodos_anio: number;
+          porcentaje_capturable: number;
+          moneda: string;
+          impacto_anual: number;
+          fuente_calculo: string;
+          supuestos: string;
+          confianza: ConfianzaImpacto;
+          validado_cliente: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          proyecto_id: string;
+          hallazgo_id: string;
+          nombre: string;
+          tipo: TipoImpacto;
+          valor_unitario: number;
+          volumen_periodo: number;
+          periodos_anio?: number;
+          porcentaje_capturable?: number;
+          moneda?: string;
+          fuente_calculo: string;
+          supuestos: string;
+          confianza?: ConfianzaImpacto;
+          validado_cliente?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["cuantificaciones_impacto"]["Insert"]>;
+        Relationships: [];
+      };
+      iniciativas_mejora: {
+        Row: {
+          id: string;
+          proyecto_id: string;
+          titulo: string;
+          descripcion: string | null;
+          hipotesis: string;
+          resultado_esperado: string;
+          criterio_exito: string;
+          estado: EstadoIniciativa;
+          prioridad: number;
+          responsable: string | null;
+          fecha_inicio: string | null;
+          fecha_objetivo: string | null;
+          inversion_estimada: number;
+          beneficio_anual_objetivo: number;
+          moneda: string;
+          roi_estimado: number | null;
+          payback_meses: number | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          proyecto_id: string;
+          titulo: string;
+          descripcion?: string | null;
+          hipotesis: string;
+          resultado_esperado: string;
+          criterio_exito: string;
+          estado?: EstadoIniciativa;
+          prioridad?: number;
+          responsable?: string | null;
+          fecha_inicio?: string | null;
+          fecha_objetivo?: string | null;
+          inversion_estimada?: number;
+          beneficio_anual_objetivo?: number;
+          moneda?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["iniciativas_mejora"]["Insert"]>;
+        Relationships: [];
+      };
+      iniciativa_hallazgos: {
+        Row: {
+          proyecto_id: string;
+          iniciativa_id: string;
+          hallazgo_id: string;
+          created_at: string;
+        };
+        Insert: {
+          proyecto_id: string;
+          iniciativa_id: string;
+          hallazgo_id: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["iniciativa_hallazgos"]["Insert"]>;
+        Relationships: [];
+      };
+      acciones_mejora: {
+        Row: {
+          id: string;
+          iniciativa_id: string;
+          orden: number;
+          titulo: string;
+          descripcion: string | null;
+          responsable: string;
+          fecha_objetivo: string | null;
+          estado: EstadoAccionMejora;
+          evidencia_resultado: string | null;
+          completada_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          iniciativa_id: string;
+          orden?: number;
+          titulo: string;
+          descripcion?: string | null;
+          responsable: string;
+          fecha_objetivo?: string | null;
+          estado?: EstadoAccionMejora;
+          evidencia_resultado?: string | null;
+          completada_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["acciones_mejora"]["Insert"]>;
+        Relationships: [];
+      };
+      mediciones_impacto: {
+        Row: {
+          id: string;
+          iniciativa_id: string;
+          tipo: TipoMedicionImpacto;
+          fecha: string;
+          beneficio_anual_realizado: number;
+          costo_acumulado: number;
+          valor_indicador: number | null;
+          unidad_indicador: string | null;
+          fuente_datos: string;
+          observaciones: string | null;
+          validado_cliente: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          iniciativa_id: string;
+          tipo: TipoMedicionImpacto;
+          fecha?: string;
+          beneficio_anual_realizado?: number;
+          costo_acumulado?: number;
+          valor_indicador?: number | null;
+          unidad_indicador?: string | null;
+          fuente_datos: string;
+          observaciones?: string | null;
+          validado_cliente?: boolean;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["mediciones_impacto"]["Insert"]>;
+        Relationships: [];
       };
       llamadas_ia: {
         Row: {

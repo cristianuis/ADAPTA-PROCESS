@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { MessageSquare, ListChecks, GitBranch, LayoutDashboard, TrendingUp, FileText, ClipboardList } from "lucide-react";
+import { MessageSquare, ListChecks, GitBranch, LayoutDashboard, TrendingUp, FileText, ClipboardList, Rocket } from "lucide-react";
 import { obtenerProyecto } from "@/lib/actions/proyectos";
 import { obtenerTriage } from "@/lib/actions/triage";
 import { listarEntregables } from "@/lib/actions/entregables";
@@ -12,6 +12,7 @@ import { obtenerSipoc } from "@/lib/actions/sipoc";
 import { listarActividades } from "@/lib/actions/actividades";
 import { listarIndicadores } from "@/lib/actions/indicadores";
 import { listarAuditorias } from "@/lib/actions/auditorias";
+import { obtenerPlanMejora } from "@/lib/actions/mejoras";
 import { GenerarEnlaceAutoservicioForm } from "@/components/entrevistas/GenerarEnlaceAutoservicioForm";
 import { RecorridoGuiado, type DatosRecorrido } from "@/components/proyectos/RecorridoGuiado";
 import { FaseBadge } from "@/components/proyectos/FaseBadge";
@@ -23,6 +24,7 @@ const NAV_ITEMS = [
   { href: "pemm", label: "Diagnóstico PEMM", icon: ClipboardList },
   { href: "entrevistas", label: "Entrevistas", icon: MessageSquare },
   { href: "hallazgos", label: "Hallazgos", icon: ListChecks },
+  { href: "mejoras", label: "Impacto y mejoras", icon: Rocket },
   { href: "procesos", label: "Procesos", icon: GitBranch },
   { href: "tablero", label: "Tablero", icon: LayoutDashboard },
   { href: "adopcion", label: "Adopción", icon: TrendingUp },
@@ -38,7 +40,7 @@ export default async function ProyectoDetallePage({
   const proyecto = await obtenerProyecto(proyectoId);
   if (!proyecto) notFound();
 
-  const [triage, entregables, evaluacionesPemm, entrevistas, hallazgos, procesos, auditorias, personasRegistradas] =
+  const [triage, entregables, evaluacionesPemm, entrevistas, hallazgos, procesos, auditorias, personasRegistradas, planMejora] =
     await Promise.all([
       obtenerTriage(proyectoId),
       listarEntregables(proyectoId),
@@ -48,6 +50,7 @@ export default async function ProyectoDetallePage({
       listarProcesos(proyectoId),
       listarAuditorias(proyectoId),
       listarEntrevistadosRegistrados(proyectoId),
+      obtenerPlanMejora(proyectoId),
     ]);
 
   // Procesos "críticos" (paso 9 del recorrido): los que ya tienen dueño asignado. El
@@ -71,8 +74,11 @@ export default async function ProyectoDetallePage({
     pemmEmpresaCompleto: evaluacionesPemm.some((e) => e.tipo === "empresa" && e.estado === "respondida"),
     pemmProcesoCompleto: evaluacionesPemm.some((e) => e.tipo === "proceso" && e.estado === "respondida"),
     entrevistasCompleto: entrevistas.some((e) => e.hallazgos_ia != null),
-    hallazgosValidadosCompleto: hallazgos.some((h) => h.origen === "ia"),
-    hallazgosPresentes: hallazgos.length > 0,
+    hallazgosValidadosCompleto: hallazgos.length > 0,
+    planMejoraCompleto:
+      planMejora.cuantificaciones.length > 0 &&
+      planMejora.iniciativas.length > 0 &&
+      planMejora.acciones.length > 0,
     informeDiagnosticoCompleto: entregables.some((e) => e.tipo === "diagnostico"),
     procesosConDuenoCompleto: procesosCriticos.length > 0,
     sipocActividadIndicadorCompleto: detallesProcesosCriticos.some(

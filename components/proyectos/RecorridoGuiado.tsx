@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, AlertTriangle } from "lucide-react";
 import { calcularEstadosPasos, PASOS_RECORRIDO, type PasoConEstado } from "@/lib/proyectos/recorrido-guiado";
@@ -26,18 +26,12 @@ export interface DatosRecorrido {
   pemmProcesoCompleto: boolean;
   entrevistasCompleto: boolean;
   hallazgosValidadosCompleto: boolean;
-  /** Hay hallazgos validados presentes ahora mismo — se combina con la visita registrada
-   * al hacer clic en el paso 7 para determinar si la matriz ya fue "revisada". */
-  hallazgosPresentes: boolean;
+  planMejoraCompleto: boolean;
   informeDiagnosticoCompleto: boolean;
   procesosConDuenoCompleto: boolean;
   sipocActividadIndicadorCompleto: boolean;
   manualProcesosCompleto: boolean;
   auditoriaAdopcionCompleto: boolean;
-}
-
-function claveVisitaMatriz(proyectoId: string) {
-  return `adapta-os:visita-matriz-priorizacion:${proyectoId}`;
 }
 
 function PasoRow({
@@ -85,22 +79,7 @@ function PasoRow({
 
 export function RecorridoGuiado({ proyectoId, datos }: { proyectoId: string; datos: DatosRecorrido }) {
   const router = useRouter();
-  const [haVisitadoMatriz, setHaVisitadoMatriz] = useState(false);
   const [pasoConfirmar, setPasoConfirmar] = useState<PasoConEstado | null>(null);
-
-  useEffect(() => {
-    // Deferido a un microtask (en vez de leer localStorage y llamar setState de forma
-    // síncrona en el cuerpo del efecto): sincroniza con el storage externo sin disparar
-    // el aviso de "cascading renders" del compilador de React.
-    Promise.resolve().then(() => {
-      try {
-        setHaVisitadoMatriz(!!localStorage.getItem(claveVisitaMatriz(proyectoId)));
-      } catch {
-        // localStorage no disponible (ej. modo privado) — la matriz nunca se marcará
-        // "revisada" por visita, pero el resto del recorrido sigue funcionando.
-      }
-    });
-  }, [proyectoId]);
 
   const completitud = useMemo<boolean[]>(
     () => [
@@ -110,14 +89,14 @@ export function RecorridoGuiado({ proyectoId, datos }: { proyectoId: string; dat
       datos.pemmProcesoCompleto,
       datos.entrevistasCompleto,
       datos.hallazgosValidadosCompleto,
-      datos.hallazgosPresentes && haVisitadoMatriz,
+      datos.planMejoraCompleto,
       datos.informeDiagnosticoCompleto,
       datos.procesosConDuenoCompleto,
       datos.sipocActividadIndicadorCompleto,
       datos.manualProcesosCompleto,
       datos.auditoriaAdopcionCompleto,
     ],
-    [datos, haVisitadoMatriz]
+    [datos]
   );
 
   const pasos = useMemo(() => calcularEstadosPasos(completitud), [completitud]);
@@ -137,7 +116,7 @@ export function RecorridoGuiado({ proyectoId, datos }: { proyectoId: string; dat
       case 6:
         return `/proyectos/${proyectoId}/entrevistas`;
       case 7:
-        return `/proyectos/${proyectoId}/hallazgos`;
+        return `/proyectos/${proyectoId}/mejoras`;
       case 8:
       case 11:
         return `/proyectos/${proyectoId}/entregables`;
@@ -156,15 +135,6 @@ export function RecorridoGuiado({ proyectoId, datos }: { proyectoId: string; dat
       setPasoConfirmar(paso);
       return;
     }
-    if (paso.numero === 7) {
-      try {
-        localStorage.setItem(claveVisitaMatriz(proyectoId), String(Date.now()));
-        setHaVisitadoMatriz(true);
-      } catch {
-        // Ver comentario en el useEffect — sin localStorage, el paso 7 no se marcará
-        // completo por visita, pero la navegación al paso sigue funcionando igual.
-      }
-    }
     router.push(hrefDePaso(paso.numero));
   }
 
@@ -172,15 +142,6 @@ export function RecorridoGuiado({ proyectoId, datos }: { proyectoId: string; dat
     if (!pasoConfirmar) return;
     const numero = pasoConfirmar.numero;
     setPasoConfirmar(null);
-    if (numero === 7) {
-      try {
-        localStorage.setItem(claveVisitaMatriz(proyectoId), String(Date.now()));
-        setHaVisitadoMatriz(true);
-      } catch {
-        // Ver comentario en el useEffect — sin localStorage, el paso 7 no se marcará
-        // completo por visita, pero la navegación al paso sigue funcionando igual.
-      }
-    }
     router.push(hrefDePaso(numero));
   }
 

@@ -88,10 +88,10 @@ const CONTENIDO_PASOS: Record<
     cta: "Validar hallazgos",
   },
   7: {
-    titulo: "Prioriza lo que realmente importa",
-    descripcion: "Revisa la matriz de impacto y esfuerzo para decidir dónde intervenir primero.",
-    resultadoEsperado: "Problemas prioritarios acordados para el diagnóstico.",
-    cta: "Revisar prioridades",
+    titulo: "Convierte el problema en valor y acción",
+    descripcion: "Cuantifica el impacto con fuentes y supuestos, crea una iniciativa y asigna la primera acción.",
+    resultadoEsperado: "Impacto económico defendible, iniciativa vinculada y responsable con una acción concreta.",
+    cta: "Construir plan de mejora",
   },
   8: {
     titulo: "Genera el informe de diagnóstico",
@@ -137,8 +137,9 @@ function hrefPaso(proyecto: ProyectoGuia, paso: number) {
     case 5:
       return `/proyectos/${proyecto.id}/entrevistas`;
     case 6:
-    case 7:
       return `/proyectos/${proyecto.id}/hallazgos`;
+    case 7:
+      return `/proyectos/${proyecto.id}/mejoras`;
     case 8:
     case 11:
       return `/proyectos/${proyecto.id}/entregables`;

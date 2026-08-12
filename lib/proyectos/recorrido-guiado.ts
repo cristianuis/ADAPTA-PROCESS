@@ -16,7 +16,7 @@ export const PASOS_RECORRIDO: PasoRecorrido[] = [
   { numero: 4, nombre: "PEMM — proceso(s)", prereq: 2 },
   { numero: 5, nombre: "Entrevistas", prereq: 2 },
   { numero: 6, nombre: "Validar hallazgos propuestos", prereq: 5 },
-  { numero: 7, nombre: "Revisar matriz de priorización", prereq: 6 },
+  { numero: 7, nombre: "Cuantificar impacto y crear plan de mejora", prereq: 6 },
   { numero: 8, nombre: "Generar Informe de Diagnóstico", prereq: 7 },
   { numero: 9, nombre: "Seleccionar procesos críticos y dueños", prereq: 8 },
   { numero: 10, nombre: "Diseñar SIPOC, actividades e indicadores", prereq: 9 },

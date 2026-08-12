@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ArrowRight,
   Building2,
@@ -22,7 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { LancelotCompactBrief } from "@/components/lancelot/LancelotCompactBrief";
-import { construirGuiaLancelot, type GuiaLancelot } from "@/lib/lancelot/siguiente-accion";
+import type { GuiaLancelot } from "@/lib/lancelot/siguiente-accion";
 import { respuestaLancelotSchema } from "@/lib/lancelot/types";
 import type {
   RespuestaLancelot,
@@ -38,53 +38,21 @@ interface Props {
 
 const RESULTADOS_RAPIDOS = ["Funcionó", "Avancé parcialmente", "Me bloquearon", "No lo hice"];
 
-function claveVisitaMatriz(proyectoId: string) {
-  return `adapta-os:visita-matriz-priorizacion:${proyectoId}`;
-}
-
 export function LancelotGuide({ guiaInicial, sesiones, sesionInicial }: Props) {
   const router = useRouter();
   const ultimaVuelta = sesionInicial?.vueltas.at(-1) ?? null;
-  const [guia, setGuia] = useState(guiaInicial);
+  const guia = guiaInicial;
   const [sesionId, setSesionId] = useState(sesionInicial?.id ?? "");
   const [salida, setSalida] = useState<RespuestaLancelot | null>(ultimaVuelta?.salida ?? null);
   const [resultadoRapido, setResultadoRapido] = useState("");
   const [detalle, setDetalle] = useState("");
   const [cargando, setCargando] = useState(false);
 
-  useEffect(() => {
-    const proyectoId = guiaInicial.accion.proyectoId;
-    if (
-      guiaInicial.accion.pasoActual === 7 &&
-      proyectoId &&
-      localStorage.getItem(claveVisitaMatriz(proyectoId))
-    ) {
-      const proyectos = guiaInicial.proyectos.map((proyecto) =>
-        proyecto.id === proyectoId
-          ? { ...proyecto, completitud: proyecto.completitud.map((valor, index) => index === 6 ? true : valor) }
-          : proyecto
-      );
-      Promise.resolve().then(() => setGuia(construirGuiaLancelot({
-        clientes: guiaInicial.clientesSinProyecto,
-        proyectos,
-        proyectoSeleccionadoId: proyectoId,
-      })));
-      return;
-    }
-    Promise.resolve().then(() => setGuia(guiaInicial));
-  }, [guiaInicial]);
-
   const { accion } = guia;
   const porcentaje = Math.round((accion.pasosCompletos / accion.pasosTotales) * 100);
 
   function cambiarProyecto(proyectoId: string) {
     router.push(proyectoId ? `/lancelot?proyecto=${proyectoId}` : "/lancelot");
-  }
-
-  function registrarVisitaMatriz() {
-    if (accion.pasoActual === 7 && accion.proyectoId) {
-      localStorage.setItem(claveVisitaMatriz(accion.proyectoId), String(Date.now()));
-    }
   }
 
   async function pedirPreparacion(esContinuacion: boolean) {
@@ -247,7 +215,7 @@ export function LancelotGuide({ guiaInicial, sesiones, sesionInicial }: Props) {
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Button size="lg" onClick={registrarVisitaMatriz} render={<Link href={accion.href}>{accion.cta}<ArrowRight /></Link>} />
+              <Button size="lg" render={<Link href={accion.href}>{accion.cta}<ArrowRight /></Link>} />
               {accion.objetivoIa && (
                 <Button size="lg" variant="outline" disabled={cargando} onClick={() => pedirPreparacion(false)}>
                   {cargando ? <><Loader2 className="animate-spin" />Preparando…</> : <><Sparkles />Ayúdame a preparar este paso</>}
