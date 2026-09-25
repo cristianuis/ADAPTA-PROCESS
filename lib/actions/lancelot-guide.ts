@@ -7,6 +7,7 @@ import {
   type GuiaLancelot,
   type ProyectoGuia,
 } from "@/lib/lancelot/siguiente-accion";
+import { hallazgoConSoporteRevisado } from "@/lib/evidencia/hallazgo-con-soporte";
 
 export async function obtenerGuiaLancelot(
   proyectoSeleccionadoId?: string | null
@@ -49,7 +50,7 @@ export async function obtenerGuiaLancelot(
     supabase.from("triage_respuestas").select("proyecto_id").in("proyecto_id", proyectoIds),
     supabase.from("pemm_evaluaciones").select("proyecto_id, tipo, estado").in("proyecto_id", proyectoIds),
     supabase.from("entrevistas").select("proyecto_id, estado, transcripcion").in("proyecto_id", proyectoIds),
-    supabase.from("hallazgos").select("proyecto_id, estado_evidencia").in("proyecto_id", proyectoIds),
+    supabase.from("hallazgos").select("proyecto_id, estado_evidencia, cita_soporte, fuente, fuente_id").in("proyecto_id", proyectoIds),
     supabase.from("entregables").select("proyecto_id, tipo").in("proyecto_id", proyectoIds),
     supabase.from("procesos").select("id, proyecto_id, dueno_nombre").in("proyecto_id", proyectoIds),
     supabase.from("auditorias_adopcion").select("proyecto_id").in("proyecto_id", proyectoIds),
@@ -126,7 +127,7 @@ export async function obtenerGuiaLancelot(
         (pemm.data ?? []).some(
           (fila) => fila.proyecto_id === id && fila.tipo === "proceso" && fila.estado === "respondida"
         ),
-        (hallazgos.data ?? []).some((fila) => fila.proyecto_id === id && ["cita_verificada", "validado_consultor"].includes(fila.estado_evidencia)),
+        (hallazgos.data ?? []).some((fila) => fila.proyecto_id === id && hallazgoConSoporteRevisado(fila)),
         tienePlanMejora,
         (disenos.data ?? []).some((fila) => fila.proyecto_id === id && fila.estado === "validado"),
         tieneIndicador && (entregables.data ?? []).some(

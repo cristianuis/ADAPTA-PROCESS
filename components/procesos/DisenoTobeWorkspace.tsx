@@ -14,10 +14,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { hallazgoConSoporteRevisado } from "@/lib/evidencia/hallazgo-con-soporte";
 
 type Diseno = Database["public"]["Tables"]["disenos_tobe"]["Row"];
 type Paso = Database["public"]["Tables"]["pasos_tobe"]["Row"];
-type Hallazgo = Pick<Database["public"]["Tables"]["hallazgos"]["Row"], "id" | "titulo" | "estado_evidencia">;
+type Hallazgo = Pick<Database["public"]["Tables"]["hallazgos"]["Row"], "id" | "titulo" | "estado_evidencia" | "cita_soporte" | "fuente" | "fuente_id">;
 
 export function DisenoTobeWorkspace({
   procesoId, diseno, pasos, hallazgos,
@@ -38,9 +39,7 @@ export function DisenoTobeWorkspace({
   const [automatizacion, setAutomatizacion] = useState<"manual" | "asistida" | "candidata">("manual");
   const [hallazgoId, setHallazgoId] = useState("");
   const bloqueado = diseno?.estado === "validado";
-  const hallazgosRevisados = hallazgos.filter((h) =>
-    h.estado_evidencia === "cita_verificada" || h.estado_evidencia === "validado_consultor"
-  );
+  const hallazgosRevisados = hallazgos.filter(hallazgoConSoporteRevisado);
 
   function ejecutar(accion: () => Promise<{ error: string | null }>, exito: string) {
     startTransition(async () => {

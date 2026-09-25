@@ -15,6 +15,7 @@ import {
 import { SPACING_SCALE, TYPE_SCALE } from "@/lib/design/tokens";
 import { cn } from "@/lib/utils";
 import type { Database } from "@/lib/supabase/types";
+import { hallazgoConSoporteRevisado } from "@/lib/evidencia/hallazgo-con-soporte";
 
 type Hallazgo = Database["public"]["Tables"]["hallazgos"]["Row"];
 
@@ -45,9 +46,7 @@ const ZONAS = [
 ];
 
 export function MatrizPriorizacion({ hallazgos }: { hallazgos: Hallazgo[] }) {
-  const respaldados = hallazgos.filter((h) =>
-    h.estado_evidencia === "cita_verificada" || h.estado_evidencia === "validado_consultor"
-  );
+  const respaldados = hallazgos.filter(hallazgoConSoporteRevisado);
   const pendientes = hallazgos.length - respaldados.length;
   const data = respaldados.map((h) => ({
     x: h.esfuerzo,

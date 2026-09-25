@@ -9,6 +9,7 @@ import {
   type DisenoTobeInput,
   type PasoTobeInput,
 } from "@/lib/validations/diseno-tobe.schema";
+import { hallazgoConSoporteRevisado } from "@/lib/evidencia/hallazgo-con-soporte";
 
 function ruta(proyectoId: string, procesoId: string) {
   return `/proyectos/${proyectoId}/procesos/${procesoId}`;
@@ -71,11 +72,11 @@ export async function agregarPasoTobe(input: PasoTobeInput) {
 
   if (parsed.data.hallazgoId) {
     const { data: hallazgo, error } = await supabase.from("hallazgos")
-      .select("id, estado_evidencia").eq("id", parsed.data.hallazgoId)
+      .select("id, estado_evidencia, cita_soporte, fuente, fuente_id").eq("id", parsed.data.hallazgoId)
       .eq("proyecto_id", diseno.proyecto_id).maybeSingle();
     if (error || !hallazgo) return { error: "El hallazgo no pertenece a este proyecto." };
-    if (!["cita_verificada", "validado_consultor"].includes(hallazgo.estado_evidencia)) {
-      return { error: "El hallazgo debe tener evidencia revisada." };
+    if (!hallazgoConSoporteRevisado(hallazgo)) {
+      return { error: "El hallazgo debe tener una referencia de evidencia revisada." };
     }
   }
 

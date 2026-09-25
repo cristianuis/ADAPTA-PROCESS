@@ -33,6 +33,7 @@ describeRls("aislamiento de enlaces públicos por token (integración Supabase)"
 
     const { data: usuario, error: usuarioError } = await admin.auth.admin.createUser({
       email: `token-rls-${crypto.randomUUID()}@example.com`,
+      password: `Synthetic-${crypto.randomUUID()}-Aa1!`,
       email_confirm: true,
     });
     if (usuarioError || !usuario.user) throw usuarioError ?? new Error("No se creó el usuario sintético.");

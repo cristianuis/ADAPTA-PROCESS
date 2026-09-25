@@ -2,6 +2,8 @@
 
 Fecha de corte: 2026-09-25. Fuente: código, migraciones, pruebas y `NEXUS_AUDITORIA_PRODUCTO_2026-09-25.md`. Estado general: **NO READY FOR PILOT** y **NO READY FOR CLIENT ACCESS**. PASS significa prueba ejecutada y evidencia observable; un diseño o una prueba omitida no es PASS.
 
+Verificación local del incremento: `npm test` **149 PASS / 14 SKIP**, `npm run lint` PASS y `npm run build` PASS. Los SKIP son integraciones reales aún no ejecutadas, no cobertura ganada.
+
 ## Umbrales innegociables
 
 **READY FOR PILOT**: un consultor administrador completa una intervención sintética y una intervención acompañada con la primera empresa, de alta a Informe 360, sin modificación manual de datos ni riesgo crítico conocido; cada conclusión importante tiene fuente; informe descargable y recuperable; RLS y backup/restauración de base y archivos verificados en test; fallos de IA y sesión no exponen datos. Puede ser operado solo por el consultor, sin cuentas cliente.
@@ -40,6 +42,7 @@ Empresa ficticia: **Operadora Nómada S.A.S.**, sin datos de personas reales. Pr
 - Las pruebas de integración ahora requieren `TEST_SUPABASE_*` exclusivos, referencia de proyecto coincidente y rechazo explícito del proyecto productivo conocido. La prueba RLS de token crea y elimina su propia empresa sintética; dejó de usar el primer proyecto disponible.
 - El workflow manual `staging-integration.yml` ejecutará las pruebas con secretos exclusivos de staging una vez exista el proyecto; su presencia en el repositorio no demuestra una ejecución exitosa.
 - El Informe 360 solo cuenta hallazgos con soporte textual suficiente; una cita cotejada exige fuente de entrevista identificable. Para habilitar TO-BE debe existir un paso soportado por un hallazgo revisado. El reporte ya no presenta la marca booleana del consultor como aprobación independiente del cliente.
+- La misma comprobación de soporte se usa en la guía de avance, matriz y selección de hallazgos TO-BE. La coincidencia por prefijo de rutas públicas se cerró (`/login-interno` ya no se considera pública).
 
 ## Incidencias abiertas y secuencia de cierre
 

@@ -47,7 +47,7 @@ npm start
 
 Las integraciones se habilitan mediante variables de ejecución y por defecto se omiten. Inspeccionar fixtures antes de habilitarlas: algunas escriben datos. Usar Supabase de pruebas, no clientes reales. Tests verdes no sustituyen aislamiento, pruebas de navegador ni restauración.
 
-Para integración, configura exclusivamente las variables de `.env.test.example` en la sesión de pruebas. `TEST_SUPABASE_PROJECT_REF` debe coincidir con el subdominio del proyecto de staging; la guardia rechaza el proyecto productivo conocido y la reutilización de `NEXT_PUBLIC_SUPABASE_URL`. No ejecutar `RUN_RLS_INTEGRATION=1` antes de aplicar migraciones y verificar que staging no contiene datos reales. La matriz de criterios y los FAIL/PARTIAL vigentes están en [Commercial Readiness](docs/NEXUS_COMMERCIAL_READINESS.md).
+Para integración, configura exclusivamente `TEST_SUPABASE_URL`, `TEST_SUPABASE_PROJECT_REF`, `TEST_SUPABASE_ANON_KEY`, `TEST_SUPABASE_SERVICE_ROLE_KEY` y `RUN_RLS_INTEGRATION=1` en la sesión de pruebas o como secretos del workflow manual; no guardes claves en archivos versionados. La referencia debe coincidir con el subdominio del proyecto de staging; la guardia rechaza el proyecto productivo conocido y la reutilización de `NEXT_PUBLIC_SUPABASE_URL`. No ejecutar la integración antes de aplicar migraciones y verificar que staging no contiene datos reales. La matriz de criterios y los FAIL/PARTIAL vigentes están en [Commercial Readiness](docs/NEXUS_COMMERCIAL_READINESS.md).
 
 ## Base de datos
 
