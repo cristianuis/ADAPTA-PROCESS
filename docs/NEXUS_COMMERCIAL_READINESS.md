@@ -2,7 +2,7 @@
 
 Fecha de corte: 2026-09-25. Fuente: código, migraciones, pruebas y `NEXUS_AUDITORIA_PRODUCTO_2026-09-25.md`. Estado general: **NO READY FOR PILOT** y **NO READY FOR CLIENT ACCESS**. PASS significa prueba ejecutada y evidencia observable; un diseño o una prueba omitida no es PASS.
 
-Verificación local del incremento: `npm test` **149 PASS / 15 SKIP** (los SKIP requieren Supabase real); `npm run lint` y `npm run build` se ejecutan después de cada cambio. La primera ejecución en [GitHub Actions #36193120304](https://github.com/cristianuis/ADAPTA-PROCESS/actions/runs/36193120304) terminó **Success** con `RUN_RLS_INTEGRATION=1` y Supabase efímero. Esta evidencia valida el esquema y las 14 integraciones existentes en CI, no equivale a staging hospedado ni a E2E de producto. La prueba negativa nueva de integridad entre cliente/proyecto y la migración 0026 esperan el siguiente CI.
+Verificación local del incremento: `npm test` **149 PASS / 16 SKIP** (los SKIP requieren Supabase real); `npm run lint` y `npm run build` PASS. La primera ejecución en [GitHub Actions #36193120304](https://github.com/cristianuis/ADAPTA-PROCESS/actions/runs/36193120304) terminó **Success** con `RUN_RLS_INTEGRATION=1` y Supabase efímero. Esta evidencia valida el esquema y las 14 integraciones existentes en CI, no equivale a staging hospedado ni a E2E de producto. Las pruebas nuevas de integridad cliente/proyecto y binarios Storage esperan su CI.
 
 ## Umbrales innegociables
 
@@ -59,7 +59,7 @@ La autorización debe ser *deny by default*: lectura/escritura distintas por tab
 - El Informe 360 solo cuenta hallazgos con soporte textual suficiente; una cita cotejada exige fuente de entrevista identificable. Para habilitar TO-BE debe existir un paso soportado por un hallazgo revisado. El reporte ya no presenta la marca booleana del consultor como aprobación independiente del cliente.
 - La misma comprobación de soporte se usa en la guía de avance, matriz y selección de hallazgos TO-BE. La coincidencia por prefijo de rutas públicas se cerró (`/login-interno` ya no se considera pública).
 - `0025_fase_con_evidencia_soportada.sql` prepara la alineación de la fase persistida con esos requisitos y el recálculo al cambiar pasos TO-BE. **Pendiente de aplicar y probar en staging; no desplegado en producción.**
-- `0026_integridad_cliente_proyecto.sql` impide por FK compuesta que un proyecto apunte a un cliente de otro consultor, incluso mediante API directa. Su prueba negativa se incorpora al CI; **no desplegado en producción**.
+- `0026_integridad_cliente_proyecto.sql` impide por FK compuesta que un proyecto apunte a un cliente de otro consultor, incluso mediante API directa. Se incorporan pruebas negativas de cruce entre clientes, proyectos, iniciativas y binarios de informes en Storage; **no desplegado en producción**.
 
 ## Incidencias abiertas y secuencia de cierre
 

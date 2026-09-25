@@ -161,6 +161,33 @@ describeRls("autorización inicial de Lancelot (integración Supabase)", () => {
     expect(intacto?.cliente_id).toBe(idsCliente[0]);
   });
 
+  it("protege los binarios de informes en Storage frente a otro consultor", async () => {
+    const ruta = `${idConsultorA}/${idsProyecto[0]}/${crypto.randomUUID()}.docx`;
+    const contenido = new Uint8Array([80, 75, 3, 4, 0, 0, 0, 0]);
+    const opciones = {
+      contentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      upsert: false,
+    };
+    const subida = await usuarioA.storage.from("nexus-informes").upload(ruta, contenido, opciones);
+    expect(subida.error).toBeNull();
+    try {
+      const propio = await usuarioA.storage.from("nexus-informes").download(ruta);
+      expect(propio.error).toBeNull();
+      expect(propio.data).not.toBeNull();
+
+      const ajeno = await usuarioB.storage.from("nexus-informes").download(ruta);
+      expect(ajeno.error).not.toBeNull();
+      expect(ajeno.data).toBeNull();
+
+      const escrituraAjena = await usuarioB.storage.from("nexus-informes")
+        .upload(`${idConsultorA}/${idsProyecto[0]}/${crypto.randomUUID()}.docx`, contenido, opciones);
+      expect(escrituraAjena.error).not.toBeNull();
+    } finally {
+      const retirada = await usuarioA.storage.from("nexus-informes").remove([ruta]);
+      expect(retirada.error).toBeNull();
+    }
+  });
+
   it("no permite a un usuario crear perfiles de consultor para otra cuenta", async () => {
     const insercion = await usuarioA.from("consultores").insert({
       user_id: idUsuarioSinPerfil,
