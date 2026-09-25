@@ -128,6 +128,39 @@ describeRls("autorización inicial de Lancelot (integración Supabase)", () => {
     expect(fasePropia.error).toBeNull();
   });
 
+  it("aísla clientes, proyectos e iniciativas y prohíbe cruzar cliente/consultor", async () => {
+    const [clientesA, proyectosB, iniciativasB] = await Promise.all([
+      usuarioA.from("clientes").select("id").in("id", idsCliente),
+      usuarioB.from("proyectos").select("id").in("id", idsProyecto),
+      usuarioB.from("iniciativas_mejora").select("id").eq("id", idIniciativaA),
+    ]);
+    expect(clientesA.error).toBeNull();
+    expect(clientesA.data?.map((fila) => fila.id)).toEqual([idsCliente[0]]);
+    expect(proyectosB.error).toBeNull();
+    expect(proyectosB.data?.map((fila) => fila.id)).toEqual([idsProyecto[1]]);
+    expect(iniciativasB.error).toBeNull();
+    expect(iniciativasB.data).toEqual([]);
+
+    const cruce = await usuarioA.from("proyectos").insert({
+      consultor_id: idConsultorA,
+      cliente_id: idsCliente[1],
+      nombre: `Cruce prohibido ${sufijo}`,
+    });
+    expect(cruce.error).not.toBeNull();
+
+    const reasignacion = await usuarioA.from("proyectos")
+      .update({ cliente_id: idsCliente[1] })
+      .eq("id", idsProyecto[0]);
+    expect(reasignacion.error).not.toBeNull();
+
+    const { data: intacto, error } = await service.from("proyectos")
+      .select("cliente_id")
+      .eq("id", idsProyecto[0])
+      .single();
+    expect(error).toBeNull();
+    expect(intacto?.cliente_id).toBe(idsCliente[0]);
+  });
+
   it("no permite a un usuario crear perfiles de consultor para otra cuenta", async () => {
     const insercion = await usuarioA.from("consultores").insert({
       user_id: idUsuarioSinPerfil,

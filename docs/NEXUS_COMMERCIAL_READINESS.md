@@ -2,7 +2,7 @@
 
 Fecha de corte: 2026-09-25. Fuente: código, migraciones, pruebas y `NEXUS_AUDITORIA_PRODUCTO_2026-09-25.md`. Estado general: **NO READY FOR PILOT** y **NO READY FOR CLIENT ACCESS**. PASS significa prueba ejecutada y evidencia observable; un diseño o una prueba omitida no es PASS.
 
-Verificación local del incremento: `npm test` **149 PASS / 14 SKIP**, `npm run lint` PASS y `npm run build` PASS. Los SKIP son integraciones reales aún no ejecutadas, no cobertura ganada.
+Verificación local del incremento: `npm test` **149 PASS / 15 SKIP** (los SKIP requieren Supabase real); `npm run lint` y `npm run build` se ejecutan después de cada cambio. La primera ejecución en [GitHub Actions #36193120304](https://github.com/cristianuis/ADAPTA-PROCESS/actions/runs/36193120304) terminó **Success** con `RUN_RLS_INTEGRATION=1` y Supabase efímero. Esta evidencia valida el esquema y las 14 integraciones existentes en CI, no equivale a staging hospedado ni a E2E de producto. La prueba negativa nueva de integridad entre cliente/proyecto y la migración 0026 esperan el siguiente CI.
 
 ## Umbrales innegociables
 
@@ -22,8 +22,8 @@ Verificación local del incremento: `npm test` **149 PASS / 14 SKIP**, `npm run 
 | TO-BE, mejora, roadmap y KPI | PARTIAL | Persistencia disponible; operaciones compuestas no siempre atómicas; falta prueba de concurrencia y recorrido real |
 | Informe 360 y recuperación | PARTIAL | DOCX generado y guardado en bucket privado; puerta de preparación ahora exige hallazgo con soporte y TO-BE vinculado; descarga y fuga entre tenants no probadas en staging |
 | Seguridad multiempresa / RBAC | FAIL | Solo existe consultor administrador global; no hay membresías/roles por organización |
-| RLS entre organizaciones | FAIL | Políticas por consultor presentes, pero no se ejecutó matriz A/B sobre tenants, tablas, RPC y archivos en entorno separado |
-| Integración Supabase | FAIL | 14 pruebas de integración están omitidas; se bloqueó que hereden claves de producción, pero aún no hay proyecto test autenticado |
+| RLS entre organizaciones | PARTIAL | CI aislado comprobó separación inicial de dos consultores y RPCs; faltan seis roles, matriz A/B exhaustiva, Storage y tenant organizacional real |
+| Integración Supabase | PARTIAL | 14 integraciones reales pasaron en Supabase efímero en CI #36193120304; falta staging hospedado persistente, seed y recorrido completo |
 | E2E automatizado | FAIL | No hay suite de navegador contra aplicación + Supabase test; tests unitarios no sustituyen E2E |
 | Autenticación, invitación y revocación | FAIL | Login privado del administrador; no hay invitación/roles de cliente ni prueba de desactivación/sesión revocada |
 | Auditoría y concurrencia | FAIL | No hay trazabilidad suficiente de cada acción sensible ni control de versión de todas las escrituras críticas |
@@ -59,10 +59,11 @@ La autorización debe ser *deny by default*: lectura/escritura distintas por tab
 - El Informe 360 solo cuenta hallazgos con soporte textual suficiente; una cita cotejada exige fuente de entrevista identificable. Para habilitar TO-BE debe existir un paso soportado por un hallazgo revisado. El reporte ya no presenta la marca booleana del consultor como aprobación independiente del cliente.
 - La misma comprobación de soporte se usa en la guía de avance, matriz y selección de hallazgos TO-BE. La coincidencia por prefijo de rutas públicas se cerró (`/login-interno` ya no se considera pública).
 - `0025_fase_con_evidencia_soportada.sql` prepara la alineación de la fase persistida con esos requisitos y el recálculo al cambiar pasos TO-BE. **Pendiente de aplicar y probar en staging; no desplegado en producción.**
+- `0026_integridad_cliente_proyecto.sql` impide por FK compuesta que un proyecto apunte a un cliente de otro consultor, incluso mediante API directa. Su prueba negativa se incorpora al CI; **no desplegado en producción**.
 
 ## Incidencias abiertas y secuencia de cierre
 
-1. P0: conseguir Supabase staging **separado**, aplicar 0001–0025 en orden, crear bootstrap administrativo sintético y ejecutar integración. `0025` no se aplicará a producción antes de pasar esa prueba. No reutilizar `.env.local` ni datos de producción.
+1. P0: conseguir Supabase staging **separado** y persistente, aplicar 0001–0026 en orden, crear bootstrap administrativo sintético y ejecutar integración/E2E. El CI efímero ya aplicó 0001–0025 y pasó las integraciones existentes; 0026 espera su ejecución. No aplicar 0025/0026 a producción antes de pasar staging. No reutilizar `.env.local` ni datos de producción.
 2. P0: ejecutar el caso sintético completo, corregir bloqueos funcionales, introducir repositorio documental privado mínimo y capturar una prueba de restauración que incluya los binarios.
 3. P0: asegurar integridad transaccional y optimismo/concurrencia en iniciativas, validación IA, TO-BE y entregables; verificar con dos sesiones.
 4. P0 para acceso cliente: modelo de organización/membresía `owner`, `consultant`, `client_admin`, `process_owner`, `collaborator`, `viewer`, RLS de todas las entidades y Storage. Aplicar primero en staging y someter a pruebas negativas A/B antes de producción.
@@ -70,4 +71,4 @@ La autorización debe ser *deny by default*: lectura/escritura distintas por tab
 
 ## Riesgos residuales
 
-Un dump de DB restaurado no prueba recuperación de archivos. El booleano `validado_cliente` no registra identidad, fecha o aceptación independiente. La escala PEMM describe una evaluación específica y no constituye un índice global de madurez. Las 14 pruebas omitidas son **pendientes**, no éxitos. Ningún dato de clientes se insertó en test durante esta fase mientras staging no esté disponible.
+Un dump de DB restaurado no prueba recuperación de archivos. El booleano `validado_cliente` no registra identidad, fecha o aceptación independiente. La escala PEMM describe una evaluación específica y no constituye un índice global de madurez. Las integraciones que aparecen como SKIP en la ejecución local sí corren en CI aislado; ninguna prueba de flujo completo ni de seis roles se ha ejecutado. Ningún dato de clientes se insertó en test; solo fixtures sintéticos en el runner efímero.
