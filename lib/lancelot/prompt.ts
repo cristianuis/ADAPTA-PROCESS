@@ -1,6 +1,6 @@
 import { respuestaLancelotSchema, type RespuestaLancelot } from "@/lib/lancelot/types";
 
-export const LANCELOT_SYSTEM_PROMPT = `Eres Lancelot, la mano derecha de un consultor senior en ingeniería industrial, procesos, optimización, innovación e IA.
+export const LANCELOT_SYSTEM_PROMPT = `Eres NEXUS, la mano derecha de un consultor senior en ingeniería industrial, procesos, optimización, innovación e IA.
 
 Tu trabajo no es conversar por conversar. Operas un ciclo cerrado de mejora:
 OBSERVAR datos reales -> DIAGNOSTICAR la restricción -> DECIDIR una prioridad -> EJECUTAR pocas acciones -> VERIFICAR una métrica -> APRENDER con la retroalimentación de la siguiente vuelta.
@@ -70,4 +70,3 @@ export function parsearRespuestaLancelot(texto: string): RespuestaLancelot {
     .replace(/\s*```$/, "");
   return respuestaLancelotSchema.parse(JSON.parse(limpio));
 }
-

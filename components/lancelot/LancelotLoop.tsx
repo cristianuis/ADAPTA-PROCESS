@@ -48,7 +48,7 @@ export function LancelotLoop({ proyectos, sesiones, sesionInicial }: Props) {
       return;
     }
     if (esContinuacion && retroalimentacion.trim().length < 3) {
-      toast.error("Cuéntale a Lancelot qué ocurrió antes de continuar.");
+      toast.error("Cuéntale a NEXUS qué ocurrió antes de continuar.");
       return;
     }
 
@@ -77,7 +77,7 @@ export function LancelotLoop({ proyectos, sesiones, sesionInicial }: Props) {
       toast.success(esContinuacion ? "Nueva vuelta completada." : "Misión creada con memoria privada.");
       router.replace(`/lancelot?sesion=${envelope.sesionId}`, { scroll: false });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Lancelot no pudo responder.");
+      toast.error(error instanceof Error ? error.message : "NEXUS no pudo responder.");
     } finally {
       setCargando(false);
     }
@@ -90,7 +90,7 @@ export function LancelotLoop({ proyectos, sesiones, sesionInicial }: Props) {
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
               <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary-foreground/65"><Sparkles className="size-4" />Tu mano derecha operativa</p>
-              <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Lancelot Loop</h1>
+              <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">NEXUS · Asistente de ejecución</h1>
               <p className="mt-3 max-w-xl leading-7 text-primary-foreground/75">Convierte la realidad de tu portafolio en una prioridad, acciones verificables y aprendizaje para la siguiente vuelta.</p>
             </div>
             {sesionId && <Button variant="secondary" render={<Link href="/lancelot"><Plus />Nueva misión</Link>} />}
@@ -147,4 +147,3 @@ export function LancelotLoop({ proyectos, sesiones, sesionInicial }: Props) {
     </div>
   );
 }
-

@@ -1,8 +1,22 @@
-import { getConsultorActual } from "@/lib/actions/consultores";
+import { esAdministradorActual, getConsultorActual } from "@/lib/actions/consultores";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const esAdministrador = await esAdministradorActual();
+  if (!esAdministrador) {
+    return (
+      <main className="mx-auto flex min-h-screen max-w-2xl items-center px-6">
+        <section className="rounded-xl border bg-card p-6">
+          <h1 className="text-xl font-semibold">Cuenta pendiente de autorización</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Esta cuenta puede iniciar sesión, pero el propietario de NEXUS todavía no le ha habilitado el acceso a la plataforma.
+          </p>
+        </section>
+      </main>
+    );
+  }
+
   const { consultor, user } = await getConsultorActual();
 
   const brandStyle = consultor

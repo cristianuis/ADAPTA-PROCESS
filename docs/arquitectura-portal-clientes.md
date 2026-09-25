@@ -1,5 +1,7 @@
 # Arquitectura propuesta para el portal de clientes
 
+> Propuesta no implementada ni verificación de permisos. Desde el 2026-09-24 prevalece el [plan INNO IA](LANCELOT_INNO_IA_PLAN_MAESTRO_2026-09.md). Los roles descritos aquí son antecedentes, no garantía de aislamiento actual.
+
 El portal no debe reutilizar el panel del consultor. Son dos superficies con
 permisos y recorridos diferentes.
 

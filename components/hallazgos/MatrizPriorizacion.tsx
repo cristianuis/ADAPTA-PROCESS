@@ -45,15 +45,23 @@ const ZONAS = [
 ];
 
 export function MatrizPriorizacion({ hallazgos }: { hallazgos: Hallazgo[] }) {
-  const data = hallazgos.map((h) => ({
+  const respaldados = hallazgos.filter((h) =>
+    h.estado_evidencia === "cita_verificada" || h.estado_evidencia === "validado_consultor"
+  );
+  const pendientes = hallazgos.length - respaldados.length;
+  const data = respaldados.map((h) => ({
     x: h.esfuerzo,
     y: h.impacto,
     titulo: h.titulo,
     cuadrante: cuadrante(h.impacto, h.esfuerzo),
+    estadoEvidencia: h.estado_evidencia,
   }));
 
   return (
     <div className={cn("flex min-w-0 flex-col overflow-hidden", SPACING_SCALE.md)}>
+      <p className="text-xs leading-5 text-muted-foreground">
+        La matriz incluye solo hallazgos con evidencia revisada. {pendientes > 0 && `${pendientes} hallazgo(s) siguen fuera de la priorización hasta completar su revisión.`}
+      </p>
       <div className={cn("flex flex-wrap text-xs", SPACING_SCALE.md)}>
         {Object.entries(CUADRANTE_COLOR).map(([nombre, color]) => (
           <span key={nombre} className="flex items-center gap-1.5">
@@ -62,7 +70,11 @@ export function MatrizPriorizacion({ hallazgos }: { hallazgos: Hallazgo[] }) {
           </span>
         ))}
       </div>
-      <div className="h-72 min-w-0 w-full sm:h-80">
+      {data.length === 0 ? (
+        <p className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">
+          Todavía no hay hallazgos con evidencia revisada para priorizar.
+        </p>
+      ) : <div className="h-72 min-w-0 w-full sm:h-80">
         <ResponsiveContainer width="100%" height="100%">
           <ScatterChart margin={{ top: 10, right: 8, bottom: 10, left: -8 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
@@ -108,6 +120,9 @@ export function MatrizPriorizacion({ hallazgos }: { hallazgos: Hallazgo[] }) {
                     <p className="text-muted-foreground">
                       {p.cuadrante} — Impacto {p.y}, Esfuerzo {p.x}
                     </p>
+                    <p className="mt-1 text-muted-foreground">
+                      {p.estadoEvidencia === "cita_verificada" ? "Cita cotejada con entrevista" : "Evidencia revisada por consultor"}
+                    </p>
                   </div>
                 );
               }}
@@ -119,7 +134,7 @@ export function MatrizPriorizacion({ hallazgos }: { hallazgos: Hallazgo[] }) {
             </Scatter>
           </ScatterChart>
         </ResponsiveContainer>
-      </div>
+      </div>}
     </div>
   );
 }

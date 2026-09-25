@@ -22,7 +22,7 @@ export async function crearHallazgoManual(input: HallazgoManualInput) {
 
   await requireConsultor();
   const supabase = await createClient();
-  const { proyectoId, titulo, descripcion, categoria, impacto, esfuerzo, fuente } = parsed.data;
+  const { proyectoId, titulo, descripcion, categoria, citaSoporte, impacto, esfuerzo, fuente } = parsed.data;
 
   const { error } = await supabase.from("hallazgos").insert({
     proyecto_id: proyectoId,
@@ -32,6 +32,8 @@ export async function crearHallazgoManual(input: HallazgoManualInput) {
     impacto,
     esfuerzo,
     fuente,
+    cita_soporte: citaSoporte,
+    estado_evidencia: "validado_consultor",
     origen: "manual",
   });
 

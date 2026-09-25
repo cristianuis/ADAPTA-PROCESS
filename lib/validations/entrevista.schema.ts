@@ -53,6 +53,7 @@ export const validarHallazgoSchema = z.object({
   entrevistaId: z.string().uuid(),
   proyectoId: z.string().uuid(),
   indice: z.number().int().min(0),
+  citaSoporte: z.string().trim().min(10, "La cita debe tener al menos 10 caracteres"),
   esfuerzo: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)]),
   impacto: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)]).optional(),
 });

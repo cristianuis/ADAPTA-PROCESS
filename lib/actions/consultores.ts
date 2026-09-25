@@ -26,8 +26,19 @@ export async function getConsultorActual() {
 /** Igual que getConsultorActual, pero redirige a /perfil si el perfil no existe. Usar en páginas que dependen de consultor_id. */
 export async function requireConsultor() {
   const { consultor, user } = await getConsultorActual();
+  const supabase = await createClient();
+  const { data: esAdministrador, error } = await supabase.rpc("es_administrador_lancelot");
+  if (error || !esAdministrador) redirect("/perfil");
   if (!consultor) redirect("/perfil");
   return { consultor, user };
+}
+
+export async function esAdministradorActual() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const { data, error } = await supabase.rpc("es_administrador_lancelot");
+  return !error && data === true;
 }
 
 export async function guardarPerfilConsultor(input: ConsultorInput) {
@@ -42,6 +53,13 @@ export async function guardarPerfilConsultor(input: ConsultorInput) {
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
+
+  const { data: esAdministrador, error: permisoError } = await supabase.rpc(
+    "es_administrador_lancelot"
+  );
+  if (permisoError || !esAdministrador) {
+    return { error: "Tu cuenta no tiene permiso para administrar el perfil de consultoría." };
+  }
 
   const { nombre, empresa, colorPrimario, colorSecundario, tarifaHoraObjetivo, ejemplosEstilo } = parsed.data;
 

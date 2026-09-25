@@ -1,0 +1,45 @@
+name: Calidad NEXUS
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: calidad-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Valores públicos ficticios para compilar; nunca usar secretos de producción aquí.
+      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
+
+    steps:
+      - name: Obtener código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependencias reproducibles
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Pruebas unitarias
+        run: npm test
+
+      - name: Compilación de producción
+        run: npm run build

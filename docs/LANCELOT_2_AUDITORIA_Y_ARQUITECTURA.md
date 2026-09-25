@@ -1,5 +1,7 @@
 # Lancelot 2.0 — auditoría y arquitectura de reconstrucción
 
+> Antecedente histórico. Desde el 2026-09-24 consultar el [plan INNO IA](LANCELOT_INNO_IA_PLAN_MAESTRO_2026-09.md), que corrige conclusiones demasiado amplias de esta revisión. Los conteos y verificaciones siguientes corresponden a agosto, no al estado actual de producción.
+
 Fecha de corte: 2026-08-12  
 Alcance: Fase 0 del Prompt Maestro. No modifica producción ni introduce funcionalidades.
 

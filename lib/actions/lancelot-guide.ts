@@ -14,7 +14,7 @@ export async function obtenerGuiaLancelot(
   const { consultor } = await requireConsultor();
   const supabase = await createClient();
 
-  const [{ data: clientes }, { data: proyectos }] = await Promise.all([
+  const [{ data: clientes, error: errorClientes }, { data: proyectos, error: errorProyectos }] = await Promise.all([
     supabase
       .from("clientes")
       .select("id, razon_social, created_at")
@@ -26,6 +26,9 @@ export async function obtenerGuiaLancelot(
       .eq("consultor_id", consultor.id)
       .neq("estado_comercial", "cerrado"),
   ]);
+  if (errorClientes || errorProyectos) {
+    throw new Error("No se pudo cargar la empresa y sus intervenciones.");
+  }
 
   const clientesGuia = (clientes ?? []).map((cliente) => ({
     id: cliente.id,
@@ -53,11 +56,18 @@ export async function obtenerGuiaLancelot(
     supabase.from("cuantificaciones_impacto").select("proyecto_id").in("proyecto_id", proyectoIds),
     supabase.from("iniciativas_mejora").select("id, proyecto_id").in("proyecto_id", proyectoIds),
   ]);
+  if ([triage, pemm, entrevistas, hallazgos, entregables, procesos, auditorias, cuantificaciones, iniciativas]
+    .some((resultado) => resultado.error)) {
+    throw new Error("No se pudo comprobar el avance de la intervención.");
+  }
 
   const iniciativaIds = (iniciativas.data ?? []).map((iniciativa) => iniciativa.id);
   const acciones = iniciativaIds.length
     ? await supabase.from("acciones_mejora").select("iniciativa_id").in("iniciativa_id", iniciativaIds)
-    : { data: [] };
+    : { data: [], error: null };
+  if (acciones.error) {
+    throw new Error("No se pudieron comprobar las acciones del plan de mejora.");
+  }
 
   const procesosCriticos = (procesos.data ?? []).filter((proceso) => !!proceso.dueno_nombre);
   const procesosCriticosIds = procesosCriticos.map((proceso) => proceso.id);
@@ -67,7 +77,10 @@ export async function obtenerGuiaLancelot(
         supabase.from("actividades").select("proceso_id").in("proceso_id", procesosCriticosIds),
         supabase.from("indicadores").select("proceso_id, fuente_datos").in("proceso_id", procesosCriticosIds),
       ])
-    : [{ data: [] }, { data: [] }, { data: [] }];
+    : [{ data: [], error: null }, { data: [], error: null }, { data: [], error: null }];
+  if (sipoc.error || actividades.error || indicadores.error) {
+    throw new Error("No se pudo comprobar el diseño de los procesos.");
+  }
 
   const procesosConSipoc = new Set((sipoc.data ?? []).map((fila) => fila.proceso_id));
   const procesosConActividades = new Set((actividades.data ?? []).map((fila) => fila.proceso_id));

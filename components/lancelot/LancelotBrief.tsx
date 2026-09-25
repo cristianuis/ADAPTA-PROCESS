@@ -71,7 +71,7 @@ export function LancelotBrief({ salida, numero }: { salida: RespuestaLancelot; n
       <Card>
         <CardContent className="grid gap-5 pt-0 md:grid-cols-2">
           <div>
-            <p className="flex items-center gap-2 text-sm font-medium"><CheckCircle2 className="size-4 text-success" />Lectura de Lancelot</p>
+            <p className="flex items-center gap-2 text-sm font-medium"><CheckCircle2 className="size-4 text-success" />Lectura de NEXUS</p>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">{salida.lectura}</p>
             <ul className="mt-3 space-y-1">
               {salida.evidencia.map((item) => <li key={item} className="text-xs text-muted-foreground">• {item}</li>)}
@@ -86,4 +86,3 @@ export function LancelotBrief({ salida, numero }: { salida: RespuestaLancelot; n
     </div>
   );
 }
-

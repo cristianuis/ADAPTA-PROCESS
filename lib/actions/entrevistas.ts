@@ -15,6 +15,7 @@ import {
   type RespuestaAutoservicioInput,
 } from "@/lib/validations/entrevista.schema";
 import { construirTranscripcionAutoservicio } from "@/lib/entrevistas/construir-transcripcion-autoservicio";
+import { citaExisteEnFuente } from "@/lib/evidencia/validar-cita";
 
 export async function listarEntrevistas(proyectoId: string) {
   await requireConsultor();
@@ -76,12 +77,22 @@ export async function validarHallazgoIA(input: ValidarHallazgoInput) {
 
   const { data: entrevista } = await supabase
     .from("entrevistas")
-    .select("hallazgos_ia, hallazgos_validados")
+    .select("proyecto_id, transcripcion, hallazgos_ia, hallazgos_validados")
     .eq("id", entrevistaId)
     .maybeSingle();
 
+  if (!entrevista || entrevista.proyecto_id !== proyectoId) {
+    return { error: "La entrevista no pertenece a esta intervención." };
+  }
+
   const propuesto = entrevista?.hallazgos_ia?.[indice];
   if (!propuesto) return { error: "El hallazgo propuesto ya no existe." };
+  if (entrevista.hallazgos_validados?.some((hallazgo) => hallazgo.indice === indice)) {
+    return { error: "Este hallazgo ya fue agregado." };
+  }
+  if (!citaExisteEnFuente(entrevista.transcripcion, parsed.data.citaSoporte)) {
+    return { error: "La cita no aparece en la transcripción. Corrígela usando un fragmento literal antes de validar." };
+  }
 
   const { data: hallazgoCreado, error: insertError } = await supabase
     .from("hallazgos")
@@ -94,6 +105,8 @@ export async function validarHallazgoIA(input: ValidarHallazgoInput) {
       esfuerzo,
       fuente: "entrevista",
       fuente_id: entrevistaId,
+      cita_soporte: parsed.data.citaSoporte,
+      estado_evidencia: "cita_verificada",
       origen: "ia",
     })
     .select("id")
@@ -103,10 +116,19 @@ export async function validarHallazgoIA(input: ValidarHallazgoInput) {
 
   const validados = [
     ...(entrevista?.hallazgos_validados ?? []),
-    { ...propuesto, indice, hallazgo_id: hallazgoCreado.id },
+    { ...propuesto, cita_soporte: parsed.data.citaSoporte, indice, hallazgo_id: hallazgoCreado.id },
   ];
 
-  await supabase.from("entrevistas").update({ hallazgos_validados: validados }).eq("id", entrevistaId);
+  const { error: updateError } = await supabase
+    .from("entrevistas")
+    .update({ hallazgos_validados: validados })
+    .eq("id", entrevistaId)
+    .eq("proyecto_id", proyectoId);
+
+  if (updateError) {
+    await supabase.from("hallazgos").delete().eq("id", hallazgoCreado.id).eq("proyecto_id", proyectoId);
+    return { error: "No se pudo registrar la validación en la entrevista. El hallazgo no quedó guardado." };
+  }
 
   revalidatePath(`/proyectos/${proyectoId}/entrevistas/${entrevistaId}`);
   revalidatePath(`/proyectos/${proyectoId}/hallazgos`);

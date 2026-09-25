@@ -41,6 +41,7 @@ export default async function HallazgosPage({ params }: { params: Promise<{ proy
                   <TableHead>Impacto</TableHead>
                   <TableHead>Esfuerzo</TableHead>
                   <TableHead>Origen</TableHead>
+                  <TableHead>Evidencia</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -54,6 +55,19 @@ export default async function HallazgosPage({ params }: { params: Promise<{ proy
                       <Badge className={h.origen === "ia" ? "bg-secondary/30" : "bg-muted"}>
                         {h.origen === "ia" ? "IA (validado)" : "Manual"}
                       </Badge>
+                    </TableCell>
+                    <TableCell data-label="Evidencia">
+                      <div className="flex flex-col items-start gap-1">
+                        <Badge className={h.estado_evidencia === "cita_verificada" ? "bg-success/20 text-success" : h.estado_evidencia === "validado_consultor" ? "bg-secondary/30" : "bg-muted"}>
+                          {h.estado_evidencia === "cita_verificada" ? "Cita cotejada" : h.estado_evidencia === "validado_consultor" ? "Revisada por consultor" : h.cita_soporte ? "Pendiente de revisar" : "Sin evidencia"}
+                        </Badge>
+                        {h.cita_soporte && (
+                          <details className="max-w-64 text-xs text-muted-foreground">
+                            <summary className="cursor-pointer underline underline-offset-2">Ver soporte</summary>
+                            <p className="mt-1 whitespace-normal">{h.cita_soporte}</p>
+                          </details>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

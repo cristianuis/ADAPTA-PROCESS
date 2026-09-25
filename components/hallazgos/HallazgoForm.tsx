@@ -37,6 +37,7 @@ export function HallazgoForm({ proyectoId }: { proyectoId: string }) {
   const [open, setOpen] = useState(false);
   const [titulo, setTitulo] = useState("");
   const [descripcion, setDescripcion] = useState("");
+  const [citaSoporte, setCitaSoporte] = useState("");
   const [categoria, setCategoria] = useState<CategoriaHallazgo>("proceso");
   const [fuente, setFuente] = useState<FuenteHallazgo>("observacion");
   const [impacto, setImpacto] = useState(3);
@@ -49,6 +50,7 @@ export function HallazgoForm({ proyectoId }: { proyectoId: string }) {
         titulo,
         descripcion,
         categoria,
+        citaSoporte,
         impacto: impacto as 1 | 2 | 3 | 4 | 5,
         esfuerzo: esfuerzo as 1 | 2 | 3 | 4 | 5,
         fuente,
@@ -60,6 +62,7 @@ export function HallazgoForm({ proyectoId }: { proyectoId: string }) {
       toast.success("Hallazgo agregado.");
       setTitulo("");
       setDescripcion("");
+      setCitaSoporte("");
       setOpen(false);
     });
   }
@@ -79,6 +82,18 @@ export function HallazgoForm({ proyectoId }: { proyectoId: string }) {
           <div className="flex flex-col gap-2">
             <Label htmlFor="descripcion">Descripción</Label>
             <Textarea id="descripcion" rows={3} value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="cita-soporte-manual">Evidencia o referencia revisada</Label>
+            <Textarea
+              id="cita-soporte-manual"
+              rows={3}
+              maxLength={1000}
+              value={citaSoporte}
+              onChange={(event) => setCitaSoporte(event.target.value)}
+              placeholder="Registra la cita, observación, documento (nombre/sección) o dato que sustenta el hallazgo."
+            />
+            <p className="text-xs text-muted-foreground">Debe tener al menos 10 caracteres. Quedará identificado como revisado por consultor.</p>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
@@ -142,7 +157,7 @@ export function HallazgoForm({ proyectoId }: { proyectoId: string }) {
               </Select>
             </div>
           </div>
-          <Button disabled={isPending || !titulo} onClick={handleSubmit}>
+          <Button disabled={isPending || !titulo || citaSoporte.trim().length < 10} onClick={handleSubmit}>
             Guardar hallazgo
           </Button>
         </div>

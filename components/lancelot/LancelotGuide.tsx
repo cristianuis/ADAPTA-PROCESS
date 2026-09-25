@@ -58,7 +58,7 @@ export function LancelotGuide({ guiaInicial, sesiones, sesionInicial }: Props) {
   async function pedirPreparacion(esContinuacion: boolean) {
     if (!esContinuacion && !accion.objetivoIa) return;
     if (esContinuacion && !resultadoRapido) {
-      toast.error("Elige qué pasó para que Lancelot pueda ajustar el plan.");
+      toast.error("Elige qué pasó para que NEXUS pueda ajustar el plan.");
       return;
     }
 
@@ -91,7 +91,7 @@ export function LancelotGuide({ guiaInicial, sesiones, sesionInicial }: Props) {
       toast.success(esContinuacion ? "Plan ajustado con lo que ocurrió." : "Paso preparado.");
       router.replace(`/lancelot?sesion=${envelope.sesionId}`, { scroll: false });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Lancelot no pudo responder.");
+      toast.error(error instanceof Error ? error.message : "NEXUS no pudo responder.");
     } finally {
       setCargando(false);
     }
@@ -103,7 +103,7 @@ export function LancelotGuide({ guiaInicial, sesiones, sesionInicial }: Props) {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Apoyo para el paso actual</p>
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">Lancelot te ayuda a ejecutarlo</h1>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">NEXUS te ayuda a ejecutarlo</h1>
           </div>
           <Button variant="outline" render={<Link href="/lancelot">Volver a mi siguiente paso</Link>} />
         </div>
@@ -113,7 +113,7 @@ export function LancelotGuide({ guiaInicial, sesiones, sesionInicial }: Props) {
         <Card>
           <CardHeader>
             <CardTitle>Después de intentarlo, ¿qué pasó?</CardTitle>
-            <p className="text-sm text-muted-foreground">Una respuesta basta. Lancelot ajustará el apoyo sin hacerte llenar otro formulario.</p>
+            <p className="text-sm text-muted-foreground">Una respuesta basta. NEXUS ajustará el apoyo sin hacerte llenar otro formulario.</p>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-2 sm:grid-cols-4">
@@ -160,7 +160,7 @@ export function LancelotGuide({ guiaInicial, sesiones, sesionInicial }: Props) {
             </p>
             <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Haz esto ahora</h1>
             <p className="mt-3 max-w-xl leading-7 text-primary-foreground/75">
-              Una empresa a la vez, un paso a la vez. Lancelot revisa lo que ya hiciste y te lleva al siguiente punto.
+              Una empresa a la vez, un paso a la vez. NEXUS revisa lo que ya hiciste y te lleva al siguiente punto.
             </p>
           </div>
           {guia.proyectos.length > 0 && (
@@ -236,7 +236,7 @@ export function LancelotGuide({ guiaInicial, sesiones, sesionInicial }: Props) {
           <Card>
             <CardContent className="space-y-3 pt-0">
               <p className="flex items-center gap-2 font-semibold"><Building2 className="size-4 text-primary" />¿Llegó otra empresa?</p>
-              <p className="text-sm leading-6 text-muted-foreground">Regístrala primero. Lancelot la pondrá en la ruta sin mezclarla con el trabajo actual.</p>
+              <p className="text-sm leading-6 text-muted-foreground">Regístrala primero. NEXUS la pondrá en la ruta sin mezclarla con el trabajo actual.</p>
               <Button variant="outline" className="w-full" render={<Link href="/clientes/nuevo"><Plus />Registrar empresa</Link>} />
             </CardContent>
           </Card>

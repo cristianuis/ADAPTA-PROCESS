@@ -27,6 +27,7 @@ export type EstadoPEMM = "pendiente" | "respondida";
 export type CategoriaHallazgo = "proceso" | "gobierno" | "tecnologia" | "cultura" | "datos";
 export type FuenteHallazgo = "entrevista" | "observacion" | "documental" | "financiero";
 export type OrigenHallazgo = "ia" | "manual";
+export type EstadoEvidenciaHallazgo = "pendiente_validacion" | "validado_consultor" | "cita_verificada";
 export type NivelResistencia = "bajo" | "medio" | "alto";
 export type OrigenEntrevista = "entrevista_dirigida" | "autoservicio";
 export type EstadoIntake = "pendiente" | "respondida";
@@ -384,6 +385,8 @@ export interface Database {
           esfuerzo: number;
           fuente: FuenteHallazgo;
           fuente_id: string | null;
+          cita_soporte: string | null;
+          estado_evidencia: EstadoEvidenciaHallazgo;
           origen: OrigenHallazgo;
           created_at: string;
         };
@@ -397,6 +400,8 @@ export interface Database {
           esfuerzo: number;
           fuente: FuenteHallazgo;
           fuente_id?: string | null;
+          cita_soporte?: string | null;
+          estado_evidencia?: EstadoEvidenciaHallazgo;
           origen?: OrigenHallazgo;
           created_at?: string;
         };
@@ -802,6 +807,7 @@ export interface Database {
           inversion_estimada: number;
           beneficio_anual_objetivo: number;
           moneda: string;
+          /** Columnas históricas calculadas en la base; no se presentan como resultado validado. */
           roi_estimado: number | null;
           payback_meses: number | null;
           created_at: string;
@@ -1020,6 +1026,10 @@ export interface Database {
     };
     Views: Record<string, never>;
     Functions: {
+      es_administrador_lancelot: {
+        Args: Record<string, never>;
+        Returns: boolean;
+      };
       iniciar_demo_diagnostico: {
         Args: {
           p_nombre: string;

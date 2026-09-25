@@ -50,7 +50,7 @@ export function PortfolioHeader({ authenticated = false }: { authenticated?: boo
           href={authenticated ? "/lancelot" : "/login"}
           className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[#163f8c] px-4 text-sm font-medium text-white transition-colors hover:bg-[#2456b3]"
         >
-          {authenticated ? "Abrir Lancelot" : "Ingresar a mi empresa"}
+          {authenticated ? "Abrir NEXUS" : "Ingresar a mi empresa"}
           <ArrowRight className="size-4" />
         </Link>
       </div>
@@ -146,7 +146,7 @@ function Hero({ authenticated }: { authenticated: boolean }) {
               href={authenticated ? "/lancelot" : "/consultoria"}
               className="mt-7 flex min-h-12 items-center justify-between rounded-2xl bg-[#f2e8d5] px-5 text-sm font-semibold text-[#163f8c]"
             >
-              {authenticated ? "Abrir Lancelot" : "Solicitar consultoría especializada"}
+              {authenticated ? "Abrir NEXUS" : "Solicitar consultoría especializada"}
               <ArrowRight className="size-4" />
             </Link>
           </div>
@@ -197,7 +197,7 @@ function Method() {
       <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
         <div className="grid gap-8 lg:grid-cols-2">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#f2e8d5]">Método Lancelot</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#f2e8d5]">NEXUS IA PROCESS</p>
             <h2 className="mt-5 max-w-xl text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl">
               Una ruta guiada desde el diagnóstico hasta la adopción.
             </h2>
@@ -234,7 +234,7 @@ export function LancelotToolCard({ compact = false }: { compact?: boolean }) {
               </span>
               <span className="text-xs text-[#aebed5]">Herramienta propia</span>
             </div>
-            <p className="mt-8 text-xs font-semibold uppercase tracking-[0.2em] text-[#f2e8d5]">Lancelot</p>
+            <p className="mt-8 text-xs font-semibold uppercase tracking-[0.2em] text-[#f2e8d5]">NEXUS</p>
             <h3 className="mt-3 text-3xl font-semibold leading-tight tracking-[-0.035em] sm:text-4xl">
               Tu mano derecha para vender, diagnosticar y mejorar con trazabilidad.
             </h3>

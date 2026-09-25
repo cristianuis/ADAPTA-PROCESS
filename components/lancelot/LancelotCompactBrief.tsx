@@ -57,7 +57,7 @@ export function LancelotCompactBrief({ salida }: { salida: RespuestaLancelot }) 
         </summary>
         <div className="mt-4 grid gap-4 border-t pt-4 md:grid-cols-2">
           <div>
-            <p className="font-medium">Lectura de Lancelot</p>
+            <p className="font-medium">Lectura de NEXUS</p>
             <p className="mt-2 leading-6 text-muted-foreground">{salida.lectura}</p>
             <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
               {salida.evidencia.map((item) => <li key={item}>• {item}</li>)}

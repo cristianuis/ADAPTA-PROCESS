@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 const monto = z.number().finite().min(0, "El valor no puede ser negativo");
+const resultadoAnualizado = z.number().finite();
 
 export const cuantificacionImpactoSchema = z.object({
   proyectoId: z.string().uuid(),
@@ -82,7 +83,7 @@ export const medicionImpactoSchema = z.object({
   iniciativaId: z.string().uuid(),
   tipo: z.enum(["linea_base", "seguimiento", "cierre"]),
   fecha: z.string().min(1, "Selecciona una fecha"),
-  beneficioAnualRealizado: monto,
+  beneficioAnualRealizado: resultadoAnualizado,
   costoAcumulado: monto,
   valorIndicador: z.number().finite().nullable(),
   unidadIndicador: z.string().trim().optional().or(z.literal("")),

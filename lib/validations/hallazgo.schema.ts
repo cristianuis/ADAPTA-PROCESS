@@ -7,6 +7,7 @@ export const hallazgoManualSchema = z.object({
   titulo: z.string().trim().min(2, "El título es obligatorio"),
   descripcion: z.string().trim().optional().or(z.literal("")),
   categoria: z.enum(["proceso", "gobierno", "tecnologia", "cultura", "datos"]),
+  citaSoporte: z.string().trim().min(10, "Registra la evidencia o referencia que sustenta el hallazgo"),
   impacto: nivel1a5,
   esfuerzo: nivel1a5,
   fuente: z.enum(["entrevista", "observacion", "documental", "financiero"]),

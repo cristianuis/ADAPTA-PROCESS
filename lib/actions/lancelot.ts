@@ -13,13 +13,14 @@ import type {
 export async function listarProyectosLancelot(): Promise<ProyectoLancelot[]> {
   const { consultor } = await requireConsultor();
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("proyectos")
     .select("id, nombre, estado_comercial, fase_metodologica, clientes(razon_social)")
     .eq("consultor_id", consultor.id)
     .neq("estado_comercial", "cerrado")
     .order("created_at", { ascending: false });
 
+  if (error) throw new Error("No se pudieron cargar las intervenciones.");
   return (data ?? []).map((proyecto) => ({
     id: proyecto.id,
     nombre: proyecto.nombre,
@@ -32,33 +33,37 @@ export async function listarProyectosLancelot(): Promise<ProyectoLancelot[]> {
 export async function listarSesionesLancelot(): Promise<SesionLancelotResumen[]> {
   const { consultor } = await requireConsultor();
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("lancelot_sesiones")
     .select("id, objetivo, foco, updated_at")
     .eq("consultor_id", consultor.id)
     .order("updated_at", { ascending: false })
     .limit(6);
 
+  if (error) throw new Error("No se pudo cargar el historial de NEXUS.");
   return data ?? [];
 }
 
 export async function obtenerSesionLancelot(sesionId: string): Promise<SesionLancelot | null> {
   const { consultor } = await requireConsultor();
   const supabase = await createClient();
-  const { data: sesion } = await supabase
+  const { data: sesion, error: errorSesion } = await supabase
     .from("lancelot_sesiones")
     .select("*")
     .eq("id", sesionId)
     .eq("consultor_id", consultor.id)
     .maybeSingle();
 
+  if (errorSesion) throw new Error("No se pudo cargar la sesión de NEXUS.");
   if (!sesion) return null;
 
-  const { data: vueltas } = await supabase
+  const { data: vueltas, error: errorVueltas } = await supabase
     .from("lancelot_vueltas")
     .select("id, numero, retroalimentacion, salida, created_at")
     .eq("sesion_id", sesion.id)
     .order("numero", { ascending: true });
+
+  if (errorVueltas) throw new Error("No se pudo cargar el historial de la sesión.");
 
   const vueltasValidas: VueltaLancelot[] = [];
   for (const vuelta of vueltas ?? []) {
@@ -68,4 +73,3 @@ export async function obtenerSesionLancelot(sesionId: string): Promise<SesionLan
 
   return { ...sesion, vueltas: vueltasValidas };
 }
-

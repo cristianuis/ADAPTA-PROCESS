@@ -36,7 +36,7 @@ export async function POST(request: Request) {
   const { consultor } = await requireConsultor();
   const limite = verificarLimite(`lancelot-loop:${consultor.id}`, 8, 60_000);
   if (!limite.ok) {
-    return Response.json({ error: `Lancelot necesita una pausa. Intenta en ${limite.retryAfterSeconds}s.` }, { status: 429 });
+    return Response.json({ error: `NEXUS necesita una pausa. Intenta en ${limite.retryAfterSeconds}s.` }, { status: 429 });
   }
 
   let body: unknown;
@@ -135,7 +135,7 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("[lancelot-loop] fallo llamando a Anthropic:", error);
-    return Response.json({ error: "Lancelot no pudo analizar esta vuelta." }, { status: 502 });
+    return Response.json({ error: "NEXUS no pudo analizar esta vuelta." }, { status: 502 });
   }
 
   const texto = response.content.filter((item) => item.type === "text").map((item) => item.text).join("\n");
@@ -144,7 +144,7 @@ export async function POST(request: Request) {
     salida = parsearRespuestaLancelot(texto);
   } catch (error) {
     console.error("[lancelot-loop] respuesta estructurada inválida:", error);
-    return Response.json({ error: "Lancelot produjo una respuesta incompleta. Intenta otra vez." }, { status: 502 });
+    return Response.json({ error: "NEXUS produjo una respuesta incompleta. Intenta otra vez." }, { status: 502 });
   }
 
   if (!sesionId) {
@@ -186,4 +186,3 @@ export async function POST(request: Request) {
 
   return Response.json({ sesionId, numero, salida });
 }
-

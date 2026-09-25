@@ -145,6 +145,14 @@ export async function crearAccionMejora(input: AccionMejoraInput) {
   await requireConsultor();
   const supabase = await createClient();
   const valor = parsed.data;
+  const { data: iniciativa } = await supabase
+    .from("iniciativas_mejora")
+    .select("id")
+    .eq("id", valor.iniciativaId)
+    .eq("proyecto_id", valor.proyectoId)
+    .maybeSingle();
+  if (!iniciativa) return { error: "La iniciativa no pertenece a este proyecto." };
+
   const { count } = await supabase
     .from("acciones_mejora")
     .select("id", { count: "exact", head: true })
@@ -172,13 +180,28 @@ export async function actualizarEstadoAccion(input: EstadoAccionMejoraInput) {
   await requireConsultor();
   const supabase = await createClient();
   const valor = parsed.data;
-  const { error } = await supabase.from("acciones_mejora").update({
+  const { data: accion } = await supabase
+    .from("acciones_mejora")
+    .select("id, iniciativa_id")
+    .eq("id", valor.accionId)
+    .maybeSingle();
+  if (!accion) return { error: "La acción no existe o no tienes acceso." };
+
+  const { data: iniciativa } = await supabase
+    .from("iniciativas_mejora")
+    .select("id")
+    .eq("id", accion.iniciativa_id)
+    .eq("proyecto_id", valor.proyectoId)
+    .maybeSingle();
+  if (!iniciativa) return { error: "La acción no pertenece a este proyecto." };
+
+  const { data, error } = await supabase.from("acciones_mejora").update({
     estado: valor.estado,
     evidencia_resultado: valor.evidenciaResultado || null,
     completada_at: valor.estado === "completada" ? new Date().toISOString() : null,
-  }).eq("id", valor.accionId);
+  }).eq("id", valor.accionId).select("id").maybeSingle();
 
-  if (error) return { error: "No se pudo actualizar la acción." };
+  if (error || !data) return { error: "No se pudo actualizar la acción." };
   revalidatePath(rutaMejoras(valor.proyectoId));
   return { error: null };
 }
@@ -190,8 +213,35 @@ export async function actualizarEstadoIniciativa(input: EstadoIniciativaInput) {
   await requireConsultor();
   const supabase = await createClient();
   const valor = parsed.data;
-  const { error } = await supabase.from("iniciativas_mejora").update({ estado: valor.estado }).eq("id", valor.iniciativaId);
-  if (error) return { error: "No se pudo actualizar la iniciativa." };
+  const { data: iniciativa } = await supabase
+    .from("iniciativas_mejora")
+    .select("id")
+    .eq("id", valor.iniciativaId)
+    .eq("proyecto_id", valor.proyectoId)
+    .maybeSingle();
+  if (!iniciativa) return { error: "La iniciativa no existe o no pertenece a este proyecto." };
+
+  if (valor.estado === "completada") {
+    const [{ data: acciones }, { data: cierres }] = await Promise.all([
+      supabase.from("acciones_mejora").select("estado, evidencia_resultado").eq("iniciativa_id", valor.iniciativaId),
+      supabase.from("mediciones_impacto").select("id").eq("iniciativa_id", valor.iniciativaId)
+        .eq("tipo", "cierre").eq("validado_cliente", true),
+    ]);
+    if (!acciones?.length || acciones.some((accion) => accion.estado !== "completada" || !accion.evidencia_resultado?.trim())) {
+      return { error: "Completa todas las acciones con evidencia antes de cerrar la iniciativa." };
+    }
+    if (!cierres?.length) {
+      return { error: "Registra un cierre y márcalo como confirmado por el cliente antes de completar la iniciativa." };
+    }
+  }
+
+  const { data, error } = await supabase.from("iniciativas_mejora")
+    .update({ estado: valor.estado })
+    .eq("id", valor.iniciativaId)
+    .eq("proyecto_id", valor.proyectoId)
+    .select("id")
+    .maybeSingle();
+  if (error || !data) return { error: "No se pudo actualizar la iniciativa." };
   revalidatePath(rutaMejoras(valor.proyectoId));
   return { error: null };
 }
@@ -203,6 +253,14 @@ export async function crearMedicionImpacto(input: MedicionImpactoInput) {
   await requireConsultor();
   const supabase = await createClient();
   const valor = parsed.data;
+  const { data: iniciativa } = await supabase
+    .from("iniciativas_mejora")
+    .select("id")
+    .eq("id", valor.iniciativaId)
+    .eq("proyecto_id", valor.proyectoId)
+    .maybeSingle();
+  if (!iniciativa) return { error: "La iniciativa no pertenece a este proyecto." };
+
   const { error } = await supabase.from("mediciones_impacto").insert({
     iniciativa_id: valor.iniciativaId,
     tipo: valor.tipo,

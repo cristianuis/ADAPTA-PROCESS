@@ -14,7 +14,7 @@ const bodySchema = z.object({
   desviaciones: z.array(z.string()),
 });
 
-export const SYSTEM_PROMPT = `Eres un consultor senior en gestión de procesos, aplicando el Método Lancelot, analizando
+export const SYSTEM_PROMPT = `Eres un consultor senior en gestión de procesos, aplicando el marco metodológico NEXUS, analizando
 resultados de una auditoría de adopción. A partir del porcentaje de adopción y las desviaciones observadas,
 propone hipótesis de causa raíz.
 

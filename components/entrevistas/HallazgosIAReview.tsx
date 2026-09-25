@@ -40,6 +40,7 @@ export function HallazgosIAReview({ entrevista }: { entrevista: Entrevista }) {
   const [isAnalizando, startAnalisis] = useTransition();
   const [isValidando, startValidacion] = useTransition();
   const [esfuerzos, setEsfuerzos] = useState<Record<number, number>>({});
+  const [citasSoporte, setCitasSoporte] = useState<Record<number, string>>({});
   // Reemplaza el confirm() nativo del navegador (Bloque 2.4) — mismo flujo, diálogo propio.
   const [confirmacionPendiente, setConfirmacionPendiente] = useState<string | null>(null);
 
@@ -87,6 +88,7 @@ export function HallazgosIAReview({ entrevista }: { entrevista: Entrevista }) {
         entrevistaId: entrevista.id,
         proyectoId: entrevista.proyecto_id,
         indice,
+        citaSoporte: citasSoporte[indice] ?? entrevista.hallazgos_ia?.[indice]?.cita_soporte ?? "",
         esfuerzo: esfuerzo as 1 | 2 | 3 | 4 | 5,
       });
       if (result.error) {
@@ -158,7 +160,18 @@ export function HallazgosIAReview({ entrevista }: { entrevista: Entrevista }) {
                       Habilitador PEMM: {DIMENSION_LABEL[h.habilitador_pemm as DimensionProceso]}
                     </p>
                   )}
-                  <p className="text-xs italic text-muted-foreground">&quot;{h.cita_soporte}&quot;</p>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-medium text-muted-foreground" htmlFor={`cita-soporte-${indice}`}>
+                      Cita literal de la entrevista (se verifica antes de agregar)
+                    </label>
+                    <Textarea
+                      id={`cita-soporte-${indice}`}
+                      rows={2}
+                      maxLength={600}
+                      value={citasSoporte[indice] ?? h.cita_soporte}
+                      onChange={(event) => setCitasSoporte((prev) => ({ ...prev, [indice]: event.target.value }))}
+                    />
+                  </div>
                   {validado ? (
                     <p className="text-xs font-medium text-success">✓ Validado y agregado a hallazgos</p>
                   ) : (
