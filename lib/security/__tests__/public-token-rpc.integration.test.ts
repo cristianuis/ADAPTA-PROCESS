@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/types";
+import { obtenerSupabaseDePruebas } from "./test-target";
 
 const ejecutar = process.env.RUN_RLS_INTEGRATION === "1";
 const describeRls = ejecutar ? describe : describe.skip;
@@ -9,6 +10,9 @@ describeRls("aislamiento de enlaces públicos por token (integración Supabase)"
   let admin: SupabaseClient<Database>;
   let anon: SupabaseClient<Database>;
   let proyectoId: string;
+  let clienteId: string;
+  let consultorId: string;
+  let usuarioId: string;
   let pemmIds: string[] = [];
   let entrevistaIds: string[] = [];
 
@@ -18,13 +22,7 @@ describeRls("aislamiento de enlaces públicos por token (integración Supabase)"
   const tokenIntakeB = crypto.randomUUID();
 
   beforeAll(async () => {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-    if (!url || !anonKey || !serviceRoleKey) {
-      throw new Error("Faltan variables Supabase para ejecutar la prueba RLS de integración.");
-    }
+    const { url, anonKey, serviceRoleKey } = obtenerSupabaseDePruebas();
 
     admin = createClient<Database>(url, serviceRoleKey, {
       auth: { autoRefreshToken: false, persistSession: false },
@@ -33,14 +31,29 @@ describeRls("aislamiento de enlaces públicos por token (integración Supabase)"
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    const { data: proyecto, error: proyectoError } = await admin
-      .from("proyectos")
-      .select("id")
-      .limit(1)
-      .single();
-    if (proyectoError || !proyecto) {
-      throw new Error("La prueba RLS requiere al menos un proyecto de prueba.");
-    }
+    const { data: usuario, error: usuarioError } = await admin.auth.admin.createUser({
+      email: `token-rls-${crypto.randomUUID()}@example.com`,
+      email_confirm: true,
+    });
+    if (usuarioError || !usuario.user) throw usuarioError ?? new Error("No se creó el usuario sintético.");
+    usuarioId = usuario.user.id;
+
+    const { data: consultor, error: consultorError } = await admin.from("consultores")
+      .insert({ user_id: usuarioId, email: usuario.user.email!, nombre: "Consultor sintético RLS" })
+      .select("id").single();
+    if (consultorError || !consultor) throw consultorError ?? new Error("No se creó el consultor sintético.");
+    consultorId = consultor.id;
+
+    const { data: cliente, error: clienteError } = await admin.from("clientes")
+      .insert({ consultor_id: consultorId, razon_social: "Empresa sintética RLS" })
+      .select("id").single();
+    if (clienteError || !cliente) throw clienteError ?? new Error("No se creó la empresa sintética.");
+    clienteId = cliente.id;
+
+    const { data: proyecto, error: proyectoError } = await admin.from("proyectos")
+      .insert({ cliente_id: clienteId, consultor_id: consultorId, nombre: "Intervención sintética RLS" })
+      .select("id").single();
+    if (proyectoError || !proyecto) throw proyectoError ?? new Error("No se creó el proyecto sintético.");
     proyectoId = proyecto.id;
 
     const { data: pemm, error: pemmError } = await admin
@@ -91,8 +104,13 @@ describeRls("aislamiento de enlaces públicos por token (integración Supabase)"
   });
 
   afterAll(async () => {
+    if (!admin) return;
     if (pemmIds.length > 0) await admin.from("pemm_evaluaciones").delete().in("id", pemmIds);
     if (entrevistaIds.length > 0) await admin.from("entrevistas").delete().in("id", entrevistaIds);
+    if (proyectoId) await admin.from("proyectos").delete().eq("id", proyectoId);
+    if (clienteId) await admin.from("clientes").delete().eq("id", clienteId);
+    if (consultorId) await admin.from("consultores").delete().eq("id", consultorId);
+    if (usuarioId) await admin.auth.admin.deleteUser(usuarioId);
   });
 
   it("el token PEMM A no devuelve la fila B y anon no puede enumerar la tabla", async () => {

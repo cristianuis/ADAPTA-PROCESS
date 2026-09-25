@@ -1,5 +1,6 @@
 import { AlignmentType, Document, Footer, HeadingLevel, PageNumber, Paragraph, TextRun } from "docx";
 import type { DatosInforme360 } from "@/lib/documentos/datos-informe-360";
+import { hallazgoConSoporteRevisado } from "@/lib/evidencia/hallazgo-con-soporte";
 
 function texto(contenido: string, opciones?: { bold?: boolean; color?: string }) {
   return new Paragraph({ spacing: { after: 110 }, children: [new TextRun({ text: contenido, ...opciones })] });
@@ -18,7 +19,7 @@ function linea(etiqueta: string, valor: string) {
 }
 
 export function generarInforme360(datos: DatosInforme360, sintesisConsultor: string): Document {
-  const revisados = datos.hallazgos.filter((h) => ["cita_verificada", "validado_consultor"].includes(h.estado_evidencia));
+  const revisados = datos.hallazgos.filter(hallazgoConSoporteRevisado);
   const pendientes = datos.hallazgos.length - revisados.length;
   const disenosValidados = datos.disenos.filter((d) => d.estado === "validado");
   const nombreHallazgo = new Map(datos.hallazgos.map((h) => [h.id, h.titulo]));
@@ -51,7 +52,7 @@ export function generarInforme360(datos: DatosInforme360, sintesisConsultor: str
       ? `Triage: arquetipo ${datos.triage.arquetipo_sugerido}; puntaje interno ${datos.triage.puntaje_total}. Es una clasificación de entrada, no una medida global de madurez.`
       : "No existe triage registrado."),
     ...datos.evaluacionesPemm.filter((e) => e.estado === "respondida").map((e) =>
-      texto(`PEMM ${e.tipo}${e.proceso_evaluado ? ` · ${e.proceso_evaluado}` : ""}: nivel ${e.nivel_resultante ?? "no concluido"}. El nivel corresponde a esta evaluación y no se promedia con otras.`)),
+      texto(`PEMM ${e.tipo}${e.proceso_evaluado ? ` · ${e.proceso_evaluado}` : ""}: nivel registrado ${e.nivel_resultante ?? "no concluido"}. El nivel corresponde a esta evaluación y no se promedia con otras; revisar sus evidencias antes de citarlo como conclusión.`)),
 
     titulo("4. Hallazgos sustentados"),
     ...revisados.flatMap((h, i) => [
@@ -63,7 +64,7 @@ export function generarInforme360(datos: DatosInforme360, sintesisConsultor: str
     ]),
     ...(pendientes > 0 ? [texto(`${pendientes} hallazgo(s) sin revisión suficiente se excluyen de las conclusiones y requieren verificación adicional.`)] : []),
 
-    titulo("5. Procesos AS-IS observados"),
+    titulo("5. Procesos AS-IS registrados por el consultor"),
     ...datos.procesos.flatMap((proceso) => {
       const actividades = datos.actividades.filter((a) => a.proceso_id === proceso.id).sort((a, b) => a.orden - b.orden);
       const sipoc = datos.sipoc.find((s) => s.proceso_id === proceso.id);
@@ -109,9 +110,9 @@ export function generarInforme360(datos: DatosInforme360, sintesisConsultor: str
     ]),
 
     titulo("9. Resultados medidos y límites"),
-    ...datos.mediciones.filter((m) => m.validado_cliente).map((m) => texto(`${m.tipo} · ${m.fecha} · valor indicador ${m.valor_indicador ?? "no informado"} ${m.unidad_indicador ?? ""} · fuente: ${m.fuente_datos}. Beneficio anual registrado: ${m.beneficio_anual_realizado} (verificar atribución y moneda con la iniciativa).`)),
-    ...(datos.mediciones.some((m) => !m.validado_cliente) ? [texto("Existen mediciones pendientes de confirmación del cliente; no se presentan como resultados comprobados.")] : []),
-    ...(!datos.mediciones.some((m) => m.validado_cliente) ? [texto("Aún no hay resultados de impacto confirmados por el cliente. Las metas y proyecciones del roadmap no equivalen a beneficios realizados.")] : []),
+    ...datos.mediciones.filter((m) => m.validado_cliente).map((m) => texto(`${m.tipo} · ${m.fecha} · valor indicador ${m.valor_indicador ?? "no informado"} ${m.unidad_indicador ?? ""} · fuente declarada: ${m.fuente_datos}. Beneficio anual registrado: ${m.beneficio_anual_realizado} (verificar atribución y moneda con la iniciativa). El consultor marcó esta medición como validada por cliente; NEXUS no conserva aún una aprobación independiente del cliente.`)),
+    ...(datos.mediciones.some((m) => !m.validado_cliente) ? [texto("Existen mediciones sin marca de validación del cliente; no se presentan como resultados comprobados.")] : []),
+    ...(!datos.mediciones.some((m) => m.validado_cliente) ? [texto("Aún no hay mediciones marcadas como validadas por el cliente. Las metas y proyecciones del roadmap no equivalen a beneficios realizados.")] : []),
     texto("Las oportunidades de automatización requieren análisis de datos, excepciones, control y factibilidad antes de construirse. Los tiempos declarados en AS-IS no son mediciones observadas salvo que su fuente lo indique."),
   ];
 

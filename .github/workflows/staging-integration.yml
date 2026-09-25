@@ -1,0 +1,33 @@
+name: Integración Supabase staging (escritura sintética)
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      RUN_RLS_INTEGRATION: "1"
+      TEST_SUPABASE_URL: ${{ secrets.TEST_SUPABASE_URL }}
+      TEST_SUPABASE_PROJECT_REF: ${{ secrets.TEST_SUPABASE_PROJECT_REF }}
+      TEST_SUPABASE_ANON_KEY: ${{ secrets.TEST_SUPABASE_ANON_KEY }}
+      TEST_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.TEST_SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Rechazar secretos ausentes antes de las pruebas
+        run: |
+          test -n "$TEST_SUPABASE_URL"
+          test -n "$TEST_SUPABASE_PROJECT_REF"
+          test -n "$TEST_SUPABASE_ANON_KEY"
+          test -n "$TEST_SUPABASE_SERVICE_ROLE_KEY"
+      - name: Pruebas reales contra staging aislado
+        run: npm test

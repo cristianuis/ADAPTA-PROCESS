@@ -1,6 +1,7 @@
 import { requireConsultor } from "@/lib/actions/consultores";
 import { createClient } from "@/lib/supabase/server";
 import { evaluarPreparacionInforme360 } from "@/lib/documentos/evaluar-informe-360";
+import { hallazgoConSoporteRevisado } from "@/lib/evidencia/hallazgo-con-soporte";
 
 export async function cargarDatosInforme360(proyectoId: string) {
   const { consultor } = await requireConsultor();
@@ -52,13 +53,13 @@ export async function cargarDatosInforme360(proyectoId: string) {
   const indicadores = indicadoresR.data ?? [];
   const acciones = accionesR.data ?? [];
   const hallazgos = hallazgosR.data ?? [];
-  const hallazgosRevisados = new Set(hallazgos.filter((h) => ["cita_verificada", "validado_consultor"].includes(h.estado_evidencia)).map((h) => h.id));
+  const hallazgosRevisados = new Set(hallazgos.filter(hallazgoConSoporteRevisado).map((h) => h.id));
   const cobertura = {
     entrevistas: (entrevistasR.data ?? []).filter((e) => e.estado === "respondida" && !!e.transcripcion?.trim()).length,
     evaluacionesPemmRespondidas: (pemmR.data ?? []).filter((p) => p.estado === "respondida").length,
     hallazgosRevisados: hallazgosRevisados.size,
     procesosConActividades: procesos.filter((p) => !!p.dueno_nombre?.trim() && actividades.some((a) => a.proceso_id === p.id) && (sipocR.data ?? []).some((s) => s.proceso_id === p.id)).length,
-    disenosTobeValidados: disenos.filter((d) => d.estado === "validado" && (pasosR.data ?? []).some((s) => s.diseno_id === d.id)).length,
+    disenosTobeValidados: disenos.filter((d) => d.estado === "validado" && (pasosR.data ?? []).some((s) => s.diseno_id === d.id && !!s.hallazgo_id && hallazgosRevisados.has(s.hallazgo_id))).length,
     indicadores: indicadores.length,
     iniciativasConAcciones: iniciativas.filter((i) => acciones.some((a) => a.iniciativa_id === i.id) && (enlacesR.data ?? []).some((e) => e.iniciativa_id === i.id && hallazgosRevisados.has(e.hallazgo_id))).length,
   };

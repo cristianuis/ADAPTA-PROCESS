@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { obtenerSupabaseDePruebas } from "./test-target";
 
 const ejecutar = process.env.RUN_RLS_INTEGRATION === "1";
 const describeRls = ejecutar ? describe : describe.skip;
@@ -30,12 +31,7 @@ describeRls("autorización inicial de Lancelot (integración Supabase)", () => {
   }
 
   beforeAll(async () => {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!url || !anonKey || !serviceRoleKey) {
-      throw new Error("Faltan variables Supabase para la integración de autorización.");
-    }
+    const { url, anonKey, serviceRoleKey } = obtenerSupabaseDePruebas();
 
     service = createClient(url, serviceRoleKey, {
       auth: { autoRefreshToken: false, persistSession: false },

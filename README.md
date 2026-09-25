@@ -8,7 +8,7 @@ Existe una base funcional para consultoría; **todavía no está acreditada para
 
 Referencia vigente: [Arquitectura y MVP NEXUS](docs/NEXUS_ARQUITECTURA_MVP.md), con el [plan INNO IA](docs/LANCELOT_INNO_IA_PLAN_MAESTRO_2026-09.md) como antecedente.
 
-Verificación del 2026-09-25, tras el módulo AS-IS → TO-BE → Informe 360:
+Verificación inicial del 2026-09-25, tras el módulo AS-IS → TO-BE → Informe 360 (histórica; ver estado actualizado en la auditoría de readiness):
 
 - Tests: 125 aprobados, 14 omitidos en 4 suites de integración que requieren entorno aislado.
 - Lint: 0 errores, 0 advertencias.
@@ -46,6 +46,8 @@ npm start
 ```
 
 Las integraciones se habilitan mediante variables de ejecución y por defecto se omiten. Inspeccionar fixtures antes de habilitarlas: algunas escriben datos. Usar Supabase de pruebas, no clientes reales. Tests verdes no sustituyen aislamiento, pruebas de navegador ni restauración.
+
+Para integración, configura exclusivamente las variables de `.env.test.example` en la sesión de pruebas. `TEST_SUPABASE_PROJECT_REF` debe coincidir con el subdominio del proyecto de staging; la guardia rechaza el proyecto productivo conocido y la reutilización de `NEXT_PUBLIC_SUPABASE_URL`. No ejecutar `RUN_RLS_INTEGRATION=1` antes de aplicar migraciones y verificar que staging no contiene datos reales. La matriz de criterios y los FAIL/PARTIAL vigentes están en [Commercial Readiness](docs/NEXUS_COMMERCIAL_READINESS.md).
 
 ## Base de datos
 

@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { SPACING_SCALE, TYPE_SCALE } from "@/lib/design/tokens";
 import { cn } from "@/lib/utils";
+import { hallazgoConSoporteRevisado } from "@/lib/evidencia/hallazgo-con-soporte";
 
 export default async function HallazgosPage({ params }: { params: Promise<{ proyectoId: string }> }) {
   const { proyectoId } = await params;
@@ -63,8 +64,8 @@ export default async function HallazgosPage({ params }: { params: Promise<{ proy
                     </TableCell>
                     <TableCell data-label="Evidencia">
                       <div className="flex flex-col items-start gap-1">
-                        <Badge className={h.estado_evidencia === "cita_verificada" ? "bg-success/20 text-success" : h.estado_evidencia === "validado_consultor" ? "bg-secondary/30" : "bg-muted"}>
-                          {h.estado_evidencia === "cita_verificada" ? "Cita cotejada" : h.estado_evidencia === "validado_consultor" ? "Revisada por consultor" : h.cita_soporte ? "Pendiente de revisar" : "Sin evidencia"}
+                        <Badge className={hallazgoConSoporteRevisado(h) && h.estado_evidencia === "cita_verificada" ? "bg-success/20 text-success" : hallazgoConSoporteRevisado(h) ? "bg-secondary/30" : "bg-muted"}>
+                          {hallazgoConSoporteRevisado(h) ? h.estado_evidencia === "cita_verificada" ? "Cita cotejada" : "Revisada por consultor" : h.cita_soporte ? "Soporte por revisar" : "Sin soporte suficiente"}
                         </Badge>
                         {h.cita_soporte && (
                           <details className="max-w-64 text-xs text-muted-foreground">
