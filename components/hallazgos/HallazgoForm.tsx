@@ -32,7 +32,7 @@ const FUENTE_LABEL: Record<FuenteHallazgo, string> = {
   financiero: "Financiero",
 };
 
-export function HallazgoForm({ proyectoId, procesos }: { proyectoId: string; procesos: { id: string; nombre: string }[] }) {
+export function HallazgoForm({ proyectoId, procesos, entrevistas }: { proyectoId: string; procesos: { id: string; nombre: string }[]; entrevistas: { id: string; nombre: string }[] }) {
   const [isPending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
   const [titulo, setTitulo] = useState("");
@@ -40,6 +40,7 @@ export function HallazgoForm({ proyectoId, procesos }: { proyectoId: string; pro
   const [citaSoporte, setCitaSoporte] = useState("");
   const [categoria, setCategoria] = useState<CategoriaHallazgo>("proceso");
   const [fuente, setFuente] = useState<FuenteHallazgo>("observacion");
+  const [fuenteId, setFuenteId] = useState("");
   const [impacto, setImpacto] = useState(3);
   const [esfuerzo, setEsfuerzo] = useState(3);
   const [procesoId, setProcesoId] = useState("");
@@ -56,15 +57,17 @@ export function HallazgoForm({ proyectoId, procesos }: { proyectoId: string; pro
         impacto: impacto as 1 | 2 | 3 | 4 | 5,
         esfuerzo: esfuerzo as 1 | 2 | 3 | 4 | 5,
         fuente,
+        fuenteId: fuente === "entrevista" ? fuenteId || null : null,
       });
       if (result.error) {
         toast.error(result.error);
         return;
       }
-      toast.success("Hallazgo agregado.");
+      toast.success("Hallazgo agregado con su fuente registrada.");
       setTitulo("");
       setDescripcion("");
       setCitaSoporte("");
+      setFuenteId("");
       setOpen(false);
     });
   }
@@ -95,7 +98,7 @@ export function HallazgoForm({ proyectoId, procesos }: { proyectoId: string; pro
               onChange={(event) => setCitaSoporte(event.target.value)}
               placeholder="Registra la cita, observación, documento (nombre/sección) o dato que sustenta el hallazgo."
             />
-            <p className="text-xs text-muted-foreground">Debe tener al menos 10 caracteres. Quedará identificado como revisado por consultor.</p>
+            <p className="text-xs text-muted-foreground">Para entrevistas, copia un fragmento de la transcripción: se cotejará antes de guardar. Las demás referencias constarán como revisión manual del consultor.</p>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2 flex flex-col gap-2">
@@ -122,7 +125,7 @@ export function HallazgoForm({ proyectoId, procesos }: { proyectoId: string; pro
             </div>
             <div className="flex flex-col gap-2">
               <Label>Fuente</Label>
-              <Select value={fuente} onValueChange={(v) => setFuente(v as FuenteHallazgo)}>
+              <Select value={fuente} onValueChange={(v) => { setFuente(v as FuenteHallazgo); setFuenteId(""); }}>
                 <SelectTrigger>
                   <SelectValue>{() => FUENTE_LABEL[fuente]}</SelectValue>
                 </SelectTrigger>
@@ -135,6 +138,16 @@ export function HallazgoForm({ proyectoId, procesos }: { proyectoId: string; pro
                 </SelectContent>
               </Select>
             </div>
+            {fuente === "entrevista" && (
+              <div className="col-span-2 flex flex-col gap-2">
+                <Label htmlFor="hallazgo-entrevista">Entrevista que contiene la cita</Label>
+                <select id="hallazgo-entrevista" className="h-9 w-full rounded-md border bg-background px-3 text-sm" value={fuenteId} onChange={(event) => setFuenteId(event.target.value)}>
+                  <option value="">Selecciona una entrevista respondida</option>
+                  {entrevistas.map((entrevista) => <option key={entrevista.id} value={entrevista.id}>{entrevista.nombre}</option>)}
+                </select>
+                {entrevistas.length === 0 && <p className="text-xs text-muted-foreground">Primero registra una entrevista con transcripción.</p>}
+              </div>
+            )}
             <div className="flex flex-col gap-2">
               <Label>Impacto (1-5)</Label>
               <Select value={impacto.toString()} onValueChange={(v) => setImpacto(Number(v))}>
@@ -166,7 +179,7 @@ export function HallazgoForm({ proyectoId, procesos }: { proyectoId: string; pro
               </Select>
             </div>
           </div>
-          <Button disabled={isPending || !titulo || citaSoporte.trim().length < 10} onClick={handleSubmit}>
+          <Button disabled={isPending || !titulo || citaSoporte.trim().length < 10 || (fuente === "entrevista" && !fuenteId)} onClick={handleSubmit}>
             Guardar hallazgo
           </Button>
         </div>

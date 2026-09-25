@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireConsultor } from "@/lib/actions/consultores";
 import { hallazgoManualSchema, type HallazgoManualInput } from "@/lib/validations/hallazgo.schema";
+import { citaExisteEnFuente } from "@/lib/evidencia/validar-cita";
 
 export async function listarHallazgos(proyectoId: string) {
   await requireConsultor();
@@ -23,7 +24,18 @@ export async function crearHallazgoManual(input: HallazgoManualInput) {
 
   await requireConsultor();
   const supabase = await createClient();
-  const { proyectoId, procesoId, titulo, descripcion, categoria, citaSoporte, impacto, esfuerzo, fuente } = parsed.data;
+  const { proyectoId, procesoId, titulo, descripcion, categoria, citaSoporte, impacto, esfuerzo, fuente, fuenteId } = parsed.data;
+
+  if (fuente === "entrevista") {
+    const { data: entrevista, error: entrevistaError } = await supabase.from("entrevistas")
+      .select("proyecto_id, transcripcion, estado")
+      .eq("id", fuenteId!)
+      .eq("proyecto_id", proyectoId)
+      .maybeSingle();
+    if (entrevistaError || !entrevista || entrevista.estado !== "respondida" || !citaExisteEnFuente(entrevista.transcripcion, citaSoporte)) {
+      return { error: "La cita debe aparecer en una entrevista respondida de esta intervención." };
+    }
+  }
 
   const { error } = await supabase.from("hallazgos").insert({
     proyecto_id: proyectoId,
@@ -34,8 +46,9 @@ export async function crearHallazgoManual(input: HallazgoManualInput) {
     impacto,
     esfuerzo,
     fuente,
+    fuente_id: fuenteId,
     cita_soporte: citaSoporte,
-    estado_evidencia: "validado_consultor",
+    estado_evidencia: fuente === "entrevista" ? "cita_verificada" : "validado_consultor",
     origen: "manual",
   });
 

@@ -268,22 +268,22 @@ export function LancelotToolCard({ compact = false }: { compact?: boolean }) {
               <span className="size-2 rounded-full bg-white/25" />
               <span className="size-2 rounded-full bg-white/25" />
             </div>
-            <span className="text-[10px] uppercase tracking-[0.16em] text-[#8299ba]">Recorrido guiado</span>
+            <span className="text-[10px] uppercase tracking-[0.16em] text-[#8299ba]">Ruta de trabajo</span>
           </div>
           <div className="mt-6 space-y-3">
             {[
-              ["01", "Contexto y diagnóstico", "100%"],
-              ["02", "Hallazgos validados", "100%"],
-              ["03", "Arquitectura de procesos", "72%"],
-              ["04", "Pilotaje y adopción", "28%"],
-            ].map(([numero, titulo, avance]) => (
-              <div key={numero} className="grid grid-cols-[auto_1fr_auto] items-center gap-4 rounded-xl bg-white/[0.05] p-4">
+              ["01", "Contexto y diagnóstico"],
+              ["02", "Hallazgos con evidencia"],
+              ["03", "Diseño de procesos"],
+              ["04", "Pilotaje y adopción"],
+            ].map(([numero, titulo]) => (
+              <div key={numero} className="grid grid-cols-[auto_1fr] items-center gap-4 rounded-xl bg-white/[0.05] p-4">
                 <span className="font-mono text-xs text-[#f2e8d5]">{numero}</span>
                 <span className="text-sm">{titulo}</span>
-                <span className="text-xs text-[#8da3c1]">{avance}</span>
               </div>
             ))}
           </div>
+          <p className="mt-4 text-xs text-[#8da3c1]">Esquema del método, no avance de una empresa real.</p>
         </div>
       </div>
     </article>

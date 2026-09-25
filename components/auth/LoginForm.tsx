@@ -55,9 +55,9 @@ export function LoginForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Ingresar a mi empresa</CardTitle>
+        <CardTitle>Ingresar a NEXUS IA PROCESS</CardTitle>
         <CardDescription>
-          Acceso privado para el superadministrador y empresas invitadas.
+          Acceso privado del consultor administrador.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -98,7 +98,7 @@ export function LoginForm() {
             Enviarme un enlace mágico
           </Button>
           <p className="text-center text-xs leading-5 text-muted-foreground">
-            No hay registro público. Solo el superadministrador puede crear o invitar usuarios.
+            No hay registro público ni portal de cliente habilitado todavía.
           </p>
           <Link
             href="/"

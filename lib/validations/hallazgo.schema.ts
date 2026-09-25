@@ -12,6 +12,14 @@ export const hallazgoManualSchema = z.object({
   impacto: nivel1a5,
   esfuerzo: nivel1a5,
   fuente: z.enum(["entrevista", "observacion", "documental", "financiero"]),
+  fuenteId: z.string().uuid().nullable(),
+}).superRefine((value, context) => {
+  if (value.fuente === "entrevista" && !value.fuenteId) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["fuenteId"], message: "Selecciona la entrevista que contiene la cita" });
+  }
+  if (value.fuente !== "entrevista" && value.fuenteId) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["fuenteId"], message: "Esta fuente no corresponde a una entrevista" });
+  }
 });
 
 export type HallazgoManualInput = z.infer<typeof hallazgoManualSchema>;

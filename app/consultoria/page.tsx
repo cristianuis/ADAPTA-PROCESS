@@ -113,23 +113,22 @@ export default async function ConsultoriaPage({
               <div className="flex items-center gap-2 text-[#315da8]">
                 <LockKeyhole className="size-4" />
                 <p className="text-xs font-semibold uppercase tracking-[0.2em]">
-                  Acceso de empresas
+                  Acceso del consultor
                 </p>
               </div>
               <h2 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-[#163f8c] sm:text-4xl">
-                ¿Tu empresa ya tiene acceso?
+                ¿Ya gestionas consultorías en NEXUS?
               </h2>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-[#53647d]">
-                Ingresa con la cuenta que te fue asignada. No existe registro
-                público: únicamente el superadministrador puede crear o invitar
-                usuarios.
+                El espacio de trabajo es privado para el consultor administrador.
+                El acceso de clientes todavía no está habilitado.
               </p>
             </div>
             <Link
               href="/login"
               className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-[#0a1c40] px-7 text-sm font-semibold text-white hover:bg-[#163f8c]"
             >
-              Ingresar a mi empresa
+              Ingresar al espacio de trabajo
               <ArrowRight className="size-4" />
             </Link>
           </div>

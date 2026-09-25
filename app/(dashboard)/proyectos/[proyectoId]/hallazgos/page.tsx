@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { listarHallazgos } from "@/lib/actions/hallazgos";
 import { listarProcesos } from "@/lib/actions/procesos";
+import { listarEntrevistas } from "@/lib/actions/entrevistas";
 import { obtenerProyecto } from "@/lib/actions/proyectos";
 import { HallazgoForm } from "@/components/hallazgos/HallazgoForm";
 import { MatrizPriorizacion } from "@/components/hallazgos/MatrizPriorizacion";
@@ -14,7 +15,7 @@ export default async function HallazgosPage({ params }: { params: Promise<{ proy
   const proyecto = await obtenerProyecto(proyectoId);
   if (!proyecto) notFound();
 
-  const [hallazgos, procesos] = await Promise.all([listarHallazgos(proyectoId), listarProcesos(proyectoId)]);
+  const [hallazgos, procesos, entrevistas] = await Promise.all([listarHallazgos(proyectoId), listarProcesos(proyectoId), listarEntrevistas(proyectoId)]);
   const nombresProceso = new Map(procesos.map((proceso) => [proceso.id, proceso.nombre]));
 
   return (
@@ -24,7 +25,7 @@ export default async function HallazgosPage({ params }: { params: Promise<{ proy
           <h1 className={cn(TYPE_SCALE.h1, "break-words")}>Hallazgos — {proyecto.nombre}</h1>
           <p className="text-sm text-muted-foreground">Matriz de priorización Impacto × Esfuerzo.</p>
         </div>
-        <HallazgoForm proyectoId={proyectoId} procesos={procesos.map(({ id, nombre }) => ({ id, nombre }))} />
+        <HallazgoForm proyectoId={proyectoId} procesos={procesos.map(({ id, nombre }) => ({ id, nombre }))} entrevistas={entrevistas.filter((entrevista) => entrevista.estado === "respondida" && !!entrevista.transcripcion?.trim()).map((entrevista) => ({ id: entrevista.id, nombre: `${entrevista.entrevistado_nombre ?? "Entrevista"} · ${entrevista.fecha ?? "sin fecha"}` }))} />
       </div>
 
       {hallazgos.length === 0 ? (
@@ -70,6 +71,9 @@ export default async function HallazgosPage({ params }: { params: Promise<{ proy
                             <summary className="cursor-pointer underline underline-offset-2">Ver soporte</summary>
                             <p className="mt-1 whitespace-normal">{h.cita_soporte}</p>
                           </details>
+                        )}
+                        {h.fuente === "entrevista" && h.fuente_id && (
+                          <a className="text-xs underline underline-offset-2" href={`/proyectos/${proyectoId}/entrevistas/${h.fuente_id}`}>Abrir entrevista fuente</a>
                         )}
                       </div>
                     </TableCell>
