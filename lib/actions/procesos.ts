@@ -10,18 +10,20 @@ import type { EstadoProceso } from "@/lib/supabase/types";
 export async function listarProcesos(proyectoId: string) {
   await requireConsultor();
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("procesos")
     .select("*")
     .eq("proyecto_id", proyectoId)
     .order("prioridad", { ascending: true, nullsFirst: false });
+  if (error) throw new Error("No se pudieron consultar los procesos.");
   return data ?? [];
 }
 
 export async function obtenerProceso(procesoId: string) {
   await requireConsultor();
   const supabase = await createClient();
-  const { data } = await supabase.from("procesos").select("*").eq("id", procesoId).maybeSingle();
+  const { data, error } = await supabase.from("procesos").select("*").eq("id", procesoId).maybeSingle();
+  if (error) throw new Error("No se pudo consultar el proceso.");
   return data;
 }
 

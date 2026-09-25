@@ -20,11 +20,12 @@ import { citaExisteEnFuente } from "@/lib/evidencia/validar-cita";
 export async function listarEntrevistas(proyectoId: string) {
   await requireConsultor();
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("entrevistas")
     .select("*")
     .eq("proyecto_id", proyectoId)
     .order("created_at", { ascending: false });
+  if (error) throw new Error("No se pudieron consultar las entrevistas.");
   return data ?? [];
 }
 

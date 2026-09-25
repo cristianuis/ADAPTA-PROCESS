@@ -8,11 +8,12 @@ import { hallazgoManualSchema, type HallazgoManualInput } from "@/lib/validation
 export async function listarHallazgos(proyectoId: string) {
   await requireConsultor();
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("hallazgos")
     .select("*")
     .eq("proyecto_id", proyectoId)
     .order("created_at", { ascending: false });
+  if (error) throw new Error("No se pudieron consultar los hallazgos.");
   return data ?? [];
 }
 
@@ -22,10 +23,11 @@ export async function crearHallazgoManual(input: HallazgoManualInput) {
 
   await requireConsultor();
   const supabase = await createClient();
-  const { proyectoId, titulo, descripcion, categoria, citaSoporte, impacto, esfuerzo, fuente } = parsed.data;
+  const { proyectoId, procesoId, titulo, descripcion, categoria, citaSoporte, impacto, esfuerzo, fuente } = parsed.data;
 
   const { error } = await supabase.from("hallazgos").insert({
     proyecto_id: proyectoId,
+    proceso_id: procesoId,
     titulo,
     descripcion: descripcion || null,
     categoria,

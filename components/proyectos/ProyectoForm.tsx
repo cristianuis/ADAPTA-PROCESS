@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { proyectoSchema, type ProyectoInput } from "@/lib/validations/proyecto.schema";
@@ -31,7 +31,7 @@ export function ProyectoForm({ clientes, clienteIdPreseleccionado }: ProyectoFor
     register,
     handleSubmit,
     setValue,
-    watch,
+    control,
     formState: { errors },
   } = useForm<ProyectoInput>({
     resolver: zodResolver(proyectoSchema),
@@ -46,8 +46,8 @@ export function ProyectoForm({ clientes, clienteIdPreseleccionado }: ProyectoFor
     },
   });
 
-  const clienteId = watch("clienteId");
-  const estadoComercial = watch("estadoComercial");
+  const clienteId = useWatch({ control, name: "clienteId" });
+  const estadoComercial = useWatch({ control, name: "estadoComercial" });
 
   function onSubmit(values: ProyectoInput) {
     startTransition(async () => {

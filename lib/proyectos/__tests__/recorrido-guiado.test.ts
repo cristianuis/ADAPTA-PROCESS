@@ -22,19 +22,18 @@ describe("calcularEstadosPasos", () => {
     expect(pasos[2].estado).toBe("actual"); // paso 3 = PEMM empresa
   });
 
-  it("PEMM proceso (paso 4) es 'pendiente' — no 'fuera_de_secuencia' — cuando triage está listo pero PEMM empresa (paso 3, el 'actual') todavía no, porque corren en paralelo", () => {
-    // cliente, triage completos; PEMM empresa (actual) incompleto; PEMM proceso también incompleto
+  it("PEMM empresa (paso 5) puede avanzar tras triage aunque AS-IS siga pendiente", () => {
+    // Cliente y triage completos; las entrevistas y el AS-IS siguen pendientes.
     const completitud = [true, true, false, false, false, false, false, false, false, false, false, false];
     const pasos = calcularEstadosPasos(completitud);
-    expect(pasos[3].estado).toBe("pendiente"); // paso 4 = PEMM proceso, prereq = paso 2 (triage), que sí está completo
+    expect(pasos[4].estado).toBe("pendiente");
   });
 
   it("marca 'fuera_de_secuencia' un paso cuyo prerrequisito real no está cumplido", () => {
-    // cliente y triage completos, pero nada más — validar hallazgos (paso 6) depende de
-    // entrevistas (paso 5), que está incompleto
+    // Cliente y triage completos, pero validar hallazgos depende del AS-IS.
     const completitud = [true, true, false, false, false, false, false, false, false, false, false, false];
     const pasos = calcularEstadosPasos(completitud);
-    expect(pasos[5].estado).toBe("fuera_de_secuencia"); // paso 6, prereq = paso 5 (entrevistas), incompleto
+    expect(pasos[6].estado).toBe("fuera_de_secuencia");
   });
 
   it("un paso completo siempre es 'completado', incluso si aparece después del primer incompleto (completado fuera de orden)", () => {

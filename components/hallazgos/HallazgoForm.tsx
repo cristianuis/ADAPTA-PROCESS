@@ -32,7 +32,7 @@ const FUENTE_LABEL: Record<FuenteHallazgo, string> = {
   financiero: "Financiero",
 };
 
-export function HallazgoForm({ proyectoId }: { proyectoId: string }) {
+export function HallazgoForm({ proyectoId, procesos }: { proyectoId: string; procesos: { id: string; nombre: string }[] }) {
   const [isPending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
   const [titulo, setTitulo] = useState("");
@@ -42,11 +42,13 @@ export function HallazgoForm({ proyectoId }: { proyectoId: string }) {
   const [fuente, setFuente] = useState<FuenteHallazgo>("observacion");
   const [impacto, setImpacto] = useState(3);
   const [esfuerzo, setEsfuerzo] = useState(3);
+  const [procesoId, setProcesoId] = useState("");
 
   function handleSubmit() {
     startTransition(async () => {
       const result = await crearHallazgoManual({
         proyectoId,
+        procesoId: procesoId || null,
         titulo,
         descripcion,
         categoria,
@@ -96,6 +98,13 @@ export function HallazgoForm({ proyectoId }: { proyectoId: string }) {
             <p className="text-xs text-muted-foreground">Debe tener al menos 10 caracteres. Quedará identificado como revisado por consultor.</p>
           </div>
           <div className="grid grid-cols-2 gap-4">
+            <div className="col-span-2 flex flex-col gap-2">
+              <Label htmlFor="hallazgo-proceso">Proceso observado (opcional)</Label>
+              <select id="hallazgo-proceso" className="h-9 w-full rounded-md border bg-background px-3 text-sm" value={procesoId} onChange={(e) => setProcesoId(e.target.value)}>
+                <option value="">Hallazgo transversal o aún sin proceso</option>
+                {procesos.map((proceso) => <option key={proceso.id} value={proceso.id}>{proceso.nombre}</option>)}
+              </select>
+            </div>
             <div className="flex flex-col gap-2">
               <Label>Categoría</Label>
               <Select value={categoria} onValueChange={(v) => setCategoria(v as CategoriaHallazgo)}>

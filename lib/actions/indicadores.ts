@@ -10,7 +10,8 @@ const MAX_INDICADORES_POR_PROCESO = 3;
 export async function listarIndicadores(procesoId: string) {
   await requireConsultor();
   const supabase = await createClient();
-  const { data } = await supabase.from("indicadores").select("*").eq("proceso_id", procesoId);
+  const { data, error } = await supabase.from("indicadores").select("*").eq("proceso_id", procesoId);
+  if (error) throw new Error("No se pudieron consultar los indicadores.");
   return data ?? [];
 }
 

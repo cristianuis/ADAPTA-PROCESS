@@ -126,6 +126,16 @@ No usar «digital twin», «AI agents», «ROI medible» o «automatiza toda la 
 7. **P2 Producto:** definir reglas de retención, invitación/revocación, tenancy y plan de hosting comercial.
 8. **P3 IA/RAG:** retrieval solo tras pruebas de referencia, privacidad, acceso y evaluación de respuestas.
 
-## 14. Resultado actual frente al prompt
+## 14. Avance del tramo AS-IS → TO-BE → Informe 360
+
+La migración `0021_diseno_tobe_y_trazabilidad.sql` se aplicó en producción el 2026-09-25, tras verificar el respaldo cifrado del día. Añade vínculo opcional de hallazgo al proceso, diseño TO-BE separado y pasos con soporte obligatorio para cambios; mantiene el AS-IS histórico. RLS limita las tablas nuevas al consultor propietario y anon no recibe SELECT. La base impide validar un diseño sin al menos un cambio sustentado en un hallazgo revisado, y bloquea la edición de pasos validados hasta reabrirlo.
+
+La migración `0022_fase_por_recorrido_integral.sql` alinea la fase derivada con los hitos reales del recorrido y se verificó sin divergencias en los proyectos actuales. La guía conserva 12 pasos, ahora ordenados desde entrevista y AS-IS hasta TO-BE, adopción e Informe 360; los informes parciales siguen disponibles sin convertirse en pasos obligatorios.
+
+El Informe 360 reúne las secciones persistidas y se bloquea si falta entrevista, PEMM, hallazgo con evidencia, AS-IS, TO-BE validado, indicador o iniciativa con acciones. Distingue explícitamente proyección, dato registrado y resultado confirmado. No constituye aprobación automática del cliente. Para el piloto sigue pendiente probar la consultoría entera con datos de un caso real y contar con un entorno de integración aislado para tests que escriben datos.
+
+La migración `0023_archivos_privados_informes.sql` conserva cada DOCX 360 en Storage privado y permite volver a descargarlo desde su historial. La ruta usa el cliente autenticado, no la service role; una política verifica consultor y proyecto en la ruta del objeto. Los entregables históricos de otros tipos siguen siendo registros sin binario: no se afirma que esos archivos puedan recuperarse.
+
+## 15. Resultado actual frente al prompt
 
 Existe un flujo consultivo y documentos, pero no hay gemelo digital ni SaaS seguro multiempresa acreditado. Algunas piezas del prompt ya están representadas por entidades actuales (entrevista, proceso, indicador, iniciativa) y no deben duplicarse. La migración aditiva `0020_evidencia_trazable_hallazgos.sql` incorpora cita y estado de validación; no crea todavía un repositorio documental ni evidencia multimedia. Catálogo organizacional, archivos, TO-BE versionado, riesgos formales y RAG siguen siendo brechas. La identidad visible se actualiza a NEXUS conservando rutas y contratos internos para compatibilidad. Las migraciones `0018`–`0020` se aplicaron en Supabase producción el 2026-09-25 y sus objetos y permisos se comprobaron por SQL Editor antes de publicar código dependiente.

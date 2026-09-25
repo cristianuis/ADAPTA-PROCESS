@@ -21,6 +21,8 @@ describeRls("plan de mejora privado (integración Supabase)", () => {
     "iniciativa_hallazgos",
     "acciones_mejora",
     "mediciones_impacto",
+    "disenos_tobe",
+    "pasos_tobe",
   ] as const)("anon no puede enumerar %s", async (tabla) => {
     const lectura = await anon.from(tabla).select("*");
     expect(lectura.error).not.toBeNull();

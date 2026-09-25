@@ -33,11 +33,12 @@ export async function actualizarCausasIdentificadas(input: CausasIdentificadasIn
 export async function listarAuditorias(proyectoId: string) {
   await requireConsultor();
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("auditorias_adopcion")
     .select("*, procesos(nombre)")
     .eq("proyecto_id", proyectoId)
     .order("fecha", { ascending: false });
+  if (error) throw new Error("No se pudieron consultar las auditorías de adopción.");
   return data ?? [];
 }
 

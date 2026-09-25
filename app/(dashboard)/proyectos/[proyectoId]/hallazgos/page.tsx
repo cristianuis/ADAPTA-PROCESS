@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { listarHallazgos } from "@/lib/actions/hallazgos";
+import { listarProcesos } from "@/lib/actions/procesos";
 import { obtenerProyecto } from "@/lib/actions/proyectos";
 import { HallazgoForm } from "@/components/hallazgos/HallazgoForm";
 import { MatrizPriorizacion } from "@/components/hallazgos/MatrizPriorizacion";
@@ -13,7 +14,8 @@ export default async function HallazgosPage({ params }: { params: Promise<{ proy
   const proyecto = await obtenerProyecto(proyectoId);
   if (!proyecto) notFound();
 
-  const hallazgos = await listarHallazgos(proyectoId);
+  const [hallazgos, procesos] = await Promise.all([listarHallazgos(proyectoId), listarProcesos(proyectoId)]);
+  const nombresProceso = new Map(procesos.map((proceso) => [proceso.id, proceso.nombre]));
 
   return (
     <div className={cn("flex min-w-0 flex-col", SPACING_SCALE.xl)}>
@@ -22,7 +24,7 @@ export default async function HallazgosPage({ params }: { params: Promise<{ proy
           <h1 className={cn(TYPE_SCALE.h1, "break-words")}>Hallazgos — {proyecto.nombre}</h1>
           <p className="text-sm text-muted-foreground">Matriz de priorización Impacto × Esfuerzo.</p>
         </div>
-        <HallazgoForm proyectoId={proyectoId} />
+        <HallazgoForm proyectoId={proyectoId} procesos={procesos.map(({ id, nombre }) => ({ id, nombre }))} />
       </div>
 
       {hallazgos.length === 0 ? (
@@ -38,6 +40,7 @@ export default async function HallazgosPage({ params }: { params: Promise<{ proy
                 <TableRow>
                   <TableHead>Título</TableHead>
                   <TableHead>Categoría</TableHead>
+                  <TableHead>Proceso</TableHead>
                   <TableHead>Impacto</TableHead>
                   <TableHead>Esfuerzo</TableHead>
                   <TableHead>Origen</TableHead>
@@ -49,6 +52,7 @@ export default async function HallazgosPage({ params }: { params: Promise<{ proy
                   <TableRow key={h.id}>
                     <TableCell data-label="Título" className="font-medium">{h.titulo}</TableCell>
                     <TableCell data-label="Categoría">{h.categoria ?? "—"}</TableCell>
+                    <TableCell data-label="Proceso">{h.proceso_id ? nombresProceso.get(h.proceso_id) ?? "No disponible" : "Transversal"}</TableCell>
                     <TableCell data-label="Impacto">{h.impacto}</TableCell>
                     <TableCell data-label="Esfuerzo">{h.esfuerzo}</TableCell>
                     <TableCell data-label="Origen">

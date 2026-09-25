@@ -25,13 +25,13 @@ export interface DatosRecorrido {
   pemmEmpresaCompleto: boolean;
   pemmProcesoCompleto: boolean;
   entrevistasCompleto: boolean;
+  asIsCompleto: boolean;
   hallazgosValidadosCompleto: boolean;
   planMejoraCompleto: boolean;
-  informeDiagnosticoCompleto: boolean;
-  procesosConDuenoCompleto: boolean;
-  sipocActividadIndicadorCompleto: boolean;
-  manualProcesosCompleto: boolean;
+  tobeCompleto: boolean;
+  medicionYManualCompleto: boolean;
   auditoriaAdopcionCompleto: boolean;
+  informe360Completo: boolean;
 }
 
 function PasoRow({
@@ -85,16 +85,16 @@ export function RecorridoGuiado({ proyectoId, datos }: { proyectoId: string; dat
     () => [
       datos.clienteCompleto,
       datos.triageCompleto,
+      datos.entrevistasCompleto,
+      datos.asIsCompleto,
       datos.pemmEmpresaCompleto,
       datos.pemmProcesoCompleto,
-      datos.entrevistasCompleto,
       datos.hallazgosValidadosCompleto,
       datos.planMejoraCompleto,
-      datos.informeDiagnosticoCompleto,
-      datos.procesosConDuenoCompleto,
-      datos.sipocActividadIndicadorCompleto,
-      datos.manualProcesosCompleto,
+      datos.tobeCompleto,
+      datos.medicionYManualCompleto,
       datos.auditoriaAdopcionCompleto,
+      datos.informe360Completo,
     ],
     [datos]
   );
@@ -110,20 +110,21 @@ export function RecorridoGuiado({ proyectoId, datos }: { proyectoId: string; dat
           ? `/proyectos/${proyectoId}/triage/resultado`
           : `/proyectos/${proyectoId}/triage`;
       case 3:
+        return `/proyectos/${proyectoId}/entrevistas`;
       case 4:
-        return `/proyectos/${proyectoId}/pemm`;
+      case 9:
+        return `/proyectos/${proyectoId}/procesos`;
       case 5:
       case 6:
-        return `/proyectos/${proyectoId}/entrevistas`;
+        return `/proyectos/${proyectoId}/pemm`;
       case 7:
-        return `/proyectos/${proyectoId}/mejoras`;
+        return `/proyectos/${proyectoId}/hallazgos`;
       case 8:
-      case 11:
-        return `/proyectos/${proyectoId}/entregables`;
-      case 9:
+        return `/proyectos/${proyectoId}/mejoras`;
       case 10:
-        return `/proyectos/${proyectoId}/procesos`;
       case 12:
+        return `/proyectos/${proyectoId}/entregables`;
+      case 11:
         return `/proyectos/${proyectoId}/adopcion`;
       default:
         return `/proyectos/${proyectoId}`;

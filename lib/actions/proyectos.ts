@@ -28,13 +28,14 @@ export async function obtenerProyecto(proyectoId: string) {
   const { consultor } = await requireConsultor();
   const supabase = await createClient();
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("proyectos")
     .select("*, clientes(id, razon_social)")
     .eq("id", proyectoId)
     .eq("consultor_id", consultor.id)
     .maybeSingle();
 
+  if (error) throw new Error("No se pudo consultar el proyecto.");
   return data;
 }
 

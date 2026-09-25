@@ -11,12 +11,13 @@ export async function obtenerTriage(proyectoId: string) {
   await requireConsultor();
   const supabase = await createClient();
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("triage_respuestas")
     .select("*")
     .eq("proyecto_id", proyectoId)
     .maybeSingle();
 
+  if (error) throw new Error("No se pudo consultar el triage.");
   return data;
 }
 

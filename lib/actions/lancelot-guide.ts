@@ -45,18 +45,18 @@ export async function obtenerGuiaLancelot(
     });
   }
 
-  const [triage, pemm, entrevistas, hallazgos, entregables, procesos, auditorias, cuantificaciones, iniciativas] = await Promise.all([
+  const [triage, pemm, entrevistas, hallazgos, entregables, procesos, auditorias, iniciativas, disenos] = await Promise.all([
     supabase.from("triage_respuestas").select("proyecto_id").in("proyecto_id", proyectoIds),
     supabase.from("pemm_evaluaciones").select("proyecto_id, tipo, estado").in("proyecto_id", proyectoIds),
-    supabase.from("entrevistas").select("proyecto_id, hallazgos_ia").in("proyecto_id", proyectoIds),
-    supabase.from("hallazgos").select("proyecto_id, origen").in("proyecto_id", proyectoIds),
+    supabase.from("entrevistas").select("proyecto_id, estado, transcripcion").in("proyecto_id", proyectoIds),
+    supabase.from("hallazgos").select("proyecto_id, estado_evidencia").in("proyecto_id", proyectoIds),
     supabase.from("entregables").select("proyecto_id, tipo").in("proyecto_id", proyectoIds),
     supabase.from("procesos").select("id, proyecto_id, dueno_nombre").in("proyecto_id", proyectoIds),
     supabase.from("auditorias_adopcion").select("proyecto_id").in("proyecto_id", proyectoIds),
-    supabase.from("cuantificaciones_impacto").select("proyecto_id").in("proyecto_id", proyectoIds),
     supabase.from("iniciativas_mejora").select("id, proyecto_id").in("proyecto_id", proyectoIds),
+    supabase.from("disenos_tobe").select("proyecto_id, estado").in("proyecto_id", proyectoIds),
   ]);
-  if ([triage, pemm, entrevistas, hallazgos, entregables, procesos, auditorias, cuantificaciones, iniciativas]
+  if ([triage, pemm, entrevistas, hallazgos, entregables, procesos, auditorias, iniciativas, disenos]
     .some((resultado) => resultado.error)) {
     throw new Error("No se pudo comprobar el avance de la intervención.");
   }
@@ -89,27 +89,22 @@ export async function obtenerGuiaLancelot(
       .filter((fila) => fila.fuente_datos.trim().length > 0)
       .map((fila) => fila.proceso_id)
   );
-  const proyectosConDisenoCompleto = new Set(
+  const proyectosConAsIs = new Set(
     procesosCriticos
       .filter(
         (proceso) =>
           procesosConSipoc.has(proceso.id) &&
-          procesosConActividades.has(proceso.id) &&
-          procesosConIndicadores.has(proceso.id)
+          procesosConActividades.has(proceso.id)
       )
       .map((proceso) => proceso.proyecto_id)
   );
 
   const proyectosGuia: ProyectoGuia[] = (proyectos ?? []).map((proyecto) => {
     const id = proyecto.id;
-    const tieneInforme = (entregables.data ?? []).some(
-      (entregable) => entregable.proyecto_id === id && entregable.tipo === "diagnostico"
-    );
-    const tieneProcesosConDueno = procesosCriticos.some((proceso) => proceso.proyecto_id === id);
-    const disenoCompleto = proyectosConDisenoCompleto.has(id);
+    const tieneAsIs = proyectosConAsIs.has(id);
+    const tieneIndicador = procesosCriticos.some((proceso) => proceso.proyecto_id === id && procesosConIndicadores.has(proceso.id));
     const iniciativasProyecto = (iniciativas.data ?? []).filter((iniciativa) => iniciativa.proyecto_id === id);
     const tienePlanMejora =
-      (cuantificaciones.data ?? []).some((fila) => fila.proyecto_id === id) &&
       iniciativasProyecto.length > 0 &&
       (acciones.data ?? []).some((accion) => iniciativasProyecto.some((iniciativa) => iniciativa.id === accion.iniciativa_id));
 
@@ -123,22 +118,22 @@ export async function obtenerGuiaLancelot(
       completitud: [
         !!proyecto.clientes?.razon_social,
         (triage.data ?? []).some((fila) => fila.proyecto_id === id),
+        (entrevistas.data ?? []).some((fila) => fila.proyecto_id === id && fila.estado === "respondida" && !!fila.transcripcion?.trim()),
+        tieneAsIs,
         (pemm.data ?? []).some(
           (fila) => fila.proyecto_id === id && fila.tipo === "empresa" && fila.estado === "respondida"
         ),
         (pemm.data ?? []).some(
           (fila) => fila.proyecto_id === id && fila.tipo === "proceso" && fila.estado === "respondida"
         ),
-        (entrevistas.data ?? []).some((fila) => fila.proyecto_id === id && fila.hallazgos_ia != null),
-        (hallazgos.data ?? []).some((fila) => fila.proyecto_id === id),
+        (hallazgos.data ?? []).some((fila) => fila.proyecto_id === id && ["cita_verificada", "validado_consultor"].includes(fila.estado_evidencia)),
         tienePlanMejora,
-        tieneInforme,
-        tieneProcesosConDueno,
-        disenoCompleto,
-        (entregables.data ?? []).some(
+        (disenos.data ?? []).some((fila) => fila.proyecto_id === id && fila.estado === "validado"),
+        tieneIndicador && (entregables.data ?? []).some(
           (entregable) => entregable.proyecto_id === id && entregable.tipo === "manual"
         ),
         (auditorias.data ?? []).some((auditoria) => auditoria.proyecto_id === id),
+        (entregables.data ?? []).some((entregable) => entregable.proyecto_id === id && entregable.tipo === "informe_360"),
       ],
     };
   });

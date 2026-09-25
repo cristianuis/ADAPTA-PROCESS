@@ -19,11 +19,12 @@ import { calcularNivelResultante } from "@/lib/pemm/calcular-nivel";
 export async function listarEvaluacionesPemm(proyectoId: string) {
   await requireConsultor();
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("pemm_evaluaciones")
     .select("*")
     .eq("proyecto_id", proyectoId)
     .order("created_at", { ascending: false });
+  if (error) throw new Error("No se pudieron consultar las evaluaciones PEMM.");
   return data ?? [];
 }
 

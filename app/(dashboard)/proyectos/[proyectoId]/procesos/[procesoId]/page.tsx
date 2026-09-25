@@ -3,11 +3,14 @@ import { obtenerProceso } from "@/lib/actions/procesos";
 import { obtenerSipoc } from "@/lib/actions/sipoc";
 import { listarActividades } from "@/lib/actions/actividades";
 import { listarIndicadores } from "@/lib/actions/indicadores";
+import { listarHallazgos } from "@/lib/actions/hallazgos";
+import { obtenerDisenoTobe } from "@/lib/actions/disenos-tobe";
 import { SipocForm } from "@/components/procesos/SipocForm";
 import { ActividadForm } from "@/components/procesos/ActividadForm";
 import { MermaidDiagram } from "@/components/procesos/MermaidDiagram";
 import { RaciTable } from "@/components/procesos/RaciTable";
 import { IndicadorForm } from "@/components/procesos/IndicadorForm";
+import { DisenoTobeWorkspace } from "@/components/procesos/DisenoTobeWorkspace";
 import { GuardarComoPlantilla } from "@/components/biblioteca/GuardarComoPlantilla";
 import { generarDiagramaMermaid } from "@/lib/procesos/generar-mermaid";
 import { generarMatrizRaci } from "@/lib/procesos/generar-raci";
@@ -20,14 +23,16 @@ export default async function ProcesoDetallePage({
 }: {
   params: Promise<{ proyectoId: string; procesoId: string }>;
 }) {
-  const { procesoId } = await params;
+  const { proyectoId, procesoId } = await params;
   const proceso = await obtenerProceso(procesoId);
-  if (!proceso) notFound();
+  if (!proceso || proceso.proyecto_id !== proyectoId) notFound();
 
-  const [sipoc, actividades, indicadores] = await Promise.all([
+  const [sipoc, actividades, indicadores, tobe, hallazgos] = await Promise.all([
     obtenerSipoc(procesoId),
     listarActividades(procesoId),
     listarIndicadores(procesoId),
+    obtenerDisenoTobe(procesoId),
+    listarHallazgos(proyectoId),
   ]);
 
   const diagrama = generarDiagramaMermaid(proceso.nombre, actividades);
@@ -75,7 +80,7 @@ export default async function ProcesoDetallePage({
       {/* Actividades */}
       <div className="flex flex-col gap-3">
         <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-lg font-semibold tracking-tight">Actividades</h2>
+          <h2 className="text-lg font-semibold tracking-tight">AS-IS · actividades actuales</h2>
           <ActividadForm procesoId={procesoId} siguienteOrden={actividades.length + 1} />
         </div>
         {actividades.length === 0 ? (
@@ -90,6 +95,7 @@ export default async function ProcesoDetallePage({
                   <TableHead>Responsable</TableHead>
                   <TableHead>Aprobador</TableHead>
                   <TableHead>Valor agregado</TableHead>
+                  <TableHead>Revisar</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -104,6 +110,7 @@ export default async function ProcesoDetallePage({
                         {a.es_valor_agregado ? "Sí" : "No"}
                       </Badge>
                     </TableCell>
+                    <TableCell data-label="Revisar"><ActividadForm procesoId={procesoId} siguienteOrden={a.orden} actividad={a} /></TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -125,6 +132,13 @@ export default async function ProcesoDetallePage({
           </div>
         </>
       )}
+
+      <DisenoTobeWorkspace
+        procesoId={procesoId}
+        diseno={tobe.diseno}
+        pasos={tobe.pasos}
+        hallazgos={hallazgos.filter((h) => h.proceso_id === null || h.proceso_id === procesoId)}
+      />
 
       {/* Indicadores */}
       <div className="flex flex-col gap-3">

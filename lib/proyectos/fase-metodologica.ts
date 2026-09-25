@@ -11,10 +11,10 @@ export function derivarFaseMetodologica(
     throw new Error("El recorrido guiado debe contener exactamente 12 pasos");
   }
 
-  if (pasosCompletos[11]) return "anclaje";
-  if (pasosCompletos[10]) return "transferencia";
-  if (pasosCompletos[9]) return "pilotaje";
-  if (pasosCompletos[8]) return "arquitectura";
-  if (pasosCompletos[7]) return "definicion";
+  if (pasosCompletos[11] || pasosCompletos[10]) return "anclaje";
+  if (pasosCompletos[9]) return "transferencia";
+  if (pasosCompletos[8]) return "pilotaje";
+  if (pasosCompletos[7]) return "arquitectura";
+  if (pasosCompletos[6]) return "definicion";
   return "contextualizacion";
 }

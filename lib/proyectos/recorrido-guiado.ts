@@ -12,16 +12,16 @@ export interface PasoRecorrido {
 export const PASOS_RECORRIDO: PasoRecorrido[] = [
   { numero: 1, nombre: "Datos del cliente", prereq: null },
   { numero: 2, nombre: "Triage", prereq: 1 },
-  { numero: 3, nombre: "PEMM — empresa", prereq: 2 },
-  { numero: 4, nombre: "PEMM — proceso(s)", prereq: 2 },
-  { numero: 5, nombre: "Entrevistas", prereq: 2 },
-  { numero: 6, nombre: "Validar hallazgos propuestos", prereq: 5 },
-  { numero: 7, nombre: "Cuantificar impacto y crear plan de mejora", prereq: 6 },
-  { numero: 8, nombre: "Generar Informe de Diagnóstico", prereq: 7 },
-  { numero: 9, nombre: "Seleccionar procesos críticos y dueños", prereq: 8 },
-  { numero: 10, nombre: "Diseñar SIPOC, actividades e indicadores", prereq: 9 },
-  { numero: 11, nombre: "Generar Manual de Procesos", prereq: 10 },
-  { numero: 12, nombre: "Auditoría de adopción", prereq: 11 },
+  { numero: 3, nombre: "Entrevistar a quienes ejecutan el trabajo", prereq: 2 },
+  { numero: 4, nombre: "Levantar proceso AS-IS", prereq: 3 },
+  { numero: 5, nombre: "PEMM — empresa", prereq: 2 },
+  { numero: 6, nombre: "PEMM — proceso(s)", prereq: 4 },
+  { numero: 7, nombre: "Validar hallazgos con evidencia", prereq: 4 },
+  { numero: 8, nombre: "Priorizar y crear plan de mejora", prereq: 7 },
+  { numero: 9, nombre: "Diseñar proceso TO-BE", prereq: 8 },
+  { numero: 10, nombre: "Definir indicadores y manual", prereq: 9 },
+  { numero: 11, nombre: "Auditar adopción en casos reales", prereq: 10 },
+  { numero: 12, nombre: "Emitir Informe 360°", prereq: 11 },
 ];
 
 export interface PasoConEstado extends PasoRecorrido {

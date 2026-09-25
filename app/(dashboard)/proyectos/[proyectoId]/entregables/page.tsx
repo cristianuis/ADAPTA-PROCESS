@@ -4,6 +4,8 @@ import { obtenerCliente } from "@/lib/actions/clientes";
 import { listarEntregables } from "@/lib/actions/entregables";
 import { getConsultorActual } from "@/lib/actions/consultores";
 import { GenerarInformeDiagnostico } from "@/components/entregables/GenerarInformeDiagnostico";
+import { GenerarInforme360 } from "@/components/entregables/GenerarInforme360";
+import { cargarDatosInforme360 } from "@/lib/documentos/datos-informe-360";
 import { GenerarPropuestaComercial } from "@/components/entregables/GenerarPropuestaComercial";
 import { GenerarManualProcesos } from "@/components/entregables/GenerarManualProcesos";
 import { CalculadoraTarifa } from "@/components/entregables/CalculadoraTarifa";
@@ -15,10 +17,11 @@ export default async function EntregablesPage({ params }: { params: Promise<{ pr
   const proyecto = await obtenerProyecto(proyectoId);
   if (!proyecto) notFound();
 
-  const [cliente, entregables, { consultor }] = await Promise.all([
+  const [cliente, entregables, { consultor }, datos360] = await Promise.all([
     obtenerCliente(proyecto.cliente_id),
     listarEntregables(proyectoId),
     getConsultorActual(),
+    cargarDatosInforme360(proyectoId),
   ]);
 
   return (
@@ -38,7 +41,7 @@ export default async function EntregablesPage({ params }: { params: Promise<{ pr
           <CardContent className="flex flex-col gap-2">
             {entregables.map((e) => (
               <div key={e.id} className="flex items-center justify-between text-sm">
-                <span>{e.nombre}</span>
+                <span>{e.nombre}{e.tipo === "informe_360" && e.archivo_path && <a className="ml-2 text-primary underline" href={`/api/documentos/informe-360?entregableId=${e.id}`}>Volver a descargar</a>}</span>
                 <Badge className="bg-muted">v{e.version}</Badge>
               </div>
             ))}
@@ -47,6 +50,7 @@ export default async function EntregablesPage({ params }: { params: Promise<{ pr
       )}
 
       <GenerarInformeDiagnostico proyectoId={proyectoId} />
+      {datos360 && <GenerarInforme360 proyectoId={proyectoId} cobertura={datos360.cobertura} />}
       <GenerarPropuestaComercial
         proyectoId={proyectoId}
         arquetipo={proyecto.arquetipo}

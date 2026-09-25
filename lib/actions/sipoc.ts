@@ -8,7 +8,8 @@ import { sipocSchema, type SipocInput } from "@/lib/validations/sipoc.schema";
 export async function obtenerSipoc(procesoId: string) {
   await requireConsultor();
   const supabase = await createClient();
-  const { data } = await supabase.from("sipoc").select("*").eq("proceso_id", procesoId).maybeSingle();
+  const { data, error } = await supabase.from("sipoc").select("*").eq("proceso_id", procesoId).maybeSingle();
+  if (error) throw new Error("No se pudo consultar el SIPOC.");
   return data;
 }
 

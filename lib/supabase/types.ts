@@ -31,7 +31,7 @@ export type EstadoEvidenciaHallazgo = "pendiente_validacion" | "validado_consult
 export type NivelResistencia = "bajo" | "medio" | "alto";
 export type OrigenEntrevista = "entrevista_dirigida" | "autoservicio";
 export type EstadoIntake = "pendiente" | "respondida";
-export type TipoEntregable = "diagnostico" | "propuesta" | "manual" | "tablero" | "auditoria";
+export type TipoEntregable = "diagnostico" | "propuesta" | "manual" | "tablero" | "auditoria" | "informe_360";
 export type EstadoEntregable = "borrador" | "revision" | "entregado" | "aceptado";
 export type TipoProceso = "estrategico" | "misional" | "apoyo";
 export type EstadoProceso = "identificado" | "diseno" | "piloto" | "operando";
@@ -387,6 +387,7 @@ export interface Database {
           fuente_id: string | null;
           cita_soporte: string | null;
           estado_evidencia: EstadoEvidenciaHallazgo;
+          proceso_id: string | null;
           origen: OrigenHallazgo;
           created_at: string;
         };
@@ -402,6 +403,7 @@ export interface Database {
           fuente_id?: string | null;
           cita_soporte?: string | null;
           estado_evidencia?: EstadoEvidenciaHallazgo;
+          proceso_id?: string | null;
           origen?: OrigenHallazgo;
           created_at?: string;
         };
@@ -422,6 +424,7 @@ export interface Database {
           proyecto_id: string;
           tipo: TipoEntregable;
           nombre: string;
+          archivo_path: string | null;
           fase: string | null;
           version: number;
           estado: EstadoEntregable;
@@ -433,6 +436,7 @@ export interface Database {
           proyecto_id: string;
           tipo: TipoEntregable;
           nombre: string;
+          archivo_path?: string | null;
           fase?: string | null;
           version?: number;
           estado?: EstadoEntregable;
@@ -561,6 +565,64 @@ export interface Database {
             referencedColumns: ["id"];
           },
         ];
+      };
+      disenos_tobe: {
+        Row: {
+          id: string;
+          proyecto_id: string;
+          proceso_id: string;
+          objetivo: string;
+          criterio_validacion: string;
+          decisiones: string;
+          estado: "borrador" | "validado";
+          validado_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          proyecto_id: string;
+          proceso_id: string;
+          objetivo: string;
+          criterio_validacion: string;
+          decisiones: string;
+          estado?: "borrador" | "validado";
+          validado_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["disenos_tobe"]["Insert"]>;
+        Relationships: [];
+      };
+      pasos_tobe: {
+        Row: {
+          id: string;
+          proyecto_id: string;
+          diseno_id: string;
+          orden: number;
+          nombre: string;
+          responsable: string;
+          cambio: string;
+          tipo_cambio: "conservar" | "modificar" | "nuevo";
+          automatizacion: "manual" | "asistida" | "candidata";
+          hallazgo_id: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          proyecto_id: string;
+          diseno_id: string;
+          orden: number;
+          nombre: string;
+          responsable: string;
+          cambio: string;
+          tipo_cambio: "conservar" | "modificar" | "nuevo";
+          automatizacion: "manual" | "asistida" | "candidata";
+          hallazgo_id?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["pasos_tobe"]["Insert"]>;
+        Relationships: [];
       };
       indicadores: {
         Row: {

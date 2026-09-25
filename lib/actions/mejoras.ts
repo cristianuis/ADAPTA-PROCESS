@@ -32,6 +32,9 @@ export async function obtenerPlanMejora(proyectoId: string) {
     supabase.from("iniciativas_mejora").select("*").eq("proyecto_id", proyectoId).order("prioridad"),
     supabase.from("iniciativa_hallazgos").select("*").eq("proyecto_id", proyectoId),
   ]);
+  if ([hallazgos, cuantificaciones, iniciativas, enlaces].some((resultado) => resultado.error)) {
+    throw new Error("No se pudo consultar el plan de mejora.");
+  }
 
   const iniciativaIds = (iniciativas.data ?? []).map((iniciativa) => iniciativa.id);
   const [acciones, mediciones] = iniciativaIds.length
@@ -40,6 +43,9 @@ export async function obtenerPlanMejora(proyectoId: string) {
         supabase.from("mediciones_impacto").select("*").in("iniciativa_id", iniciativaIds).order("fecha"),
       ])
     : [{ data: [] }, { data: [] }];
+  if ("error" in acciones && acciones.error || "error" in mediciones && mediciones.error) {
+    throw new Error("No se pudieron consultar las acciones o mediciones del plan.");
+  }
 
   return {
     hallazgos: hallazgos.data ?? [],

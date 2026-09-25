@@ -4,10 +4,11 @@ import { derivarFaseMetodologica } from "@/lib/proyectos/fase-metodologica";
 describe("derivarFaseMetodologica", () => {
   it.each([
     [0, "contextualizacion"],
-    [7, "definicion"],
-    [8, "arquitectura"],
-    [9, "pilotaje"],
-    [10, "transferencia"],
+    [6, "definicion"],
+    [7, "arquitectura"],
+    [8, "pilotaje"],
+    [9, "transferencia"],
+    [10, "anclaje"],
     [11, "anclaje"],
   ] as const)("deriva el hito %i como %s", (ultimoPaso, fase) => {
     const pasos = Array.from({ length: 12 }, (_, indice) => indice <= ultimoPaso);

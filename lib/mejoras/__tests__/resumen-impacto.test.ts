@@ -20,6 +20,8 @@ const iniciativa = (overrides: Partial<Iniciativa> = {}): Iniciativa => ({
   fecha_objetivo: null,
   inversion_estimada: 0,
   beneficio_anual_objetivo: 120000,
+  roi_estimado: null,
+  payback_meses: null,
   moneda: "COP",
   created_at: "2026-01-01T00:00:00.000Z",
   updated_at: "2026-01-01T00:00:00.000Z",

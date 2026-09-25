@@ -4,6 +4,7 @@ const nivel1a5 = z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)
 
 export const hallazgoManualSchema = z.object({
   proyectoId: z.string().uuid(),
+  procesoId: z.string().uuid().nullable(),
   titulo: z.string().trim().min(2, "El título es obligatorio"),
   descripcion: z.string().trim().optional().or(z.literal("")),
   categoria: z.enum(["proceso", "gobierno", "tecnologia", "cultura", "datos"]),

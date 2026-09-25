@@ -8,10 +8,10 @@ Existe una base funcional para consultoría; **todavía no está acreditada para
 
 Referencia vigente: [Arquitectura y MVP NEXUS](docs/NEXUS_ARQUITECTURA_MVP.md), con el [plan INNO IA](docs/LANCELOT_INNO_IA_PLAN_MAESTRO_2026-09.md) como antecedente.
 
-Verificación del 2026-09-25:
+Verificación del 2026-09-25, tras el módulo AS-IS → TO-BE → Informe 360:
 
-- Tests: 119 aprobados, 12 omitidos en 4 suites de integración.
-- Lint: 0 errores; 1 advertencia de `watch()` en `ProyectoForm.tsx`.
+- Tests: 125 aprobados, 14 omitidos en 4 suites de integración que requieren entorno aislado.
+- Lint: 0 errores, 0 advertencias.
 - Build: correcto; avisos de convención `middleware` y `localStorage` en Node.
 - Producción Supabase `yemhtfcytrjimsdehlbf`: migraciones `0018`–`0020` aplicadas; permisos efectivos y esquema comprobados por SQL Editor. Backup cifrado del mismo día completado con restauración automatizada.
 - No se ha validado todavía uso completo con empleados de clientes ni aislamiento multiempresa para un portal.
@@ -49,13 +49,18 @@ Las integraciones se habilitan mediante variables de ejecución y por defecto se
 
 ## Base de datos
 
-Hay 20 migraciones en `supabase/migrations/`, de `0001` a `0020`:
+Hay 23 migraciones en `supabase/migrations/`, de `0001` a `0023`:
 
 - `0001`–`0006`: núcleo, diagnóstico, entregables, arquitectura, medición/adopción y biblioteca.
 - `0007`–`0010`: encuesta pública, instrumentación IA, estilo e intake.
 - `0011`–`0014`: enlaces por RPC, separación de estados y sentido de indicadores.
 - `0015`–`0017`: demo/prospectos, Lancelot Loop e impacto/plan de mejora.
 - `0018`–`0020`: control de acceso, correcciones conservadoras de resultados y evidencia trazable en hallazgos.
+- `0021`: relación hallazgo–proceso, diseño TO-BE separado del AS-IS, pasos futuros sustentados y tipo Informe 360. Aplicada a producción el 2026-09-25; verificar permisos y esquema en cada entorno.
+- `0022`: fase metodológica derivada del recorrido integral actualizado, sin mezclarla con el estado comercial. Aplicada a producción el 2026-09-25.
+- `0023`: bucket privado para conservar y volver a descargar el Informe 360; políticas por consultor y proyecto. Aplicada a producción el 2026-09-25, sin variable de entorno adicional.
+
+El Informe 360 se habilita solo si constan entrevista, PEMM respondido, hallazgo revisado, proceso AS-IS levantado, TO-BE validado, indicador e iniciativa con acciones. Su síntesis la redacta o revisa el consultor. Las candidatas de automatización no se presentan como automatizaciones construidas; un diseño validado tampoco se confunde con aceptación del cliente.
 
 SQL en el repositorio no demuestra aplicación en cada entorno. Comparar esquema, políticas, funciones y grants efectivos. No reescribir migraciones aplicadas. Contrastar `lib/supabase/types.ts` con el esquema; no presumir sincronización automática.
 

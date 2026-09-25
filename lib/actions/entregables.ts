@@ -6,10 +6,11 @@ import { requireConsultor } from "@/lib/actions/consultores";
 export async function listarEntregables(proyectoId: string) {
   await requireConsultor();
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("entregables")
     .select("*")
     .eq("proyecto_id", proyectoId)
     .order("created_at", { ascending: false });
+  if (error) throw new Error("No se pudieron consultar los entregables.");
   return data ?? [];
 }

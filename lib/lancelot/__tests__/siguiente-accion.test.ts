@@ -45,7 +45,7 @@ describe("construirGuiaLancelot", () => {
     });
     expect(guia.accion.tipo).toBe("continuar_recorrido");
     expect(guia.accion.pasoActual).toBe(4);
-    expect(guia.accion.href).toBe("/proyectos/proyecto-1/pemm");
+    expect(guia.accion.href).toBe("/proyectos/proyecto-1/procesos");
     expect(guia.accion.pasosCompletos).toBe(3);
   });
 

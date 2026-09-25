@@ -11,6 +11,7 @@ import { listarProcesos } from "@/lib/actions/procesos";
 import { obtenerSipoc } from "@/lib/actions/sipoc";
 import { listarActividades } from "@/lib/actions/actividades";
 import { listarIndicadores } from "@/lib/actions/indicadores";
+import { obtenerDisenoTobe } from "@/lib/actions/disenos-tobe";
 import { listarAuditorias } from "@/lib/actions/auditorias";
 import { obtenerPlanMejora } from "@/lib/actions/mejoras";
 import { GenerarEnlaceAutoservicioForm } from "@/components/entrevistas/GenerarEnlaceAutoservicioForm";
@@ -53,17 +54,17 @@ export default async function ProyectoDetallePage({
       obtenerPlanMejora(proyectoId),
     ]);
 
-  // Procesos "críticos" (paso 9 del recorrido): los que ya tienen dueño asignado. El
-  // paso 10 (SIPOC + actividades + indicadores) se evalúa solo sobre estos.
+  // La misma evidencia de proceso alimenta el recorrido y la ficha detallada.
   const procesosCriticos = procesos.filter((p) => p.dueno_nombre);
   const detallesProcesosCriticos = await Promise.all(
     procesosCriticos.map(async (p) => {
-      const [sipoc, actividades, indicadores] = await Promise.all([
+      const [sipoc, actividades, indicadores, tobe] = await Promise.all([
         obtenerSipoc(p.id),
         listarActividades(p.id),
         listarIndicadores(p.id),
+        obtenerDisenoTobe(p.id),
       ]);
-      return { sipoc, actividades, indicadores };
+      return { sipoc, actividades, indicadores, tobe };
     })
   );
 
@@ -73,22 +74,16 @@ export default async function ProyectoDetallePage({
     triageCompleto: !!triage,
     pemmEmpresaCompleto: evaluacionesPemm.some((e) => e.tipo === "empresa" && e.estado === "respondida"),
     pemmProcesoCompleto: evaluacionesPemm.some((e) => e.tipo === "proceso" && e.estado === "respondida"),
-    entrevistasCompleto: entrevistas.some((e) => e.hallazgos_ia != null),
-    hallazgosValidadosCompleto: hallazgos.length > 0,
+    entrevistasCompleto: entrevistas.some((e) => e.estado === "respondida" && !!e.transcripcion?.trim()),
+    asIsCompleto: detallesProcesosCriticos.some((d) => !!d.sipoc && d.actividades.length > 0),
+    hallazgosValidadosCompleto: hallazgos.some((h) => ["cita_verificada", "validado_consultor"].includes(h.estado_evidencia)),
     planMejoraCompleto:
-      planMejora.cuantificaciones.length > 0 &&
       planMejora.iniciativas.length > 0 &&
       planMejora.acciones.length > 0,
-    informeDiagnosticoCompleto: entregables.some((e) => e.tipo === "diagnostico"),
-    procesosConDuenoCompleto: procesosCriticos.length > 0,
-    sipocActividadIndicadorCompleto: detallesProcesosCriticos.some(
-      (d) =>
-        !!d.sipoc &&
-        d.actividades.length > 0 &&
-        d.indicadores.some((i) => !!i.fuente_datos && i.fuente_datos.trim().length > 0)
-    ),
-    manualProcesosCompleto: entregables.some((e) => e.tipo === "manual"),
+    tobeCompleto: detallesProcesosCriticos.some((d) => d.tobe.diseno?.estado === "validado"),
+    medicionYManualCompleto: detallesProcesosCriticos.some((d) => d.indicadores.some((i) => !!i.fuente_datos?.trim())) && entregables.some((e) => e.tipo === "manual"),
     auditoriaAdopcionCompleto: auditorias.length > 0,
+    informe360Completo: entregables.some((e) => e.tipo === "informe_360"),
   };
 
   return (

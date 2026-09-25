@@ -64,64 +64,64 @@ const CONTENIDO_PASOS: Record<
     cta: "Hacer triage",
   },
   3: {
-    titulo: "Evalúa la madurez de la empresa",
-    descripcion: "Completa el PEMM de empresa para conocer las capacidades que sostienen sus procesos.",
-    resultadoEsperado: "Nivel de madurez organizacional evaluado con evidencia.",
-    cta: "Evaluar empresa",
+    titulo: "Entrevista a quienes hacen el trabajo",
+    descripcion: "Registra cómo se ejecuta el proceso, incluidos traspasos, excepciones y fuentes. No necesitas IA para avanzar.",
+    resultadoEsperado: "Al menos una entrevista respondida y documentada.",
+    cta: "Registrar entrevista",
   },
   4: {
-    titulo: "Evalúa la madurez de los procesos",
-    descripcion: "Aplica el PEMM a los procesos relevantes para detectar sus habilitadores más débiles.",
-    resultadoEsperado: "Al menos un proceso evaluado y sus brechas visibles.",
-    cta: "Evaluar procesos",
+    titulo: "Dibuja el proceso tal como ocurre hoy",
+    descripcion: "Define dueño, alcance, SIPOC y actividades AS-IS antes de proponer soluciones.",
+    resultadoEsperado: "Un proceso con dueño, SIPOC y secuencia real de actividades.",
+    cta: "Levantar AS-IS",
   },
   5: {
-    titulo: "Recoge evidencia con entrevistas",
-    descripcion: "Entrevista a las personas clave y analiza lo que ocurre realmente en la operación.",
-    resultadoEsperado: "Entrevistas analizadas con señales y hallazgos propuestos.",
-    cta: "Trabajar entrevistas",
+    titulo: "Evalúa la madurez de la empresa",
+    descripcion: "Aplica PEMM para conocer capacidades organizacionales; no lo confundas con un índice global.",
+    resultadoEsperado: "PEMM de empresa respondido con nivel y dimensiones.",
+    cta: "Evaluar empresa",
   },
   6: {
-    titulo: "Valida los hallazgos",
-    descripcion: "Revisa las propuestas de Lancelot y conserva únicamente las que puedas sustentar.",
-    resultadoEsperado: "Hallazgos verificables listos para priorizar.",
-    cta: "Validar hallazgos",
+    titulo: "Evalúa la madurez del proceso",
+    descripcion: "Aplica PEMM al proceso observado para distinguir brechas de diseño, ejecución e infraestructura.",
+    resultadoEsperado: "PEMM de proceso respondido.",
+    cta: "Evaluar proceso",
   },
   7: {
-    titulo: "Convierte el problema en valor y acción",
-    descripcion: "Cuantifica el impacto con fuentes y supuestos, crea una iniciativa y asigna la primera acción.",
-    resultadoEsperado: "Impacto económico defendible, iniciativa vinculada y responsable con una acción concreta.",
-    cta: "Construir plan de mejora",
+    titulo: "Valida problemas con evidencia",
+    descripcion: "Revisa las propuestas de NEXUS y conserva solo hallazgos sustentados en cita, documento, observación o dato.",
+    resultadoEsperado: "Al menos un hallazgo revisado y trazable.",
+    cta: "Revisar hallazgos",
   },
   8: {
-    titulo: "Genera el informe de diagnóstico",
-    descripcion: "Convierte la evidencia reunida en un entregable claro para tomar decisiones con el cliente.",
-    resultadoEsperado: "Informe de diagnóstico generado y listo para presentar.",
-    cta: "Generar diagnóstico",
+    titulo: "Prioriza y arma un plan ejecutable",
+    descripcion: "Vincula la iniciativa al hallazgo, define criterio de éxito, responsable y al menos una acción.",
+    resultadoEsperado: "Una iniciativa trazable con acción, dueño y plazo.",
+    cta: "Crear plan de mejora",
   },
   9: {
-    titulo: "Define procesos críticos y responsables",
-    descripcion: "Selecciona los procesos que se intervendrán y asigna un dueño para cada uno.",
-    resultadoEsperado: "Procesos críticos con responsables explícitos.",
-    cta: "Definir procesos",
+    titulo: "Diseña el proceso TO-BE",
+    descripcion: "Conserva el AS-IS y documenta los pasos futuros. Cada cambio debe enlazar un hallazgo revisado.",
+    resultadoEsperado: "Diseño futuro validado por consultor con criterio de piloto.",
+    cta: "Diseñar TO-BE",
   },
   10: {
-    titulo: "Diseña el proceso y cómo medirlo",
-    descripcion: "Documenta SIPOC, actividades, responsabilidades e indicadores del proceso prioritario.",
-    resultadoEsperado: "Proceso diseñado con operación y medición completas.",
-    cta: "Diseñar proceso",
+    titulo: "Define cómo medir y transferir",
+    descripcion: "Crea al menos un indicador con fuente y sentido y genera el manual de procesos.",
+    resultadoEsperado: "Indicador verificable y manual para el equipo.",
+    cta: "Preparar medición y manual",
   },
   11: {
-    titulo: "Genera el manual de procesos",
-    descripcion: "Consolida el diseño aprobado en un documento utilizable por la empresa.",
-    resultadoEsperado: "Manual de procesos generado para transferencia.",
-    cta: "Generar manual",
+    titulo: "Prueba la adopción con casos reales",
+    descripcion: "Audita si el proceso diseñado se está usando y registra desviaciones observadas.",
+    resultadoEsperado: "Auditoría de adopción con casos y hallazgos de uso.",
+    cta: "Auditar adopción",
   },
   12: {
-    titulo: "Verifica que el proceso se adoptó",
-    descripcion: "Audita casos reales para comprobar que el nuevo proceso se está usando como fue diseñado.",
-    resultadoEsperado: "Nivel de adopción medido y desviaciones identificadas.",
-    cta: "Auditar adopción",
+    titulo: "Entrega el Informe 360°",
+    descripcion: "Integra evidencia, madurez, AS-IS, TO-BE, indicadores y roadmap en un documento revisado por ti.",
+    resultadoEsperado: "Informe 360° descargable, con pendientes y límites explícitos.",
+    cta: "Preparar Informe 360°",
   },
 };
 
@@ -132,21 +132,21 @@ function hrefPaso(proyecto: ProyectoGuia, paso: number) {
     case 2:
       return `/proyectos/${proyecto.id}/triage`;
     case 3:
-    case 4:
-      return `/proyectos/${proyecto.id}/pemm`;
-    case 5:
       return `/proyectos/${proyecto.id}/entrevistas`;
-    case 6:
-      return `/proyectos/${proyecto.id}/hallazgos`;
-    case 7:
-      return `/proyectos/${proyecto.id}/mejoras`;
-    case 8:
-    case 11:
-      return `/proyectos/${proyecto.id}/entregables`;
+    case 4:
     case 9:
-    case 10:
       return `/proyectos/${proyecto.id}/procesos`;
+    case 5:
+    case 6:
+      return `/proyectos/${proyecto.id}/pemm`;
+    case 7:
+      return `/proyectos/${proyecto.id}/hallazgos`;
+    case 8:
+      return `/proyectos/${proyecto.id}/mejoras`;
+    case 10:
     case 12:
+      return `/proyectos/${proyecto.id}/entregables`;
+    case 11:
       return `/proyectos/${proyecto.id}/adopcion`;
     default:
       return `/proyectos/${proyecto.id}`;
@@ -247,7 +247,7 @@ export function construirGuiaLancelot({
       accion: {
         tipo: "proyecto_completo",
         titulo: `Cierra el ciclo con ${proyecto.cliente}`,
-        descripcion: "Los 12 pasos están completos. Revisa el resultado, documenta el aprendizaje y define el seguimiento con el cliente.",
+        descripcion: "Los 12 pasos están completos. Revisa el Informe 360°, documenta el aprendizaje y define el seguimiento con el cliente.",
         resultadoEsperado: "Resultado del proyecto revisado y siguiente conversación preparada.",
         href: `/proyectos/${proyecto.id}`,
         cta: "Revisar proyecto",
