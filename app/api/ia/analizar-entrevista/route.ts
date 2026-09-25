@@ -6,6 +6,7 @@ import { verificarLimite } from "@/lib/rate-limit";
 import { registrarLlamadaIA } from "@/lib/actions/llamadas-ia";
 import { ARQUETIPO_INFO } from "@/lib/triage/clasificar-arquetipo";
 import { DIMENSION_LABEL, DIMENSIONES_PROCESO, DIMENSIONES_EMPRESA } from "@/lib/pemm/descriptores";
+import { filtrarHallazgosCitados } from "@/lib/entrevistas/filtrar-hallazgos-citados";
 import type { Arquetipo } from "@/lib/supabase/types";
 
 // Haiku por defecto: la extracción estructurada de hallazgos no requiere el razonamiento
@@ -103,7 +104,7 @@ export async function POST(req: Request) {
   const supabase = await createClient();
   const { data: entrevista } = await supabase
     .from("entrevistas")
-    .select("proyecto_id, entrevistado_cargo, nivel, hallazgos_validados")
+    .select("proyecto_id, entrevistado_cargo, nivel, transcripcion, hallazgos_ia, hallazgos_validados")
     .eq("id", entrevistaId)
     .maybeSingle();
 
@@ -112,11 +113,17 @@ export async function POST(req: Request) {
   }
 
   const tieneValidados = (entrevista.hallazgos_validados?.length ?? 0) > 0;
+  if (tieneValidados && transcripcion !== entrevista.transcripcion) {
+    return Response.json(
+      { error: "Hay hallazgos aprobados sobre esta transcripción. No puedes cambiar la fuente sin invalidar su trazabilidad; registra una nueva entrevista para corregirla." },
+      { status: 409 }
+    );
+  }
   if (tieneValidados && !confirmarSobrescritura) {
     return Response.json(
       {
         error:
-          "Esta entrevista ya tiene hallazgos validados. Volver a analizar puede desalinear cuáles ya fueron aprobados.",
+          "Esta entrevista ya tiene hallazgos aprobados. Un nuevo análisis conservará sus posiciones y solo añadirá propuestas nuevas. ¿Continuar?",
         requiereConfirmacion: true,
       },
       { status: 409 }
@@ -144,7 +151,7 @@ export async function POST(req: Request) {
   });
 
   const contextoProyecto = `Cargo del entrevistado: ${entrevista.entrevistado_cargo ?? "no especificado"}. Nivel jerárquico: ${entrevista.nivel ?? "no especificado"}.
-${triage ? `Arquetipo de triage: ${ARQUETIPO_INFO[triage.arquetipo_sugerido as Arquetipo].titulo} (puntaje ${triage.puntaje_total}).` : "Sin triage aplicado todavía."}
+${triage ? `Arquetipo de triage: ${ARQUETIPO_INFO[triage.arquetipo_sugerido as Arquetipo]?.titulo ?? "no determinado"} (puntaje ${triage.puntaje_total ?? "no disponible"}).` : "Sin triage aplicado todavía."}
 ${lineasPemm.length > 0 ? `Evaluaciones PEMM ya registradas:\n${lineasPemm.join("\n")}` : "Sin evaluaciones PEMM registradas todavía."}`;
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -187,25 +194,33 @@ ${lineasPemm.length > 0 ? `Evaluaciones PEMM ya registradas:\n${lineasPemm.join(
   try {
     json = JSON.parse(limpio);
   } catch (e) {
-    console.error("[analizar-entrevista] respuesta no parseable:", e, limpio);
-    return Response.json({ error: "La IA devolvió una respuesta no parseable.", raw: limpio }, { status: 422 });
+    console.error("[analizar-entrevista] respuesta no parseable:", e);
+    return Response.json({ error: "La IA devolvió una respuesta no parseable." }, { status: 422 });
   }
 
   const analisis = analisisEntrevistaSchema.safeParse(json);
   if (!analisis.success) {
     return Response.json(
-      { error: "La respuesta de la IA no tuvo el formato esperado.", raw: json },
+      { error: "La respuesta de la IA no tuvo el formato esperado." },
       { status: 422 }
     );
   }
+
+  const { analisis: analisisCitado, descartados } = filtrarHallazgosCitados(analisis.data, transcripcion);
+  const previos = tieneValidados ? entrevista.hallazgos_ia ?? [] : [];
+  const clavesPrevias = new Set(previos.map((hallazgo) => `${hallazgo.titulo}\u0000${hallazgo.cita_soporte}`));
+  const nuevos = analisisCitado.hallazgos.filter(
+    (hallazgo) => !clavesPrevias.has(`${hallazgo.titulo}\u0000${hallazgo.cita_soporte}`)
+  );
+  const hallazgosPersistidos = [...previos, ...nuevos];
 
   const { error: updateError } = await supabase
     .from("entrevistas")
     .update({
       transcripcion,
-      hallazgos_ia: analisis.data.hallazgos,
-      nivel_resistencia: analisis.data.nivel_resistencia,
-      senales_gobierno: analisis.data.senales_gobierno,
+      hallazgos_ia: hallazgosPersistidos,
+      nivel_resistencia: analisisCitado.nivel_resistencia,
+      senales_gobierno: analisisCitado.senales_gobierno,
     })
     .eq("id", entrevistaId);
 
@@ -213,5 +228,10 @@ ${lineasPemm.length > 0 ? `Evaluaciones PEMM ya registradas:\n${lineasPemm.join(
     return Response.json({ error: "El análisis se generó pero no se pudo guardar." }, { status: 500 });
   }
 
-  return Response.json({ analisis: analisis.data, procesos_mencionados: analisis.data.procesos_mencionados });
+  return Response.json({
+    analisis: { ...analisisCitado, hallazgos: hallazgosPersistidos },
+    procesos_mencionados: analisisCitado.procesos_mencionados,
+    descartados,
+    agregados: nuevos.length,
+  });
 }

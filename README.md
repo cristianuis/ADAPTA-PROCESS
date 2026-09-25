@@ -49,7 +49,7 @@ Las integraciones se habilitan mediante variables de ejecución y por defecto se
 
 ## Base de datos
 
-Hay 23 migraciones en `supabase/migrations/`, de `0001` a `0023`:
+Hay 24 migraciones en `supabase/migrations/`, de `0001` a `0024`:
 
 - `0001`–`0006`: núcleo, diagnóstico, entregables, arquitectura, medición/adopción y biblioteca.
 - `0007`–`0010`: encuesta pública, instrumentación IA, estilo e intake.
@@ -59,6 +59,7 @@ Hay 23 migraciones en `supabase/migrations/`, de `0001` a `0023`:
 - `0021`: relación hallazgo–proceso, diseño TO-BE separado del AS-IS, pasos futuros sustentados y tipo Informe 360. Aplicada a producción el 2026-09-25; verificar permisos y esquema en cada entorno.
 - `0022`: fase metodológica derivada del recorrido integral actualizado, sin mezclarla con el estado comercial. Aplicada a producción el 2026-09-25.
 - `0023`: bucket privado para conservar y volver a descargar el Informe 360; políticas por consultor y proyecto. Aplicada a producción el 2026-09-25, sin variable de entorno adicional.
+- `0024`: la fase sigue el primer paso pendiente del recorrido, aunque existan entregables posteriores; recalcula al cambiar triage, entrevistas o PEMM. Aplicada a producción el 2026-09-25 y contrastada con los tres proyectos existentes.
 
 El Informe 360 se habilita solo si constan entrevista, PEMM respondido, hallazgo revisado, proceso AS-IS levantado, TO-BE validado, indicador e iniciativa con acciones. Su síntesis la redacta o revisa el consultor. Las candidatas de automatización no se presentan como automatizaciones construidas; un diseño validado tampoco se confunde con aceptación del cliente.
 

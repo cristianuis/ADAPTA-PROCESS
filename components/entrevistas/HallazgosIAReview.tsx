@@ -68,7 +68,10 @@ export function HallazgosIAReview({ entrevista }: { entrevista: Entrevista }) {
         toast.error(data.error ?? "No se pudo analizar la entrevista.");
         return;
       }
-      toast.success(`IA propuso ${data.analisis.hallazgos.length} hallazgo(s). Revísalos antes de validar.`);
+      toast.success(`IA añadió ${data.agregados} propuesta(s) con cita localizable. Revísalas antes de validar.`);
+      if (data.descartados > 0) {
+        toast.warning(`${data.descartados} propuesta(s) se omitieron porque su cita no aparece en la transcripción.`);
+      }
       router.refresh();
     });
   }

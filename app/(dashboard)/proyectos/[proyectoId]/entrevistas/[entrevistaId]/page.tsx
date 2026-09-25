@@ -7,9 +7,9 @@ export default async function EntrevistaDetallePage({
 }: {
   params: Promise<{ proyectoId: string; entrevistaId: string }>;
 }) {
-  const { entrevistaId } = await params;
+  const { proyectoId, entrevistaId } = await params;
   const entrevista = await obtenerEntrevista(entrevistaId);
-  if (!entrevista) notFound();
+  if (!entrevista || entrevista.proyecto_id !== proyectoId) notFound();
 
   return (
     <div className="flex flex-col gap-6">

@@ -11,10 +11,14 @@ export function derivarFaseMetodologica(
     throw new Error("El recorrido guiado debe contener exactamente 12 pasos");
   }
 
-  if (pasosCompletos[11] || pasosCompletos[10]) return "anclaje";
-  if (pasosCompletos[9]) return "transferencia";
-  if (pasosCompletos[8]) return "pilotaje";
-  if (pasosCompletos[7]) return "arquitectura";
-  if (pasosCompletos[6]) return "definicion";
+  // Un entregable posterior puede existir aunque falten entrevistas o un
+  // AS-IS. La fase debe reflejar el primer paso pendiente, no el hito más
+  // avanzado encontrado de manera aislada.
+  const primerPendiente = pasosCompletos.findIndex((completo) => !completo);
+  if (primerPendiente === -1 || primerPendiente >= 10) return "anclaje";
+  if (primerPendiente >= 9) return "transferencia";
+  if (primerPendiente >= 8) return "pilotaje";
+  if (primerPendiente >= 4) return "arquitectura";
+  if (primerPendiente >= 2) return "definicion";
   return "contextualizacion";
 }
