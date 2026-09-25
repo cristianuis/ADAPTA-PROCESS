@@ -1,0 +1,4 @@
+project_id = "nexus-ia-process-ci"
+
+[db.seed]
+enabled = false

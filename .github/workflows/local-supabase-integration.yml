@@ -1,0 +1,41 @@
+name: Supabase aislado y pruebas reales
+
+on:
+  push:
+    branches:
+      - codex/commercial-hardening
+  pull_request:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  local-supabase:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: npm ci
+      - name: Crear Supabase efímero sin conexión a producción
+        run: supabase start
+      - name: Exportar credenciales locales solo dentro del runner
+        shell: bash
+        run: |
+          source <(supabase status -o env)
+          test -n "$API_URL"
+          test -n "$ANON_KEY"
+          test -n "$SERVICE_ROLE_KEY"
+          echo "TEST_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
+          echo "TEST_SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
+          echo "TEST_SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" >> "$GITHUB_ENV"
+          echo "RUN_RLS_INTEGRATION=1" >> "$GITHUB_ENV"
+      - name: RLS/RPC con Auth, PostgREST y Storage reales
+        run: npm test
