@@ -37,16 +37,32 @@ Verificación local del incremento: `npm test` **149 PASS / 14 SKIP**, `npm run 
 
 Empresa ficticia: **Operadora Nómada S.A.S.**, sin datos de personas reales. Problema: solicitudes de servicio se duplican entre correo y hoja de cálculo; proceso de recepción y asignación. Dos usuarios sintéticos de organizaciones A/B deberán demostrar que B no ve nada de A. El caso A debe crear empresa, intervención, documento de procedimiento, dos entrevistas, hallazgo con cita cotejada, SIPOC y actividades con RACI, PEMM con respaldo, riesgo/causa, oportunidad, TO-BE soportado, iniciativa/acciones, indicador de tiempo de ciclo (`menor_es_mejor`), línea base y seguimiento, DOCX final y descarga. Se debe comprobar cada lectura tras escribir, invalidar sesión y repetir una URL/API directa. Los módulos inexistentes arriba son rupturas conocidas: no se saltarán para llamar E2E al resultado.
 
+## Modelo RBAC diseñado, NO implementado
+
+La unidad de aislamiento será `clientes.id` como organización, con membresía activa explícita `(cliente_id, user_id, rol)`; `proyectos.cliente_id` y cada descendiente deberán heredar el mismo tenant mediante FK compuesta o ruta relacional verificable. El administrador global actual solo podrá migrar datos/gestionar la plataforma, no será la regla ordinaria de autorización entre empresas. Las invitaciones no activarán acceso hasta aceptarse y asociarse a la membresía; la revocación deberá invalidar de inmediato la siguiente petición, no depender de un claim JWT obsoleto.
+
+| Rol | Alcance previsto |
+| --- | --- |
+| `owner` | Titular de organización, membresías y todos sus proyectos |
+| `consultant` | Trabaja en proyectos asignados, crea propuestas e informes, sin administrar titularidad |
+| `client_admin` | Supervisa proyectos y usuarios de su empresa, valida entregables, sin acceder a otras empresas |
+| `process_owner` | Edita y valida únicamente procesos que tiene asignados |
+| `collaborator` | Aporta entrevistas/evidencia y acciones asignadas, sin publicar conclusiones |
+| `viewer` | Lectura de entregables y datos expresamente publicados para su organización |
+
+La autorización debe ser *deny by default*: lectura/escritura distintas por tabla y operación, con pruebas directas PostgREST/RPC/Storage para cada rol. Un rol en la interfaz no constituye una política RLS. El detalle de asignación por proyecto y visibilidad de borradores se cerrará con pruebas sintéticas antes de habilitar cuentas cliente.
+
 ## Cambios de hardening de este tramo
 
 - Las pruebas de integración ahora requieren `TEST_SUPABASE_*` exclusivos, referencia de proyecto coincidente y rechazo explícito del proyecto productivo conocido. La prueba RLS de token crea y elimina su propia empresa sintética; dejó de usar el primer proyecto disponible.
 - El workflow manual `staging-integration.yml` ejecutará las pruebas con secretos exclusivos de staging una vez exista el proyecto; su presencia en el repositorio no demuestra una ejecución exitosa.
 - El Informe 360 solo cuenta hallazgos con soporte textual suficiente; una cita cotejada exige fuente de entrevista identificable. Para habilitar TO-BE debe existir un paso soportado por un hallazgo revisado. El reporte ya no presenta la marca booleana del consultor como aprobación independiente del cliente.
 - La misma comprobación de soporte se usa en la guía de avance, matriz y selección de hallazgos TO-BE. La coincidencia por prefijo de rutas públicas se cerró (`/login-interno` ya no se considera pública).
+- `0025_fase_con_evidencia_soportada.sql` prepara la alineación de la fase persistida con esos requisitos y el recálculo al cambiar pasos TO-BE. **Pendiente de aplicar y probar en staging; no desplegado en producción.**
 
 ## Incidencias abiertas y secuencia de cierre
 
-1. P0: conseguir Supabase staging **separado**, aplicar 0001–0024 en orden, crear bootstrap administrativo sintético y ejecutar integración. No reutilizar `.env.local` ni datos de producción.
+1. P0: conseguir Supabase staging **separado**, aplicar 0001–0025 en orden, crear bootstrap administrativo sintético y ejecutar integración. `0025` no se aplicará a producción antes de pasar esa prueba. No reutilizar `.env.local` ni datos de producción.
 2. P0: ejecutar el caso sintético completo, corregir bloqueos funcionales, introducir repositorio documental privado mínimo y capturar una prueba de restauración que incluya los binarios.
 3. P0: asegurar integridad transaccional y optimismo/concurrencia en iniciativas, validación IA, TO-BE y entregables; verificar con dos sesiones.
 4. P0 para acceso cliente: modelo de organización/membresía `owner`, `consultant`, `client_admin`, `process_owner`, `collaborator`, `viewer`, RLS de todas las entidades y Storage. Aplicar primero en staging y someter a pruebas negativas A/B antes de producción.

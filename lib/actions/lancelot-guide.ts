@@ -50,12 +50,12 @@ export async function obtenerGuiaLancelot(
     supabase.from("triage_respuestas").select("proyecto_id").in("proyecto_id", proyectoIds),
     supabase.from("pemm_evaluaciones").select("proyecto_id, tipo, estado").in("proyecto_id", proyectoIds),
     supabase.from("entrevistas").select("proyecto_id, estado, transcripcion").in("proyecto_id", proyectoIds),
-    supabase.from("hallazgos").select("proyecto_id, estado_evidencia, cita_soporte, fuente, fuente_id").in("proyecto_id", proyectoIds),
+    supabase.from("hallazgos").select("id, proyecto_id, estado_evidencia, cita_soporte, fuente, fuente_id").in("proyecto_id", proyectoIds),
     supabase.from("entregables").select("proyecto_id, tipo").in("proyecto_id", proyectoIds),
     supabase.from("procesos").select("id, proyecto_id, dueno_nombre").in("proyecto_id", proyectoIds),
     supabase.from("auditorias_adopcion").select("proyecto_id").in("proyecto_id", proyectoIds),
     supabase.from("iniciativas_mejora").select("id, proyecto_id").in("proyecto_id", proyectoIds),
-    supabase.from("disenos_tobe").select("proyecto_id, estado").in("proyecto_id", proyectoIds),
+    supabase.from("disenos_tobe").select("id, proyecto_id, estado").in("proyecto_id", proyectoIds),
   ]);
   if ([triage, pemm, entrevistas, hallazgos, entregables, procesos, auditorias, iniciativas, disenos]
     .some((resultado) => resultado.error)) {
@@ -63,12 +63,21 @@ export async function obtenerGuiaLancelot(
   }
 
   const iniciativaIds = (iniciativas.data ?? []).map((iniciativa) => iniciativa.id);
+  const disenoIds = (disenos.data ?? []).map((diseno) => diseno.id);
   const acciones = iniciativaIds.length
     ? await supabase.from("acciones_mejora").select("iniciativa_id").in("iniciativa_id", iniciativaIds)
     : { data: [], error: null };
-  if (acciones.error) {
-    throw new Error("No se pudieron comprobar las acciones del plan de mejora.");
+  const pasosTobe = disenoIds.length
+    ? await supabase.from("pasos_tobe").select("diseno_id, hallazgo_id").in("diseno_id", disenoIds)
+    : { data: [], error: null };
+  if (acciones.error || pasosTobe.error) {
+    throw new Error("No se pudieron comprobar las acciones o el diseño TO-BE.");
   }
+
+  const hallazgosSoportados = new Set((hallazgos.data ?? []).filter(hallazgoConSoporteRevisado).map((hallazgo) => hallazgo.id));
+  const disenosConSoporte = new Set((pasosTobe.data ?? [])
+    .filter((paso) => !!paso.hallazgo_id && hallazgosSoportados.has(paso.hallazgo_id))
+    .map((paso) => paso.diseno_id));
 
   const procesosCriticos = (procesos.data ?? []).filter((proceso) => !!proceso.dueno_nombre);
   const procesosCriticosIds = procesosCriticos.map((proceso) => proceso.id);
@@ -129,7 +138,7 @@ export async function obtenerGuiaLancelot(
         ),
         (hallazgos.data ?? []).some((fila) => fila.proyecto_id === id && hallazgoConSoporteRevisado(fila)),
         tienePlanMejora,
-        (disenos.data ?? []).some((fila) => fila.proyecto_id === id && fila.estado === "validado"),
+        (disenos.data ?? []).some((fila) => fila.proyecto_id === id && fila.estado === "validado" && disenosConSoporte.has(fila.id)),
         tieneIndicador && (entregables.data ?? []).some(
           (entregable) => entregable.proyecto_id === id && entregable.tipo === "manual"
         ),
