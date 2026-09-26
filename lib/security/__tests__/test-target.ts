@@ -18,7 +18,10 @@ export function obtenerSupabaseDePruebas(env: NodeJS.ProcessEnv = process.env) {
   if ((!local && !cloud) || parsed.pathname !== "/" || parsed.search || parsed.hash) {
     throw new Error("TEST_SUPABASE_URL debe apuntar a Supabase local :54321 o al proyecto cloud TEST_SUPABASE_PROJECT_REF exacto.");
   }
-  if (cloudRef === "yemhtfcytrjimsdehlbf" || url.replace(/\/$/, "") === env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "")) {
+  if (
+    cloudRef === "yemhtfcytrjimsdehlbf" ||
+    (!local && url.replace(/\/$/, "") === env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, ""))
+  ) {
     throw new Error("Las pruebas de integración no pueden ejecutarse contra producción.");
   }
 
