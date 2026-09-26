@@ -2,7 +2,7 @@
 
 Fecha de corte: 2026-09-26. Fuente: código, migraciones, pruebas, panel Supabase y `NEXUS_AUDITORIA_PRODUCTO_2026-09-25.md`. Estado general: **NO READY FOR PILOT** y **NO READY FOR CLIENT ACCESS**. PASS significa prueba ejecutada y evidencia observable; un diseño o una prueba omitida no es PASS.
 
-ADAPTA OS y NEXUS IA PROCESS son el mismo producto. En Supabase, el proyecto ADAPTA OS está en la rama `main / PRODUCTION`; staging sería el mismo producto y código conectado a una base aislada, no una aplicación distinta.
+ADAPTA OS y NEXUS IA PROCESS son el mismo producto. El alcance inmediato es un piloto acompañado para una empresa, operado desde la cuenta del consultor; el portal, las cuentas de clientes y el RBAC multiempresa quedan para una fase posterior. En Supabase, el proyecto ADAPTA OS está en la rama `main / PRODUCTION`; las pruebas automatizadas siguen en CI efímero, y el piloto real se ejecutará allí cuando supere la puerta de preparación.
 
 Verificación local del incremento: `npm test` **149 PASS / 16 SKIP** (los SKIP requieren Supabase real); `npm run lint` y `npm run build` PASS. [GitHub Actions #36193825123](https://github.com/cristianuis/ADAPTA-PROCESS/actions/runs/36193825123) terminó **Success** con `RUN_RLS_INTEGRATION=1` y Supabase efímero: aplica 0001–0026 y ejecuta las 16 integraciones, incluida la prueba negativa de Storage. Los 16 SKIP locales no se contabilizan como PASS locales; sí fueron ejecutados en CI. Esto no equivale a staging hospedado ni a E2E de producto.
 
@@ -26,7 +26,7 @@ Verificación local del incremento: `npm test` **149 PASS / 16 SKIP** (los SKIP 
 | Seguridad multiempresa / RBAC | FAIL | Solo existe consultor administrador global; no hay membresías/roles por organización |
 | RLS entre organizaciones | PARTIAL | CI aislado comprobó clientes, proyectos, iniciativas, RPCs y binarios de informes con dos consultores; faltan seis roles, matriz A/B exhaustiva en todas las entidades y tenant organizacional real |
 | Integración Supabase | PARTIAL | 16 integraciones reales pasaron en Supabase efímero en CI #36193825123; falta staging hospedado persistente, seed y recorrido completo |
-| Staging hospedado | FAIL | Verificado en dashboard 2026-09-26: la organización Free usa sus 2 proyectos activos y bloquea crear un tercero. El proyecto ADAPTA OS ofrece branching solo tras upgrade a Pro; el branch de vista previa cuesta desde USD 0.01344/h y la documentación advierte que ese uso no está cubierto por el spend cap. Los branches son data-less por defecto (sin filas ni objetos Storage de producción). No se creó un branch, no se actualizó el plan ni se incurrieron costos. |
+| Staging hospedado | PARTIAL | La organización Free usa sus 2 proyectos activos; el panel exige Pro para branching y el cómputo de preview branch se factura por hora. No es necesario para un piloto consultor/una empresa si el recorrido E2E completo corre en CI efímero. No se creó una rama ni se incurrieron costos. |
 | E2E automatizado | FAIL | No hay suite de navegador contra aplicación + Supabase test; tests unitarios no sustituyen E2E |
 | Autenticación, invitación y revocación | FAIL | Login privado del administrador; no hay invitación/roles de cliente ni prueba de desactivación/sesión revocada |
 | Auditoría y concurrencia | FAIL | No hay trazabilidad suficiente de cada acción sensible ni control de versión de todas las escrituras críticas |
@@ -66,11 +66,11 @@ La autorización debe ser *deny by default*: lectura/escritura distintas por tab
 
 ## Incidencias abiertas y secuencia de cierre
 
-1. P0: habilitar Supabase staging **separado**. La organización Free ya usa sus dos espacios de proyecto. La vía directa de proyecto nuevo exige pausar/eliminar otro proyecto; la vía branch desde ADAPTA OS es data-less por defecto, pero el panel exige Pro y factura cómputo desde USD 0.01344/h (el branching no está cubierto por Spend Cap). El propietario debe efectuar cualquier upgrade/pago; mientras tanto solo se usa CI efímero, que aplicó 0001–0026 y pasó las 16 integraciones. No aplicar 0025/0026 a producción ni reutilizar `.env.local` o datos productivos.
-2. P0: ejecutar el caso sintético completo, corregir bloqueos funcionales, introducir repositorio documental privado mínimo y capturar una prueba de restauración que incluya los binarios.
+1. P0: completar el recorrido sintético de la aplicación contra Supabase efímero en CI; ahí se deben aplicar 0001–0026, crear empresa/proyecto, persistir entrevista/hallazgo/proceso/diagnóstico/TO-BE/roadmap/KPI y producir/recuperar el Informe 360. No usar `.env.local` ni datos productivos para automatización.
+2. P0: corregir bloqueos del recorrido, introducir repositorio documental privado mínimo para soportar evidencia empresarial y capturar prueba de restauración de base y archivos.
 3. P0: asegurar integridad transaccional y optimismo/concurrencia en iniciativas, validación IA, TO-BE y entregables; verificar con dos sesiones.
-4. P0 para acceso cliente: modelo de organización/membresía `owner`, `consultant`, `client_admin`, `process_owner`, `collaborator`, `viewer`, RLS de todas las entidades y Storage. Aplicar primero en staging y someter a pruebas negativas A/B antes de producción.
-5. P1: auditoría de acciones sensibles, revocación/invitación/desactivación, recuperación de borrados, suite E2E de navegador y prueba con primera empresa acompañada.
+4. P0 para acceso cliente, posterior al piloto: modelo de organización/membresía `owner`, `consultant`, `client_admin`, `process_owner`, `collaborator`, `viewer`, RLS de todas las entidades y Storage. Aplicar primero en staging y someter a pruebas negativas A/B antes de producción.
+5. P1 para el piloto consultor: auditoría suficiente de acciones sensibles, restauración verificada de informes y archivos, suite E2E de navegador y luego ejecución acompañada con la primera empresa.
 
 ## Riesgos residuales
 
