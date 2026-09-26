@@ -2,6 +2,8 @@
 
 Fecha de corte: 2026-09-26. Fuente: código, migraciones, pruebas, panel Supabase y `NEXUS_AUDITORIA_PRODUCTO_2026-09-25.md`. Estado general: **NO READY FOR PILOT** y **NO READY FOR CLIENT ACCESS**. PASS significa prueba ejecutada y evidencia observable; un diseño o una prueba omitida no es PASS.
 
+ADAPTA OS y NEXUS IA PROCESS son el mismo producto. En Supabase, el proyecto ADAPTA OS está en la rama `main / PRODUCTION`; staging sería el mismo producto y código conectado a una base aislada, no una aplicación distinta.
+
 Verificación local del incremento: `npm test` **149 PASS / 16 SKIP** (los SKIP requieren Supabase real); `npm run lint` y `npm run build` PASS. [GitHub Actions #36193825123](https://github.com/cristianuis/ADAPTA-PROCESS/actions/runs/36193825123) terminó **Success** con `RUN_RLS_INTEGRATION=1` y Supabase efímero: aplica 0001–0026 y ejecuta las 16 integraciones, incluida la prueba negativa de Storage. Los 16 SKIP locales no se contabilizan como PASS locales; sí fueron ejecutados en CI. Esto no equivale a staging hospedado ni a E2E de producto.
 
 ## Umbrales innegociables
