@@ -27,7 +27,7 @@ Verificación local del incremento: `npm test` **149 PASS / 16 SKIP** (los SKIP 
 | RLS entre organizaciones | PARTIAL | CI aislado comprobó clientes, proyectos, iniciativas, RPCs y binarios de informes con dos consultores; faltan seis roles, matriz A/B exhaustiva en todas las entidades y tenant organizacional real |
 | Integración Supabase | PARTIAL | 16 integraciones reales pasaron en Supabase efímero en CI #36193825123; falta staging hospedado persistente, seed y recorrido completo |
 | Staging hospedado | PARTIAL | La organización Free usa sus 2 proyectos activos; el panel exige Pro para branching y el cómputo de preview branch se factura por hora. No es necesario para un piloto consultor/una empresa si el recorrido E2E completo corre en CI efímero. No se creó una rama ni se incurrieron costos. |
-| E2E automatizado | FAIL | No hay suite de navegador contra aplicación + Supabase test; tests unitarios no sustituyen E2E |
+| E2E automatizado | PARTIAL | Se añadió un recorrido de navegador para login de consultor sintético → alta de empresa → proyecto contra Supabase efímero; pendiente su primera ejecución verde en CI. No cubre aún entrevista a informe 360 ni cuenta como E2E completo |
 | Autenticación, invitación y revocación | FAIL | Login privado del administrador; no hay invitación/roles de cliente ni prueba de desactivación/sesión revocada |
 | Auditoría y concurrencia | FAIL | No hay trazabilidad suficiente de cada acción sensible ni control de versión de todas las escrituras críticas |
 | Backup de base | PARTIAL | Workflow cifra dump y restaura esquema/datos en Postgres temporal; falta evidencia de ejecución actual y prueba de recuperación del servicio completo |
@@ -36,7 +36,7 @@ Verificación local del incremento: `npm test` **149 PASS / 16 SKIP** (los SKIP 
 | Evidencia/IA/economía sin certeza falsa | PARTIAL | Citas IA filtradas y revisión humana; se corrigió puerta de informe y texto de validación de cliente; otras referencias siguen siendo manuales |
 | Experiencia de cliente | FAIL | Portal e identidad de cliente no implementados; no debe habilitarse acceso todavía |
 
-## Caso E2E sintético obligatorio, aún NO ejecutado
+## Caso E2E sintético completo, aún NO ejecutado
 
 Empresa ficticia: **Operadora Nómada S.A.S.**, sin datos de personas reales. Problema: solicitudes de servicio se duplican entre correo y hoja de cálculo; proceso de recepción y asignación. Dos usuarios sintéticos de organizaciones A/B deberán demostrar que B no ve nada de A. El caso A debe crear empresa, intervención, documento de procedimiento, dos entrevistas, hallazgo con cita cotejada, SIPOC y actividades con RACI, PEMM con respaldo, riesgo/causa, oportunidad, TO-BE soportado, iniciativa/acciones, indicador de tiempo de ciclo (`menor_es_mejor`), línea base y seguimiento, DOCX final y descarga. Se debe comprobar cada lectura tras escribir, invalidar sesión y repetir una URL/API directa. Los módulos inexistentes arriba son rupturas conocidas: no se saltarán para llamar E2E al resultado.
 
@@ -66,11 +66,11 @@ La autorización debe ser *deny by default*: lectura/escritura distintas por tab
 
 ## Incidencias abiertas y secuencia de cierre
 
-1. P0: completar el recorrido sintético de la aplicación contra Supabase efímero en CI; ahí se deben aplicar 0001–0026, crear empresa/proyecto, persistir entrevista/hallazgo/proceso/diagnóstico/TO-BE/roadmap/KPI y producir/recuperar el Informe 360. No usar `.env.local` ni datos productivos para automatización.
+1. P0: verificar en CI el E2E inicial de login y alta; luego completar el recorrido sintético contra Supabase efímero: aplicar 0001–0026, persistir entrevista/hallazgo/proceso/diagnóstico/TO-BE/roadmap/KPI y producir/recuperar el Informe 360. No usar `.env.local` ni datos productivos para automatización.
 2. P0: corregir bloqueos del recorrido, introducir repositorio documental privado mínimo para soportar evidencia empresarial y capturar prueba de restauración de base y archivos.
 3. P0: asegurar integridad transaccional y optimismo/concurrencia en iniciativas, validación IA, TO-BE y entregables; verificar con dos sesiones.
 4. P0 para acceso cliente, posterior al piloto: modelo de organización/membresía `owner`, `consultant`, `client_admin`, `process_owner`, `collaborator`, `viewer`, RLS de todas las entidades y Storage. Aplicar primero en staging y someter a pruebas negativas A/B antes de producción.
-5. P1 para el piloto consultor: auditoría suficiente de acciones sensibles, restauración verificada de informes y archivos, suite E2E de navegador y luego ejecución acompañada con la primera empresa.
+5. P1 para el piloto consultor: auditoría suficiente de acciones sensibles, restauración verificada de informes y archivos, E2E completo de navegador y luego ejecución acompañada con la primera empresa.
 
 ## Riesgos residuales
 

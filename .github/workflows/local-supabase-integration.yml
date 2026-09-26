@@ -36,6 +36,17 @@ jobs:
           echo "TEST_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
           echo "TEST_SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
           echo "TEST_SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" >> "$GITHUB_ENV"
+          echo "TEST_SUPABASE_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres" >> "$GITHUB_ENV"
+          echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
           echo "RUN_RLS_INTEGRATION=1" >> "$GITHUB_ENV"
       - name: RLS/RPC con Auth, PostgREST y Storage reales
         run: npm test
+      - name: Instalar Chromium para E2E
+        run: npx playwright install --with-deps chromium
+      - name: Crear cuenta consultor sintética solo en Supabase local
+        run: node scripts/bootstrap-e2e.mjs
+      - name: Compilar la aplicación conectada a Supabase efímero
+        run: npm run build
+      - name: Alta web de empresa y proyecto con navegador real
+        run: npm run test:e2e
