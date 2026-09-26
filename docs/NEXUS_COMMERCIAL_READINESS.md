@@ -1,6 +1,6 @@
 # NEXUS IA PROCESS — Commercial Readiness / Production Hardening
 
-Fecha de corte: 2026-09-25. Fuente: código, migraciones, pruebas y `NEXUS_AUDITORIA_PRODUCTO_2026-09-25.md`. Estado general: **NO READY FOR PILOT** y **NO READY FOR CLIENT ACCESS**. PASS significa prueba ejecutada y evidencia observable; un diseño o una prueba omitida no es PASS.
+Fecha de corte: 2026-09-26. Fuente: código, migraciones, pruebas, panel Supabase y `NEXUS_AUDITORIA_PRODUCTO_2026-09-25.md`. Estado general: **NO READY FOR PILOT** y **NO READY FOR CLIENT ACCESS**. PASS significa prueba ejecutada y evidencia observable; un diseño o una prueba omitida no es PASS.
 
 Verificación local del incremento: `npm test` **149 PASS / 16 SKIP** (los SKIP requieren Supabase real); `npm run lint` y `npm run build` PASS. [GitHub Actions #36193825123](https://github.com/cristianuis/ADAPTA-PROCESS/actions/runs/36193825123) terminó **Success** con `RUN_RLS_INTEGRATION=1` y Supabase efímero: aplica 0001–0026 y ejecuta las 16 integraciones, incluida la prueba negativa de Storage. Los 16 SKIP locales no se contabilizan como PASS locales; sí fueron ejecutados en CI. Esto no equivale a staging hospedado ni a E2E de producto.
 
@@ -24,6 +24,7 @@ Verificación local del incremento: `npm test` **149 PASS / 16 SKIP** (los SKIP 
 | Seguridad multiempresa / RBAC | FAIL | Solo existe consultor administrador global; no hay membresías/roles por organización |
 | RLS entre organizaciones | PARTIAL | CI aislado comprobó clientes, proyectos, iniciativas, RPCs y binarios de informes con dos consultores; faltan seis roles, matriz A/B exhaustiva en todas las entidades y tenant organizacional real |
 | Integración Supabase | PARTIAL | 16 integraciones reales pasaron en Supabase efímero en CI #36193825123; falta staging hospedado persistente, seed y recorrido completo |
+| Staging hospedado | FAIL | Verificado en dashboard 2026-09-26: organización Free con 2 de 2 proyectos activos; Supabase deshabilita crear otro proyecto. Liberar cupo requiere pausar/eliminar otro proyecto o actualizar el plan. No se afectó ningún proyecto ni se incurrió en costos. |
 | E2E automatizado | FAIL | No hay suite de navegador contra aplicación + Supabase test; tests unitarios no sustituyen E2E |
 | Autenticación, invitación y revocación | FAIL | Login privado del administrador; no hay invitación/roles de cliente ni prueba de desactivación/sesión revocada |
 | Auditoría y concurrencia | FAIL | No hay trazabilidad suficiente de cada acción sensible ni control de versión de todas las escrituras críticas |
@@ -63,7 +64,7 @@ La autorización debe ser *deny by default*: lectura/escritura distintas por tab
 
 ## Incidencias abiertas y secuencia de cierre
 
-1. P0: conseguir Supabase staging **separado** y persistente, aplicar 0001–0026 en orden, crear bootstrap administrativo sintético y ejecutar integración/E2E. El CI efímero ya aplicó 0001–0026 y pasó las 16 integraciones. No aplicar 0025/0026 a producción antes de pasar staging. No reutilizar `.env.local` ni datos de producción.
+1. P0: habilitar Supabase staging **separado** y persistente. La organización Free ya usa sus dos espacios de proyecto y el panel bloquea uno nuevo. Resolver el cupo requiere que el propietario decida pausar/eliminar un proyecto existente (posible interrupción) o autorizar un plan con costo. Hasta entonces, usar solo el CI efímero, que ya aplicó 0001–0026 y pasó las 16 integraciones. No aplicar 0025/0026 a producción ni reutilizar `.env.local` o datos productivos.
 2. P0: ejecutar el caso sintético completo, corregir bloqueos funcionales, introducir repositorio documental privado mínimo y capturar una prueba de restauración que incluya los binarios.
 3. P0: asegurar integridad transaccional y optimismo/concurrencia en iniciativas, validación IA, TO-BE y entregables; verificar con dos sesiones.
 4. P0 para acceso cliente: modelo de organización/membresía `owner`, `consultant`, `client_admin`, `process_owner`, `collaborator`, `viewer`, RLS de todas las entidades y Storage. Aplicar primero en staging y someter a pruebas negativas A/B antes de producción.
