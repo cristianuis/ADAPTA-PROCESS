@@ -50,3 +50,6 @@ jobs:
         run: npm run build
       - name: Alta web de empresa y proyecto con navegador real
         run: npm run test:e2e
+      - name: Resumir errores E2E sintéticos
+        if: always()
+        run: node scripts/summarize-e2e.mjs

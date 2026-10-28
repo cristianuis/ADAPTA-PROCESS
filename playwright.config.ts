@@ -6,7 +6,9 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   workers: 1,
-  reporter: "list",
+  reporter: process.env.CI
+    ? [["list"], ["json", { outputFile: "test-results/e2e-report.json" }]]
+    : "list",
   use: {
     ...devices["Desktop Chrome"],
     baseURL: "http://127.0.0.1:3000",
