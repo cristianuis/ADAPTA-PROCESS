@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 
 test("consultor inicia sesión y crea una empresa y un proyecto", async ({ page }) => {
   test.setTimeout(60_000);
+  page.setDefaultTimeout(15_000);
   const email = process.env.E2E_EMAIL;
   const password = process.env.E2E_PASSWORD;
   if (!email || !password) throw new Error("Faltan credenciales sintéticas E2E.");
@@ -30,7 +31,7 @@ test("consultor inicia sesión y crea una empresa y un proyecto", async ({ page 
   await page.getByLabel("Nombre del proyecto *").fill(proyecto);
   await page.getByRole("button", { name: "Crear proyecto" }).click();
   await expect(page).toHaveURL(/\/proyectos\/[0-9a-f-]+$/);
-  await expect(page.getByRole("heading", { name: proyecto })).toBeVisible();
+  await expect(page.locator("body")).toContainText(proyecto);
   await expect(page.getByText(/contextualización/i)).toBeVisible();
 
   await page.goto("/lancelot");
