@@ -41,7 +41,12 @@ export default async function ProyectoDetallePage({
   const proyectoResult = await obtenerProyecto(proyectoId).catch((error: unknown) => {
     console.error("[project-detail:proyecto]", error);
     if (process.env.NEXUS_E2E_DIAGNOSTICS === "1") {
-      return { e2eDiagnostic: "proyecto" } as const;
+      const cause = error instanceof Error ? error.cause : undefined;
+      const details =
+        cause && typeof cause === "object" && "code" in cause
+          ? ` (${String(cause.code)}: ${"message" in cause ? String(cause.message).slice(0, 180) : "error de consulta"})`
+          : "";
+      return { e2eDiagnostic: `proyecto${details}` } as const;
     }
     throw error;
   });

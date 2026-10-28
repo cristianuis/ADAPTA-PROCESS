@@ -35,7 +35,9 @@ export async function obtenerProyecto(proyectoId: string) {
     .eq("consultor_id", consultor.id)
     .maybeSingle();
 
-  if (error) throw new Error("No se pudo consultar el proyecto.");
+  if (error) {
+    throw new Error("No se pudo consultar el proyecto.", { cause: error });
+  }
   return data;
 }
 
