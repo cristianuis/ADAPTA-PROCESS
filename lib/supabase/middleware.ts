@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/login", "/encuesta", "/herramientas", "/diagnostico", "/consultoria", "/opengraph-image"];
+const PUBLIC_PATHS = ["/login", "/auth/callback", "/recuperar-contrasena", "/encuesta", "/herramientas", "/diagnostico", "/consultoria", "/opengraph-image"];
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -33,7 +33,7 @@ export async function updateSession(request: NextRequest) {
   // no volver público accidentalmente todo lo demás (todo path empieza por "/").
   const isPublicPath =
     request.nextUrl.pathname === "/" ||
-    PUBLIC_PATHS.some((path) => request.nextUrl.pathname.startsWith(path));
+    PUBLIC_PATHS.some((path) => request.nextUrl.pathname === path || request.nextUrl.pathname.startsWith(`${path}/`));
 
   if (!user && !isPublicPath) {
     const loginUrl = request.nextUrl.clone();

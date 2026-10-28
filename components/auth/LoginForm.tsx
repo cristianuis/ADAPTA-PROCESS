@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,18 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [cargando, setCargando] = useState(false);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("password-reset") === "success") {
+      toast.success("Contraseña actualizada. Ya puedes iniciar sesión.");
+      window.history.replaceState(null, "", window.location.pathname);
+      return;
+    }
+    if (params.get("error") !== "auth-callback") return;
+    toast.error("El acceso no pudo validarse. Inicia sesión o solicita un nuevo restablecimiento.");
+    window.history.replaceState(null, "", window.location.pathname);
+  }, []);
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setCargando(true);
@@ -30,26 +42,6 @@ export function LoginForm() {
 
     router.refresh();
     router.push("/lancelot");
-  }
-
-  async function handleMagicLink() {
-    if (!email) {
-      toast.error("Escribe tu correo primero.");
-      return;
-    }
-
-    setCargando(true);
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { shouldCreateUser: false },
-    });
-    setCargando(false);
-
-    if (error) {
-      toast.error("Este correo no tiene acceso asignado.");
-      return;
-    }
-    toast.success("Revisa tu correo — te enviamos un enlace de acceso.");
   }
 
   return (
@@ -88,15 +80,9 @@ export function LoginForm() {
           <Button type="submit" disabled={cargando}>
             Iniciar sesión
           </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            disabled={cargando}
-            onClick={handleMagicLink}
-          >
-            Enviarme un enlace mágico
-          </Button>
+          <Link href="/recuperar-contrasena" className="text-center text-sm text-primary underline underline-offset-4">
+            ¿Olvidaste tu contraseña?
+          </Link>
           <p className="text-center text-xs leading-5 text-muted-foreground">
             No hay registro público ni portal de cliente habilitado todavía.
           </p>
