@@ -18,7 +18,7 @@ test("consultor inicia sesión y crea una empresa y un proyecto", async ({ page 
 
   await page.goto("/clientes/nuevo");
   await page.getByLabel("Razón social *").fill(empresa);
-  await page.getByLabel("Sector").fill("Servicios empresariales");
+  await page.getByLabel("Sector", { exact: true }).fill("Servicios empresariales");
   await page.getByRole("button", { name: "Crear cliente" }).click();
   await expect(page).toHaveURL(/\/clientes\/[0-9a-f-]+$/);
   await expect(page.getByRole("heading", { name: empresa })).toBeVisible();
