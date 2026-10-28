@@ -41,18 +41,30 @@ export default async function ProyectoDetallePage({
   const proyecto = await obtenerProyecto(proyectoId);
   if (!proyecto) notFound();
 
-  const [triage, entregables, evaluacionesPemm, entrevistas, hallazgos, procesos, auditorias, personasRegistradas, planMejora] =
-    await Promise.all([
-      obtenerTriage(proyectoId),
-      listarEntregables(proyectoId),
-      listarEvaluacionesPemm(proyectoId),
-      listarEntrevistas(proyectoId),
-      listarHallazgos(proyectoId),
-      listarProcesos(proyectoId),
-      listarAuditorias(proyectoId),
-      listarEntrevistadosRegistrados(proyectoId),
-      obtenerPlanMejora(proyectoId),
-    ]);
+  const withQueryLabel = async <T,>(label: string, query: Promise<T>) =>
+    query.catch((error: unknown) => {
+      console.error(`[project-detail:${label}]`, error);
+      throw Object.assign(new Error(label), { cause: error });
+    });
+  const initialData = await Promise.all([
+    withQueryLabel("triage", obtenerTriage(proyectoId)),
+    withQueryLabel("entregables", listarEntregables(proyectoId)),
+    withQueryLabel("PEMM", listarEvaluacionesPemm(proyectoId)),
+    withQueryLabel("entrevistas", listarEntrevistas(proyectoId)),
+    withQueryLabel("hallazgos", listarHallazgos(proyectoId)),
+    withQueryLabel("procesos", listarProcesos(proyectoId)),
+    withQueryLabel("auditorías", listarAuditorias(proyectoId)),
+    withQueryLabel("personas entrevistadas", listarEntrevistadosRegistrados(proyectoId)),
+    withQueryLabel("plan de mejora", obtenerPlanMejora(proyectoId)),
+  ]).catch((error: unknown) => {
+    const failedQuery = error instanceof Error ? error.message : "desconocida";
+    if (process.env.NEXUS_E2E_DIAGNOSTICS === "1") {
+      return { error: failedQuery } as const;
+    }
+    throw error;
+  });
+  if ("error" in initialData) return <div role="alert">E2E diagnostic: consulta fallida: {initialData.error}</div>;
+  const [triage, entregables, evaluacionesPemm, entrevistas, hallazgos, procesos, auditorias, personasRegistradas, planMejora] = initialData;
 
   // La misma evidencia de proceso alimenta el recorrido y la ficha detallada.
   const procesosCriticos = procesos.filter((p) => p.dueno_nombre);

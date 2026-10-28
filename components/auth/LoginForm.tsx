@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,13 @@ export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [cargando, setCargando] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("error") !== "magic-link") return;
+    toast.error("El enlace no pudo validarse. Solicita uno nuevo desde este sitio.");
+    window.history.replaceState(null, "", window.location.pathname);
+  }, []);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -41,12 +48,15 @@ export function LoginForm() {
     setCargando(true);
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: false },
+      options: {
+        shouldCreateUser: false,
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
     });
     setCargando(false);
 
     if (error) {
-      toast.error("Este correo no tiene acceso asignado.");
+      toast.error("No pudimos enviar el enlace. Verifica el correo autorizado y la URL de retorno de Supabase.");
       return;
     }
     toast.success("Revisa tu correo — te enviamos un enlace de acceso.");

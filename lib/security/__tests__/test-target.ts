@@ -1,6 +1,16 @@
 /** Las pruebas de integración pueden crear usuarios y borrar fixtures.
  * Nunca heredan las credenciales de la aplicación. */
-export function obtenerSupabaseDePruebas(env: NodeJS.ProcessEnv = process.env) {
+type VariablesEntornoPrueba = {
+  TEST_SUPABASE_URL?: string;
+  TEST_SUPABASE_ANON_KEY?: string;
+  TEST_SUPABASE_SERVICE_ROLE_KEY?: string;
+  TEST_SUPABASE_PROJECT_REF?: string;
+  NEXT_PUBLIC_SUPABASE_URL?: string;
+};
+
+export function obtenerSupabaseDePruebas(
+  env: VariablesEntornoPrueba = process.env as VariablesEntornoPrueba
+) {
   const url = env.TEST_SUPABASE_URL;
   const anonKey = env.TEST_SUPABASE_ANON_KEY;
   const serviceRoleKey = env.TEST_SUPABASE_SERVICE_ROLE_KEY;

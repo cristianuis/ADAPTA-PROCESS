@@ -46,6 +46,8 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Crear cuenta consultor sintética solo en Supabase local
         run: node scripts/bootstrap-e2e.mjs
+      - name: Habilitar diagnóstico de consultas solo en la prueba sintética
+        run: echo "NEXUS_E2E_DIAGNOSTICS=1" >> "$GITHUB_ENV"
       - name: Compilar la aplicación conectada a Supabase efímero
         run: npm run build
       - name: Alta web de empresa y proyecto con navegador real

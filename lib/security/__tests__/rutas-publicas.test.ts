@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { esRutaPublica } from "../rutas-publicas";
 
 describe("rutas públicas", () => {
-  it.each(["/", "/login", "/diagnostico", "/encuesta/pemm/token", "/encuesta/proceso/token"])("permite %s", (ruta) => {
+  it.each(["/", "/login", "/auth/callback", "/diagnostico", "/encuesta/pemm/token", "/encuesta/proceso/token"])("permite %s", (ruta) => {
     expect(esRutaPublica(ruta)).toBe(true);
   });
 
