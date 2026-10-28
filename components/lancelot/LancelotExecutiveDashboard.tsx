@@ -1,6 +1,8 @@
 import { ArrowUpRight, BriefcaseBusiness, Check, CircleDashed, Target } from "lucide-react";
 import Link from "next/link";
 import { PASOS_RECORRIDO } from "@/lib/proyectos/recorrido-guiado";
+import { derivarFaseMetodologica } from "@/lib/proyectos/fase-metodologica";
+import { FASES_ORDEN, FASE_LABEL } from "@/components/proyectos/FaseBadge";
 import { SPACING_SCALE, TYPE_SCALE } from "@/lib/design/tokens";
 import type { ProyectoGuia } from "@/lib/lancelot/siguiente-accion";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,6 +20,8 @@ export function LancelotExecutiveDashboard({ proyectos, proyectoId, empresasSinP
   const porcentaje = proyecto ? Math.round((pasosCompletos / totalPasos) * 100) : 0;
   const circunferencia = 2 * Math.PI * 48;
   const clientesActivos = new Set(proyectos.map((item) => item.clienteId)).size + empresasSinProyecto;
+  const faseActual = proyecto ? derivarFaseMetodologica(proyecto.completitud) : null;
+  const indiceFase = faseActual ? FASES_ORDEN.indexOf(faseActual) : -1;
 
   return (
     <section aria-labelledby="panel-consultoria" className={`flex flex-col ${SPACING_SCALE.lg}`}>
@@ -127,7 +131,34 @@ export function LancelotExecutiveDashboard({ proyectos, proyectoId, empresasSinP
       </div>
 
       {proyecto && (
-        <Card className="border-border/80">
+        <Card className="overflow-hidden border-primary/15 bg-gradient-to-br from-card via-card to-secondary/[0.08]">
+          <CardContent className="border-b border-border/70 p-4 sm:p-5">
+            <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <h3 className="text-sm font-semibold">Fase metodológica</h3>
+                <p className="mt-1 text-xs text-muted-foreground">Derivada automáticamente del primer hito pendiente.</p>
+              </div>
+              {faseActual && <span className="text-sm font-semibold text-primary">{FASE_LABEL[faseActual]}</span>}
+            </div>
+            <ol className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6" aria-label="Progreso por fases metodológicas">
+              {FASES_ORDEN.map((fase, index) => {
+                const faseCompleta = index < indiceFase;
+                const faseActiva = index === indiceFase;
+                return (
+                  <li key={fase} aria-current={faseActiva ? "step" : undefined} className="min-w-0">
+                    <div className={`h-1.5 overflow-hidden rounded-full ${faseCompleta ? "bg-success" : faseActiva ? "bg-primary" : "bg-muted"}`}>
+                      {faseActiva && (
+                        <div className="h-full w-2/3 rounded-full bg-secondary transition-[width] duration-700 motion-reduce:transition-none" />
+                      )}
+                    </div>
+                    <p className={`mt-2 truncate text-xs ${faseActiva ? "font-semibold text-primary" : faseCompleta ? "font-medium text-success" : "text-muted-foreground"}`}>
+                      {FASE_LABEL[fase]}
+                    </p>
+                  </li>
+                );
+              })}
+            </ol>
+          </CardContent>
           <CardContent className="p-4 sm:p-5">
             <div className="mb-4 flex items-center justify-between gap-3">
               <div>
