@@ -36,7 +36,7 @@ Verificación local del incremento: `npm test` **149 PASS / 16 SKIP** (los SKIP 
 | Evidencia/IA/economía sin certeza falsa | PARTIAL | Citas IA filtradas y revisión humana; se corrigió puerta de informe y texto de validación de cliente; otras referencias siguen siendo manuales |
 | Experiencia de cliente | FAIL | Portal e identidad de cliente no implementados; no debe habilitarse acceso todavía |
 
-El panel principal de NEXUS se reforzó para demostración del consultor con avance calculado desde los 12 criterios persistidos, hitos individuales, cartera activa y prioridad actual. No contiene datos ficticios ni ejecuta IA automáticamente; el usuario activa el apoyo de NEXUS al pulsar el botón de preparación. La suite de navegador ahora comprueba también que el panel se actualiza al crear una intervención; su ejecución verde en CI sigue pendiente.
+El panel principal de NEXUS se reforzó para demostración del consultor con anillo de avance de los 12 criterios persistidos, fases metodológicas derivadas, hitos individuales, cartera activa y prioridad actual. El color sigue los tokens/estados de la marca y se adapta al completar hitos. No contiene datos ficticios, no inventa tendencias y no ejecuta IA automáticamente; el usuario activa el apoyo de NEXUS al pulsar el botón de preparación. La suite de navegador comprueba también el panel tras crear una intervención; su ejecución verde en CI sigue pendiente.
 
 ## Caso E2E sintético completo, aún NO ejecutado
 

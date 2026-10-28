@@ -46,17 +46,25 @@ export function LancelotExecutiveDashboard({ proyectos, proyectoId, empresasSinP
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(17rem,0.8fr)]">
-        <Card className="overflow-hidden border-primary/20 bg-gradient-to-br from-card via-card to-primary/[0.06] shadow-sm">
+        <Card className="overflow-hidden border-primary bg-gradient-to-br from-primary via-primary to-primary/85 text-primary-foreground shadow-lg shadow-primary/10">
           <CardContent className="grid gap-5 p-5 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center sm:p-6">
-            <div className="relative mx-auto size-32 sm:mx-0" role="img" aria-label={proyecto ? `Avance ${porcentaje}%` : "Sin intervención seleccionada"}>
+            <div
+              className="relative mx-auto size-32 sm:mx-0"
+              role="progressbar"
+              aria-label={proyecto ? `Avance de ${proyecto.cliente}` : "Avance de intervención"}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={porcentaje}
+              aria-valuetext={proyecto ? `${pasosCompletos} de ${totalPasos} hitos completados` : "Selecciona una intervención"}
+            >
               <svg viewBox="0 0 112 112" className="size-full -rotate-90" role="img" aria-hidden="true">
-                <circle cx="56" cy="56" r="48" fill="none" stroke="var(--muted)" strokeWidth="9" />
+                <circle cx="56" cy="56" r="48" fill="none" stroke="var(--primary-foreground)" strokeOpacity="0.18" strokeWidth="9" />
                 <circle
                   cx="56"
                   cy="56"
                   r="48"
                   fill="none"
-                  stroke="var(--primary)"
+                  stroke="var(--secondary)"
                   strokeLinecap="round"
                   strokeWidth="9"
                   strokeDasharray={circunferencia}
@@ -66,32 +74,32 @@ export function LancelotExecutiveDashboard({ proyectos, proyectoId, empresasSinP
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className="text-3xl font-semibold tabular-nums">{proyecto ? `${porcentaje}%` : "—"}</span>
-                <span className="text-[11px] text-muted-foreground">avance real</span>
+                <span className="text-[11px] text-primary-foreground/70">avance real</span>
               </div>
             </div>
 
             <div className="min-w-0">
               <div className="flex items-center gap-2 text-sm font-semibold">
-                <Target className="size-4 text-primary" />
+                <Target className="size-4 text-secondary" />
                 {proyecto ? "Recorrido metodológico" : "Selecciona una intervención"}
               </div>
               {proyecto ? (
                 <>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  <p className="mt-2 text-sm leading-6 text-primary-foreground/75">
                     {pasosCompletos} de {totalPasos} hitos registrados. El siguiente paso se calcula con la información guardada, no con una estimación.
                   </p>
                   <div className="mt-4 flex items-center gap-3">
-                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted" aria-hidden="true">
+                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-primary-foreground/15" aria-hidden="true">
                       <div
-                        className="h-full rounded-full bg-primary transition-[width] duration-700 motion-reduce:transition-none"
+                        className="h-full rounded-full bg-secondary transition-[width] duration-700 motion-reduce:transition-none"
                         style={{ width: `${porcentaje}%` }}
                       />
                     </div>
-                    <span className="text-xs font-medium tabular-nums text-muted-foreground">{pasosCompletos}/{totalPasos}</span>
+                    <span className="text-xs font-medium tabular-nums text-primary-foreground/75">{pasosCompletos}/{totalPasos}</span>
                   </div>
                 </>
               ) : (
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                <p className="mt-2 text-sm leading-6 text-primary-foreground/75">
                   Elige una empresa arriba para ver su avance, los hitos realizados y el siguiente movimiento recomendado.
                 </p>
               )}
