@@ -38,7 +38,17 @@ export default async function ProyectoDetallePage({
   params: Promise<{ proyectoId: string }>;
 }) {
   const { proyectoId } = await params;
-  const proyecto = await obtenerProyecto(proyectoId);
+  const proyectoResult = await obtenerProyecto(proyectoId).catch((error: unknown) => {
+    console.error("[project-detail:proyecto]", error);
+    if (process.env.NEXUS_E2E_DIAGNOSTICS === "1") {
+      return { e2eDiagnostic: "proyecto" } as const;
+    }
+    throw error;
+  });
+  if (proyectoResult && "e2eDiagnostic" in proyectoResult) {
+    return <div role="alert">E2E diagnostic: consulta fallida: {proyectoResult.e2eDiagnostic}</div>;
+  }
+  const proyecto = proyectoResult;
   if (!proyecto) notFound();
 
   const withQueryLabel = async <T,>(label: string, query: Promise<T>) =>

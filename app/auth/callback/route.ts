@@ -15,5 +15,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL("/login?error=magic-link", request.url));
   }
 
-  return NextResponse.redirect(new URL("/lancelot", request.url));
+  const next = request.nextUrl.searchParams.get("next");
+  const destination = next === "/restablecer-contrasena" ? next : "/lancelot";
+  return NextResponse.redirect(new URL(destination, request.url));
 }

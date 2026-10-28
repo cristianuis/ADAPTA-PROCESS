@@ -19,8 +19,13 @@ export function LoginForm() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    if (params.get("password-reset") === "success") {
+      toast.success("Contraseña actualizada. Ya puedes iniciar sesión.");
+      window.history.replaceState(null, "", window.location.pathname);
+      return;
+    }
     if (params.get("error") !== "magic-link") return;
-    toast.error("El enlace no pudo validarse. Solicita uno nuevo desde este sitio.");
+    toast.error("El enlace no pudo validarse. Solicita un nuevo restablecimiento.");
     window.history.replaceState(null, "", window.location.pathname);
   }, []);
 
@@ -37,29 +42,6 @@ export function LoginForm() {
 
     router.refresh();
     router.push("/lancelot");
-  }
-
-  async function handleMagicLink() {
-    if (!email) {
-      toast.error("Escribe tu correo primero.");
-      return;
-    }
-
-    setCargando(true);
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        shouldCreateUser: false,
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-    setCargando(false);
-
-    if (error) {
-      toast.error("No pudimos enviar el enlace. Verifica el correo autorizado y la URL de retorno de Supabase.");
-      return;
-    }
-    toast.success("Revisa tu correo — te enviamos un enlace de acceso.");
   }
 
   return (
@@ -98,15 +80,9 @@ export function LoginForm() {
           <Button type="submit" disabled={cargando}>
             Iniciar sesión
           </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            disabled={cargando}
-            onClick={handleMagicLink}
-          >
-            Enviarme un enlace mágico
-          </Button>
+          <Link href="/recuperar-contrasena" className="text-center text-sm text-primary underline underline-offset-4">
+            ¿Olvidaste tu contraseña?
+          </Link>
           <p className="text-center text-xs leading-5 text-muted-foreground">
             No hay registro público ni portal de cliente habilitado todavía.
           </p>
