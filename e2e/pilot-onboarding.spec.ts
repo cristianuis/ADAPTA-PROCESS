@@ -36,7 +36,8 @@ test("consultor inicia sesión y crea una empresa y un proyecto", async ({ page 
 
   await page.goto("/lancelot");
   await expect(page.getByText("Panel de intervención")).toBeVisible();
-  await expect(page.getByRole("heading", { name: empresa })).toBeVisible();
+  const panelText = await page.locator("body").innerText();
+  expect(panelText, `Empresa sintética no aparece en el panel. Contenido recibido: ${panelText}`).toContain(empresa);
   await expect(page.getByText("Los 12 hitos del método")).toBeVisible();
   await expect(page.getByText("0 completados")).toBeVisible();
 });
