@@ -41,6 +41,14 @@ const lines = [
 ];
 for (const test of failed) {
   lines.push(`\n### ${test.title}`, `Ubicación: \`${test.location}\``);
-  for (const message of test.messages) lines.push("", "```text", message.slice(0, 4000), "```");
+  for (const message of test.messages) {
+    lines.push("", "```text", message.slice(0, 4000), "```");
+    const annotation = message
+      .replaceAll("%", "%25")
+      .replaceAll("\r", "%0D")
+      .replaceAll("\n", "%0A")
+      .slice(0, 2000);
+    process.stdout.write(`::error title=Playwright E2E::${annotation}\n`);
+  }
 }
 appendFileSync(summaryPath, `${lines.join("\n")}\n`);
