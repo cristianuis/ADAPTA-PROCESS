@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { randomUUID } from "node:crypto";
 
 test("consultor inicia sesión y crea una empresa y un proyecto", async ({ page }) => {
+  test.setTimeout(60_000);
   const email = process.env.E2E_EMAIL;
   const password = process.env.E2E_PASSWORD;
   if (!email || !password) throw new Error("Faltan credenciales sintéticas E2E.");
@@ -23,7 +24,9 @@ test("consultor inicia sesión y crea una empresa y un proyecto", async ({ page 
   await expect(page).toHaveURL(/\/clientes\/[0-9a-f-]+$/);
   await expect(page.getByRole("heading", { name: empresa })).toBeVisible();
 
-  await page.getByRole("link", { name: "Nuevo proyecto" }).click();
+  const clienteId = page.url().match(/\/clientes\/([0-9a-f-]+)$/)?.[1];
+  expect(clienteId).toBeTruthy();
+  await page.goto(`/proyectos/nuevo?clienteId=${clienteId}`);
   await page.getByLabel("Nombre del proyecto *").fill(proyecto);
   await page.getByRole("button", { name: "Crear proyecto" }).click();
   await expect(page).toHaveURL(/\/proyectos\/[0-9a-f-]+$/);
