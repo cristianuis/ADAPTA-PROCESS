@@ -23,7 +23,7 @@ export async function obtenerGuiaLancelot(
       .order("created_at", { ascending: true }),
     supabase
       .from("proyectos")
-      .select("id, cliente_id, nombre, estado_comercial, created_at, clientes(razon_social)")
+      .select("id, cliente_id, nombre, estado_comercial, created_at, clientes!proyectos_cliente_id_fkey(razon_social)")
       .eq("consultor_id", consultor.id)
       .neq("estado_comercial", "cerrado"),
   ]);

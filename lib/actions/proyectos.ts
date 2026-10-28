@@ -17,7 +17,7 @@ export async function listarProyectos() {
 
   const { data } = await supabase
     .from("proyectos")
-    .select("*, clientes(razon_social)")
+    .select("*, clientes!proyectos_cliente_id_fkey(razon_social)")
     .eq("consultor_id", consultor.id)
     .order("created_at", { ascending: false });
 
@@ -30,7 +30,7 @@ export async function obtenerProyecto(proyectoId: string) {
 
   const { data, error } = await supabase
     .from("proyectos")
-    .select("*, clientes(id, razon_social)")
+    .select("*, clientes!proyectos_cliente_id_fkey(id, razon_social)")
     .eq("id", proyectoId)
     .eq("consultor_id", consultor.id)
     .maybeSingle();

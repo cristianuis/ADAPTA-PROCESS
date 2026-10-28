@@ -36,7 +36,7 @@ export async function guardarTriage(input: TriageFormInput) {
 
   const { data: proyecto } = await supabase
     .from("proyectos")
-    .select("clientes(num_empleados, facturacion_anual)")
+    .select("clientes!proyectos_cliente_id_fkey(num_empleados, facturacion_anual)")
     .eq("id", proyectoId)
     .maybeSingle();
 

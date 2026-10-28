@@ -15,7 +15,7 @@ export async function listarProyectosLancelot(): Promise<ProyectoLancelot[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("proyectos")
-    .select("id, nombre, estado_comercial, fase_metodologica, clientes(razon_social)")
+    .select("id, nombre, estado_comercial, fase_metodologica, clientes!proyectos_cliente_id_fkey(razon_social)")
     .eq("consultor_id", consultor.id)
     .neq("estado_comercial", "cerrado")
     .order("created_at", { ascending: false });
