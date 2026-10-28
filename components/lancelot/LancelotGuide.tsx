@@ -22,6 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { LancelotCompactBrief } from "@/components/lancelot/LancelotCompactBrief";
+import { LancelotExecutiveDashboard } from "@/components/lancelot/LancelotExecutiveDashboard";
 import type { GuiaLancelot } from "@/lib/lancelot/siguiente-accion";
 import { respuestaLancelotSchema } from "@/lib/lancelot/types";
 import type {
@@ -156,11 +157,11 @@ export function LancelotGuide({ guiaInicial, sesiones, sesionInicial }: Props) {
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
             <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary-foreground/65">
-              <Sparkles className="size-4" />Tu guía de trabajo
+              <Sparkles className="size-4" />NEXUS · Guía operativa
             </p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Haz esto ahora</h1>
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Tu consultoría, en movimiento</h1>
             <p className="mt-3 max-w-xl leading-7 text-primary-foreground/75">
-              Una empresa a la vez, un paso a la vez. NEXUS revisa lo que ya hiciste y te lleva al siguiente punto.
+              Una empresa a la vez. Revisa el avance, enfócate en el siguiente hito y conserva el control de cada decisión.
             </p>
           </div>
           {guia.proyectos.length > 0 && (
@@ -182,6 +183,12 @@ export function LancelotGuide({ guiaInicial, sesiones, sesionInicial }: Props) {
           )}
         </div>
       </section>
+
+      <LancelotExecutiveDashboard
+        proyectos={guia.proyectos}
+        proyectoId={accion.proyectoId}
+        empresasSinProyecto={guia.clientesSinProyecto.length}
+      />
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_18rem]">
         <Card className="overflow-hidden border-primary/25 shadow-sm">

@@ -36,6 +36,8 @@ Verificación local del incremento: `npm test` **149 PASS / 16 SKIP** (los SKIP 
 | Evidencia/IA/economía sin certeza falsa | PARTIAL | Citas IA filtradas y revisión humana; se corrigió puerta de informe y texto de validación de cliente; otras referencias siguen siendo manuales |
 | Experiencia de cliente | FAIL | Portal e identidad de cliente no implementados; no debe habilitarse acceso todavía |
 
+El panel principal de NEXUS se reforzó para demostración del consultor con avance calculado desde los 12 criterios persistidos, hitos individuales, cartera activa y prioridad actual. No contiene datos ficticios ni ejecuta IA automáticamente; el usuario activa el apoyo de NEXUS al pulsar el botón de preparación. La suite de navegador ahora comprueba también que el panel se actualiza al crear una intervención; su ejecución verde en CI sigue pendiente.
+
 ## Caso E2E sintético completo, aún NO ejecutado
 
 Empresa ficticia: **Operadora Nómada S.A.S.**, sin datos de personas reales. Problema: solicitudes de servicio se duplican entre correo y hoja de cálculo; proceso de recepción y asignación. Dos usuarios sintéticos de organizaciones A/B deberán demostrar que B no ve nada de A. El caso A debe crear empresa, intervención, documento de procedimiento, dos entrevistas, hallazgo con cita cotejada, SIPOC y actividades con RACI, PEMM con respaldo, riesgo/causa, oportunidad, TO-BE soportado, iniciativa/acciones, indicador de tiempo de ciclo (`menor_es_mejor`), línea base y seguimiento, DOCX final y descarga. Se debe comprobar cada lectura tras escribir, invalidar sesión y repetir una URL/API directa. Los módulos inexistentes arriba son rupturas conocidas: no se saltarán para llamar E2E al resultado.

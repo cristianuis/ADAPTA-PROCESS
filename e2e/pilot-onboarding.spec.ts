@@ -29,4 +29,10 @@ test("consultor inicia sesión y crea una empresa y un proyecto", async ({ page 
   await expect(page).toHaveURL(/\/proyectos\/[0-9a-f-]+$/);
   await expect(page.getByRole("heading", { name: proyecto })).toBeVisible();
   await expect(page.getByText(/contextualización/i)).toBeVisible();
+
+  await page.goto("/lancelot");
+  await expect(page.getByRole("heading", { name: "Panel de intervención" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: empresa })).toBeVisible();
+  await expect(page.getByText("Los 12 hitos del método")).toBeVisible();
+  await expect(page.getByText("0 completados")).toBeVisible();
 });
